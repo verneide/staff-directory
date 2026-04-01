@@ -43,6 +43,7 @@ class Ve_Staff_Admin {
 	 * @var      string
 	 */
 	private $version;
+	private $did_clear_related_transients = false;
 
 	/**
 	 * Initialize the class and set its properties, hooks, and schedules.
@@ -133,6 +134,7 @@ class Ve_Staff_Admin {
 		add_action( 'save_post', array( $this, 'handle_staff_post_update' ), 10, 3 );
 		add_action( 'wp', array( $this, 'schedule_staff_csv_updates' ) );
 		add_action( 'staff_generate_daily_updates_csv', array( $this, 'generate_daily_updates_csv' ) );
+		add_action( 've_staff_generate_csv_async', array( $this, 'process_scheduled_staff_csv_generation' ) );
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────────
@@ -234,6 +236,10 @@ class Ve_Staff_Admin {
 	private function clear_related_transients(): void {
 		global $wpdb;
 
+		if ( $this->did_clear_related_transients ) {
+			return;
+		}
+
 		$patterns = [
 			'_transient_simplelist_%',
 			'_transient_list_%',
@@ -247,24 +253,15 @@ class Ve_Staff_Admin {
 
 		$this->ve_log('🧹 Starting transient cleanup...');
 
-		$sql = "SELECT option_name FROM {$wpdb->options} WHERE " .
-			implode(' OR ', array_map(fn($p) => "option_name LIKE '$p'", $patterns));
+		$where = implode(' OR ', array_map(fn($p) => "option_name LIKE '$p' OR option_name LIKE '_transient_timeout_" . substr($p, strlen('_transient_')) . "'", $patterns));
+		$sql = "DELETE FROM {$wpdb->options} WHERE {$where}";
+		$deleted_rows = (int) $wpdb->query($sql);
 
-		$transients = $wpdb->get_col($sql);
-
-		if (!empty($transients)) {
-			$deleted = 0;
-			foreach ($transients as $transient) {
-				$key = str_replace('_transient_', '', $transient);
-				if (delete_transient($key)) {
-					$deleted++;
-					$this->ve_log("Deleted transient: {$key}");
-				}
-			}
-			$this->ve_log("✅ Transient cleanup complete — {$deleted} transients deleted.");
-		} else {
-			$this->ve_log('ℹ️ No matching transients found for cleanup.');
-		}
+		$this->did_clear_related_transients = true;
+		$this->ve_log($deleted_rows > 0
+			? "✅ Transient cleanup complete — {$deleted_rows} option rows deleted."
+			: 'ℹ️ No matching transients found for cleanup.'
+		);
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────────
@@ -432,6 +429,11 @@ class Ve_Staff_Admin {
 
 		$new_title = trim("{$first_name} {$last_name}" . ($title ? " | {$title}" : ''));
 
+		$current_title = get_post_field( 'post_title', $post_id );
+		if ( $current_title === $new_title ) {
+			return;
+		}
+
 		wp_update_post([
 			'ID'         => $post_id,
 			'post_title' => $new_title
@@ -455,6 +457,11 @@ class Ve_Staff_Admin {
 		}
 
 		$slug = sanitize_title("{$first_name} {$last_name}");
+
+		$current_slug = get_post_field( 'post_name', $post_id );
+		if ( $current_slug === $slug ) {
+			return;
+		}
 
 		wp_update_post([
 			'ID'        => $post_id,
@@ -590,6 +597,10 @@ class Ve_Staff_Admin {
 	}
 
 	public function delete_transients_on_post_update($post_id) {
+		if ( wp_is_post_autosave($post_id) || wp_is_post_revision($post_id) ) {
+			return;
+		}
+
 		$post = get_post($post_id);
 		if (!$post) return;
 
@@ -599,6 +610,10 @@ class Ve_Staff_Admin {
 	}
 
 	public function delete_transients_on_post_add($post_id, $post, $update) {
+		if ( $update || wp_is_post_autosave($post_id) || wp_is_post_revision($post_id) ) {
+			return;
+		}
+
 		if (in_array($post->post_type, ['staff', 'listing', 'simple-listing', 'display'])) {
 			$this->clear_related_transients();
 		}
@@ -2006,13 +2021,16 @@ class Ve_Staff_Admin {
 	}
 
 	public function handle_staff_post_update($post_id, $post, $update) {
-		if ($post->post_type === 'staff' && $update) {
-			if (!get_transient('staff_csv_generation_lock')) {
-				$this->staff_generate_csv('full');
-				$this->staff_generate_csv('updates');
-				set_transient('staff_csv_generation_lock', true, 5 * MINUTE_IN_SECONDS);
+		if ($post->post_type === 'staff' && $update && !wp_is_post_autosave($post_id) && !wp_is_post_revision($post_id)) {
+			if (!wp_next_scheduled('ve_staff_generate_csv_async')) {
+				wp_schedule_single_event(time() + 30, 've_staff_generate_csv_async');
 			}
 		}
+	}
+
+	public function process_scheduled_staff_csv_generation() {
+		$this->staff_generate_csv('full');
+		$this->staff_generate_csv('updates');
 	}
 
 	public function staff_handle_csv_request() {

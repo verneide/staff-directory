@@ -106,18 +106,38 @@ run_ve_staff();
  * Runs only on plugin activation or when options are saved.
  */
 
+function ve_staff_schedule_batch_update_event() {
+	$event_hook = 'daily_staff_batch_update_event';
+	$desired_time_local = '3:00';
+
+	$tz = wp_timezone();
+	$now = new DateTime('now', $tz);
+	$run = new DateTime("today {$desired_time_local}", $tz);
+	if ($run <= $now) {
+		$run->modify('+1 day');
+	}
+
+	$run_utc = clone $run;
+	$run_utc->setTimezone(new DateTimeZone('UTC'));
+	$first_run_utc_ts = (int) $run_utc->getTimestamp();
+	$existing_ts = wp_next_scheduled($event_hook);
+
+	if (!$existing_ts) {
+		wp_schedule_event($first_run_utc_ts, 'daily', $event_hook);
+	} elseif (abs($existing_ts - $first_run_utc_ts) > 300) {
+		wp_unschedule_event($existing_ts, $event_hook);
+		wp_schedule_event($first_run_utc_ts, 'daily', $event_hook);
+	}
+}
+
 // Schedule event on plugin activation
-register_activation_hook(__FILE__, function() {
-    $admin = new Ve_Staff_Admin('ve-staff', VE_STAFF_VERSION);
-    $admin->schedule_staff_batch_update_event();
-});
+register_activation_hook(__FILE__, 've_staff_schedule_batch_update_event');
 
 // Re-run scheduling when saving ACF options page
 add_action('acf/save_post', function($post_id) {
-    if ($post_id === 'options') {
-        $admin = new Ve_Staff_Admin('ve-staff', VE_STAFF_VERSION);
-        $admin->schedule_staff_batch_update_event();
-    }
+	if ($post_id === 'options') {
+		ve_staff_schedule_batch_update_event();
+	}
 }, 20);
 
 // Clean up on plugin deactivation
