@@ -1,0 +1,150 @@
+/**
+Theme Name: MotoPowerShop
+Author: Chase Sabers
+Author URI: https://www.chasesabers.com
+Description: This custom child theme, tailored for MotoPowerShop\'s eCommerce website, is a variation of the Astra theme. Known for its speed and flexibility, Astra is ideal for various websites, including blogs, portfolios, and business sites. Its lightweight design enhances performance, and it\'s built with SEO optimization in mind. The theme supports extensive customization options, including multiple sidebars and widget areas. It\'s fully compatible with major page builders, allowing for flexible page creation. Additional features include WooCommerce readiness, responsive design, plugin compatibility, translation readiness, and extendibility through premium add-ons. Regular updates and support are provided by Brainstorm Force, ensuring a reliable and efficient base theme for your website needs.
+Version: 1.0.1
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: motopowershop
+Template: astra
+*/
+
+/** ASTRA HEADER **/
+/** .ast-builder-grid-row.ast-grid-center-col-layout {
+    grid-template-columns: 1fr 2fr 1fr !important;
+} **/
+.site-primary-header-wrap .ast-site-identity {
+    padding: 0.5em 0 !important;
+}
+.ast-mobile-header-wrap .ast-below-header-bar, .ast-below-header-bar .site-below-header-wrap, .ast-below-header-bar .site-header-section {
+    max-height: 40px !important;
+}
+.ast-below-header-bar .ast-button-wrap .menu-toggle.main-header-menu-toggle {
+    padding: 0 !important;
+	max-height: 40px !important;
+}
+
+.main-header-menu .sub-menu .menu-link {
+    padding: 0 5px;
+    display: block;
+    word-wrap: break-word;
+}
+
+.max-width-megamenu ul.astra-megamenu{
+	max-width: 1200px !important;
+}
+.ast-desktop .ast-mega-menu-enabled .ast-hide-menu-item,.ast-mega-menu-enabled .ast-hide-menu-item {
+    display: none !important;
+}
+.ast-desktop .ast-mega-menu-enabled .astra-megamenu-li:hover .astra-megamenu .last-column .astra-nested-sub-menu .menu-item .menu-link{
+	padding-left: 5px;
+}
+.mobile-menu-wrap .mobile-menu{
+	display: none;
+}
+
+/** JET FILTERS STYLES **/
+.jet-checkboxes-list__row.jet-filter-row{
+    display: flex !important;
+}
+
+/** JET SEARCH STYLES **/
+.site-header-primary-section-center .jet-ajax-search__fields-holder, .site-header-primary-section-center .jet-ajax-search-block .jet-ajax-search__fields-holder {
+	width: 500px !important;
+}
+.site-header-primary-section-center .jet-ajax-search-block #search-input-1, .site-header-primary-section-center .jet-ajax-search-block .jet-ajax-search__submit{
+	height: 45px !important;
+}
+.site-header-primary-section-center .jet-ajax-search-block #search-input-1{
+	border-radius: 10px 0 0 10px !important;
+}
+.site-header-primary-section-center .jet-ajax-search-block .jet-ajax-search__submit{
+	margin-left: 0px !important;
+	border-radius: 0 10px 10px 0px !important;
+}
+.jet-ajax-search__submit[type="submit"], .jet-ajax-search-block .jet-ajax-search__submit[type="submit"] {
+	background: var(--ast-global-color-1) !important;
+}
+
+/** BRANDS **/
+.pwb-single-product-brands {
+    padding-top: 1em !important;
+    padding-bottom: 1em !important;
+}
+.pwb-single-product-brands img{
+	max-width: 125px !important;
+}
+
+/** DISPLAY UTILITIES (BOOTSTRAP) **/
+/* Default Display Utilities */
+.d-none { display: none !important; }
+.d-inline { display: inline !important; }
+.d-inline-block { display: inline-block !important; }
+.d-block { display: block !important; }
+.d-table { display: table !important; }
+.d-table-row { display: table-row !important; }
+.d-table-cell { display: table-cell !important; }
+.d-flex { display: flex !important; }
+.d-inline-flex { display: inline-flex !important; }
+
+/* Responsive Display Utilities */
+@media (min-width: 576px) { /* Small (sm) */
+  .d-sm-none { display: none !important; }
+  .d-sm-inline { display: inline !important; }
+  .d-sm-inline-block { display: inline-block !important; }
+  .d-sm-block { display: block !important; }
+  .d-sm-table { display: table !important; }
+  .d-sm-table-row { display: table-row !important; }
+  .d-sm-table-cell { display: table-cell !important; }
+  .d-sm-flex { display: flex !important; }
+  .d-sm-inline-flex { display: inline-flex !important; }
+}
+
+@media (min-width: 768px) { /* Medium (md) */
+  .d-md-none { display: none !important; }
+  .d-md-inline { display: inline !important; }
+  .d-md-inline-block { display: inline-block !important; }
+  .d-md-block { display: block !important; }
+  .d-md-table { display: table !important; }
+  .d-md-table-row { display: table-row !important; }
+  .d-md-table-cell { display: table-cell !important; }
+  .d-md-flex { display: flex !important; }
+  .d-md-inline-flex { display: inline-flex !important; }
+}
+
+@media (min-width: 992px) { /* Large (lg) */
+  .d-lg-none { display: none !important; }
+  .d-lg-inline { display: inline !important; }
+  .d-lg-inline-block { display: inline-block !important; }
+  .d-lg-block { display: block !important; }
+  .d-lg-table { display: table !important; }
+  .d-lg-table-row { display: table-row !important; }
+  .d-lg-table-cell { display: table-cell !important; }
+  .d-lg-flex { display: flex !important; }
+  .d-lg-inline-flex { display: inline-flex !important; }
+}
+
+@media (min-width: 1200px) { /* Extra Large (xl) */
+  .d-xl-none { display: none !important; }
+  .d-xl-inline { display: inline !important; }
+  .d-xl-inline-block { display: inline-block !important; }
+  .d-xl-block { display: block !important; }
+  .d-xl-table { display: table !important; }
+  .d-xl-table-row { display: table-row !important; }
+  .d-xl-table-cell { display: table-cell !important; }
+  .d-xl-flex { display: flex !important; }
+  .d-xl-inline-flex { display: inline-flex !important; }
+}
+
+@media (min-width: 1400px) { /* Extra Extra Large (xxl) */
+  .d-xxl-none { display: none !important; }
+  .d-xxl-inline { display: inline !important; }
+  .d-xxl-inline-block { display: inline-block !important; }
+  .d-xxl-block { display: block !important; }
+  .d-xxl-table { display: table !important; }
+  .d-xxl-table-row { display: table-row !important; }
+  .d-xxl-table-cell { display: table-cell !important; }
+  .d-xxl-flex { display: flex !important; }
+  .d-xxl-inline-flex { display: inline-flex !important; }
+}

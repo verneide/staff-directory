@@ -1,0 +1,10 @@
+.DS_Store
+Thumbs.db
+
+# dependency folders (ignore only if you rebuild on deploy)
+**/node_modules/
+**/vendor/
+
+# logs/caches
+**/*.log
+**/.cache/
