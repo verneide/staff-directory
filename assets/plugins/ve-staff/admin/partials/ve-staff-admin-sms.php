@@ -23,8 +23,20 @@ class Ve_Staff_SMS {
 	 * @var      string    $version    The current version of this plugin.
 	 */
 	private $version;
+
+	/**
+	 * Legacy WP SMS subscriber synchronization switch.
+	 *
+	 * @deprecated 2026-04 Legacy subscriber list sync is disabled by default.
+	 *             Staff messaging now uses the "staff-sms" custom post type flow.
+	 */
+	private $legacy_wsms_sync_enabled = false;
 	
 	public function __construct() {
+		/**
+		 * Allow temporary re-enable for rollback/troubleshooting.
+		 */
+		$this->legacy_wsms_sync_enabled = (bool) apply_filters( 've_staff_enable_legacy_wsms_sync', false );
 		
 		// Staff SMS Ajax Functions
 		add_action("wp_ajax_ve_sms_purge", array( $this, 'ajax_purgeSMSSubscriberList' ) );
@@ -60,12 +72,15 @@ class Ve_Staff_SMS {
 		add_filter( 'acf/load_field/name=ve_staff_sms_shorten_domain', array($this, 'acf_options_rebrandly_domains') );
 
 		// Staff SMS Actions
-		add_action( 'create_location', array( $this, 'newLocationTermSMSGroup' ), 10, 3 );
-		add_action( 'pre_delete_term', array( $this, 'deletedLocationTermSMSGroup' ), 10, 2 ); 
-		add_action(	'acf/save_post', array( $this, 'modifySMSSubscriberList' ), 5);
-		add_action(	'acf/save_post', array( $this, 'modifyMobileNumber' ), 5);
-		add_action( 'publish_staff', array( $this, 've_staff_published_welcome_sms_message' ), 10, 3 );
-		add_action( 'wp_trash_post', array( $this,'trashStaffDeleteSMSSubscriber' ) );
+		// @deprecated 2026-04: legacy WP SMS subscriber list sync disabled by default.
+		if ( $this->legacy_wsms_sync_enabled ) {
+			add_action( 'create_location', array( $this, 'newLocationTermSMSGroup' ), 10, 3 );
+			add_action( 'pre_delete_term', array( $this, 'deletedLocationTermSMSGroup' ), 10, 2 ); 
+			add_action(	'acf/save_post', array( $this, 'modifySMSSubscriberList' ), 5);
+			add_action(	'acf/save_post', array( $this, 'modifyMobileNumber' ), 5);
+			add_action( 'publish_staff', array( $this, 've_staff_published_welcome_sms_message' ), 10, 3 );
+			add_action( 'wp_trash_post', array( $this,'trashStaffDeleteSMSSubscriber' ) );
+		}
 		
 		// Staff SMS Admin Notices
 		add_action('admin_notices', array($this, 'admin_sms_notices'));
