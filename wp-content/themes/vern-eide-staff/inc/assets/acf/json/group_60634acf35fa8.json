@@ -1,0 +1,365 @@
+{
+    "key": "group_60634acf35fa8",
+    "title": "Staff Simple Listings",
+    "fields": [
+        {
+            "key": "field_64513390ab90e",
+            "label": "Listing Page Title",
+            "name": "simple_listing_title",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Enter a title to be displayed on the listing page. If blank then the Listing Page Title will be used.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "acfe_save_meta": 0,
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_606387096c1e6",
+            "label": "Internal Page",
+            "name": "simple_internal_page",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "This listing will be used for internal use, when selected and the API key added to the URL it will show internal information. Also, internal information will be on by default for logged-in users.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "Yes, Internal Listing",
+            "ui_off_text": "No, Normal Listing",
+            "show_column": 0,
+            "show_column_sortable": 0,
+            "show_column_weight": 1000,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0
+        },
+        {
+            "key": "field_62f27ff369c4d",
+            "label": "Row Columns",
+            "name": "simple_listing_row_columns",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Choose the columns visible on large screens. (Default is 5 Cards Across)",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "choices": {
+                "6": "6 Columns",
+                "5": "5 Columns (DEFAULT)",
+                "4": "4 Columns",
+                "3": "3 Columns"
+            },
+            "default_value": 5,
+            "allow_null": 0,
+            "multiple": 0,
+            "ui": 0,
+            "return_format": "value",
+            "ajax": 0,
+            "placeholder": "",
+            "allow_custom": 0,
+            "search_placeholder": ""
+        },
+        {
+            "key": "field_60634adae09bd",
+            "label": "Listing Type",
+            "name": "simple_listing_type",
+            "aria-label": "",
+            "type": "radio",
+            "instructions": "Choose the type of listing you will be creating.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "choices": {
+                "birthday": "Birthday Listing",
+                "newpromo": "New \/ Promoted Employee"
+            },
+            "allow_null": 0,
+            "other_choice": 0,
+            "default_value": "",
+            "layout": "horizontal",
+            "return_format": "value",
+            "show_column": 1,
+            "show_column_sortable": 0,
+            "show_column_weight": 300,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0,
+            "save_other_choice": 0
+        },
+        {
+            "key": "field_60634f4fe09c0",
+            "label": "Locations",
+            "name": "simple_listing_locations",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Choose the location(s) that you want this listing page to show. Leave all unchecked to show all locations.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "taxonomy": "location",
+            "field_type": "checkbox",
+            "add_term": 0,
+            "save_terms": 0,
+            "load_terms": 0,
+            "return_format": "id",
+            "show_column": 1,
+            "show_column_weight": 350,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0,
+            "multiple": 0,
+            "allow_null": 0
+        },
+        {
+            "key": "field_6297dc882a84a",
+            "label": "Staff Shown on Load",
+            "name": "staff_shown_on_load",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Choose the number of staff to show on page load. The rest will be on the page but will need a \"Show More\" button to be clicked to show them. <br><small>Note: Choose 0 to show all the staff. Each row size is 5 staff cards.<\/small>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "acfe_save_meta": 0,
+            "default_value": 0,
+            "min": 0,
+            "max": "",
+            "placeholder": "",
+            "step": 1,
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_60634b31e09be",
+            "label": "Birthday Listing",
+            "name": "birthday_listing",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "The following settings are for a simple listing of staff based on their birthday.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_60634adae09bd",
+                        "operator": "==",
+                        "value": "birthday"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": "staffgroup"
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_60634ebae09bf",
+                    "label": "Days Before Today to Show",
+                    "name": "days_shown_before",
+                    "aria-label": "",
+                    "type": "range",
+                    "instructions": "Choose the range of days from today backward to show staff birthdays. <small>(ie. -5 would show birthdays 5 days ago from today)<\/small>",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "col-md-6",
+                        "id": ""
+                    },
+                    "default_value": -5,
+                    "min": -30,
+                    "max": -1,
+                    "step": "",
+                    "prepend": "",
+                    "append": "Days Before Today",
+                    "show_column": 0,
+                    "show_column_sortable": 0,
+                    "show_column_weight": 1000,
+                    "allow_quickedit": 0,
+                    "allow_bulkedit": 0
+                },
+                {
+                    "key": "field_606350a5b36bb",
+                    "label": "Days After Today to Show",
+                    "name": "days_shown_after",
+                    "aria-label": "",
+                    "type": "range",
+                    "instructions": "Choose the range of days from today backward to show staff birthdays. <small>(ie. 15 would show birthdays 15 days from today)<\/small>",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "col-md-6",
+                        "id": ""
+                    },
+                    "default_value": 15,
+                    "min": 0,
+                    "max": 90,
+                    "step": "",
+                    "prepend": "",
+                    "append": "Days After Today",
+                    "show_column": 0,
+                    "show_column_sortable": 0,
+                    "show_column_weight": 1000,
+                    "allow_quickedit": 0,
+                    "allow_bulkedit": 0
+                }
+            ],
+            "acfe_seamless_style": 0,
+            "acfe_group_modal": 0,
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_61b25056af549",
+            "label": "New\/Promotion Listing",
+            "name": "new_promotion_listing",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "The following settings are for a simple listing of staff based on their published date or if they have recently been promoted.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_60634adae09bd",
+                        "operator": "==",
+                        "value": "newpromo"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": "staffgroup"
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_61b25056af54a",
+                    "label": "Months Prior to Show",
+                    "name": "months_before_current",
+                    "aria-label": "",
+                    "type": "range",
+                    "instructions": "Choose the number of months from the current month backward to show new published staff or new promotions. <small>(ie. -1 would show current month & last & 0 would show just this month)<\/small>",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "col-md-6",
+                        "id": ""
+                    },
+                    "default_value": -1,
+                    "min": -24,
+                    "max": 0,
+                    "step": -1,
+                    "prepend": "",
+                    "append": "Months Prior to Current",
+                    "show_column": 0,
+                    "show_column_sortable": 0,
+                    "show_column_weight": 1000,
+                    "allow_quickedit": 0,
+                    "allow_bulkedit": 0
+                }
+            ],
+            "acfe_seamless_style": 0,
+            "acfe_group_modal": 0,
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "simple-listing"
+            },
+            {
+                "param": "current_user_role",
+                "operator": "==",
+                "value": "administrator"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "simple-listing"
+            },
+            {
+                "param": "current_user_role",
+                "operator": "==",
+                "value": "editor"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "simple-listing"
+            },
+            {
+                "param": "current_user_role",
+                "operator": "==",
+                "value": "itsupport"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "the_content",
+        "excerpt",
+        "discussion",
+        "comments",
+        "author",
+        "categories",
+        "tags"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "acfe_display_title": "",
+    "acfe_autosync": [
+        "json"
+    ],
+    "acfe_form": 0,
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1683043288
+}

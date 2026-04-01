@@ -1,0 +1,433 @@
+{
+    "key": "group_604b9c059cccf",
+    "title": "Staff Listings",
+    "fields": [
+        {
+            "key": "field_605b3c42362e9",
+            "label": "Internal Page",
+            "name": "internal_page",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "This listing will be used for internal use, when selected and the API key added to the URL it will show internal information. Also, internal information will be on by default for logged-in users.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "Yes, Internal Listing",
+            "ui_off_text": "No, Normal Listing",
+            "show_column": 0,
+            "show_column_sortable": 0,
+            "show_column_weight": 1000,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0
+        },
+        {
+            "key": "field_62e8003f354b7",
+            "label": "Row Columns",
+            "name": "listing_row_columns",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Choose the columns visible on large screens. (Default is 5 Cards Across)",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "choices": {
+                "6": "6 Columns",
+                "5": "5 Columns (DEFAULT)",
+                "4": "4 Columns",
+                "3": "3 Columns"
+            },
+            "default_value": 5,
+            "allow_null": 0,
+            "multiple": 0,
+            "ui": 0,
+            "return_format": "value",
+            "show_column": 0,
+            "show_column_sortable": 0,
+            "show_column_weight": 1000,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "allow_custom": 0,
+            "search_placeholder": ""
+        },
+        {
+            "key": "field_62e80596edefe",
+            "label": "Show Filters",
+            "name": "listing_show_filters",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Choose if you would like the filters shown at the top of the listing, this would include name search and department filter.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "Filter Shown",
+            "ui_off_text": "Filter Not Shown",
+            "show_column": 0,
+            "show_column_sortable": 0,
+            "show_column_weight": 1000,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0
+        },
+        {
+            "key": "field_60527a3923acb",
+            "label": "Show Location Names",
+            "name": "listing_show_locations",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Choose if you would like the location names listing on this listing. Typically only on the group website, you would want them listed.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "Location Names Shown",
+            "ui_off_text": "Location Names Not Shown",
+            "show_column": 0,
+            "show_column_sortable": 0,
+            "show_column_weight": 1000,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0
+        },
+        {
+            "key": "field_64da9db0603ad",
+            "label": "Show Location Logos",
+            "name": "listing_show_location_logo",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Choose if you would like the location\/brand logos shown on this listing. Typically only on the group website, you would want them shown.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui_on_text": "Location\/Brand Logos Shown",
+            "ui_off_text": "Location\/Brand Logos Not Shown",
+            "ui": 1
+        },
+        {
+            "key": "field_62b0d0c959ae0",
+            "label": "Show Departments",
+            "name": "listing_show_departments",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Choose if you would like the staff to be grouped by departments and show department names on this listing.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "Department's Shown",
+            "ui_off_text": "Department's Not Shown",
+            "show_column": 0,
+            "show_column_sortable": 0,
+            "show_column_weight": 1000,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0
+        },
+        {
+            "key": "field_62e7fc155a3cb",
+            "label": "Show Full Name",
+            "name": "listing_show_full_name",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Choose how the name should be displayed, default is full name.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "Full Name Shown",
+            "ui_off_text": "First Name Only Shown",
+            "show_column": 0,
+            "show_column_sortable": 0,
+            "show_column_weight": 1000,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0
+        },
+        {
+            "key": "field_644adb7b967a4",
+            "label": "Show Full Last Name",
+            "name": "listing_show_full_last_name",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Choose is the last name should be fully listed or just the first letter.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e7fc155a3cb",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 1,
+            "ui_on_text": "Full Last Name Shown",
+            "ui_off_text": "First Initial of Last Name Shown",
+            "ui": 1
+        },
+        {
+            "key": "field_62b0c64da6c32",
+            "label": "Show Titles",
+            "name": "listing_show_titles",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Choose if you would like the staff title names on this listing.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "Titles Shown",
+            "ui_off_text": "Titles Not Shown",
+            "show_column": 0,
+            "show_column_sortable": 0,
+            "show_column_weight": 1000,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0
+        },
+        {
+            "key": "field_6644ffd69487d",
+            "label": "Show Schedule Appointment Buttons",
+            "name": "listing_show_apts_btns",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Choose if you would like staff Schedule Appointment buttons on this listing. Only will show if that staff has a schedule appointment url listed.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 1,
+            "ui_on_text": "Schedule Appointment Shown",
+            "ui_off_text": "Schedule Appointment Not Shown",
+            "ui": 1
+        },
+        {
+            "key": "field_6238bd54f7c52",
+            "label": "Show Biography",
+            "name": "listing_show_bio",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Choose if you would like staff bio buttons on this listing. Make sure staff actually have something in bio.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "Biography Shown",
+            "ui_off_text": "Biography Not Shown",
+            "show_column": 0,
+            "show_column_sortable": 0,
+            "show_column_weight": 1000,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0
+        },
+        {
+            "key": "field_63a5d81124fe4",
+            "label": "Bypass Website Visible",
+            "name": "listing_web_visible_bypass",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Choose bypass to ignore the staff profile setting of \"Web Visible\" and show all staff regardless. <small>(This is used for rare listing setups, so if your unsure just leave as false)<\/small>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui_on_text": "Bypass Settings",
+            "ui_off_text": "Normal Settings",
+            "ui": 1
+        },
+        {
+            "key": "field_63a5da2764ad3",
+            "label": "Listing Filters",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "message": "Use the below options to filter the staff shown on this listing page.",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_604b9c0dd5035",
+            "label": "Locations",
+            "name": "listing_locations",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Choose the location(s) that you want this listing page to show. Leave all unchecked to show all locations.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "taxonomy": "location",
+            "field_type": "checkbox",
+            "add_term": 0,
+            "save_terms": 0,
+            "load_terms": 0,
+            "return_format": "id",
+            "multiple": 0,
+            "allow_null": 0,
+            "bidirectional_target": []
+        },
+        {
+            "key": "field_604b9c93d5036",
+            "label": "Excluded Departments",
+            "name": "listing_excluded_departments",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Choose the department(s) that you DO NOT want this listing page to show. Leave all unchecked to show all departments.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "taxonomy": "department",
+            "field_type": "checkbox",
+            "add_term": 0,
+            "save_terms": 0,
+            "load_terms": 0,
+            "return_format": "id",
+            "multiple": 0,
+            "allow_null": 0,
+            "bidirectional_target": []
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "listing"
+            },
+            {
+                "param": "current_user_role",
+                "operator": "==",
+                "value": "administrator"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "listing"
+            },
+            {
+                "param": "current_user_role",
+                "operator": "==",
+                "value": "editor"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "listing"
+            },
+            {
+                "param": "current_user_role",
+                "operator": "==",
+                "value": "itsupport"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "the_content",
+        "excerpt",
+        "discussion",
+        "comments",
+        "author",
+        "categories",
+        "tags"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "acfe_display_title": "",
+    "acfe_autosync": [
+        "json"
+    ],
+    "acfe_form": 0,
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1715798098
+}

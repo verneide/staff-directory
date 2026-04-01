@@ -1,0 +1,62 @@
+<?php 
+
+if( function_exists('acf_add_local_field_group') ):
+
+acf_add_local_field_group(array(
+	'key' => 'group_673510b4ee2cd',
+	'title' => 'Staff Options - Batch Update',
+	'fields' => array(
+		array(
+			'key' => 'field_673510b54f6d2',
+			'label' => '',
+			'name' => '',
+			'aria-label' => '',
+			'type' => 'text',
+			'instructions' => '',
+			'required' => 0,
+			'conditional_logic' => 0,
+			'wrapper' => array(
+				'width' => '',
+				'class' => '',
+				'id' => '',
+			),
+			'default_value' => '',
+			'readonly' => 0,
+			'disabled' => 0,
+			'maxlength' => '',
+			'allow_in_bindings' => 0,
+			'placeholder' => '',
+			'prepend' => '',
+			'append' => '',
+		),
+	),
+	'location' => array(
+		array(
+			array(
+				'param' => 'options_page',
+				'operator' => '==',
+				'value' => 'staff-batch-update',
+			),
+		),
+	),
+	'menu_order' => 0,
+	'position' => 'normal',
+	'style' => 'default',
+	'label_placement' => 'left',
+	'instruction_placement' => 'label',
+	'hide_on_screen' => '',
+	'active' => true,
+	'description' => '',
+	'show_in_rest' => 0,
+	'acfe_display_title' => '',
+	'acfe_autosync' => array(
+		0 => 'php',
+		1 => 'json',
+	),
+	'acfe_form' => 0,
+	'acfe_meta' => '',
+	'acfe_note' => '',
+	'modified' => 1731530986,
+));
+
+endif;

@@ -1,0 +1,1333 @@
+{
+    "key": "group_623899e7a7739",
+    "title": "Staff Locations",
+    "fields": [
+        {
+            "key": "field_62389a0725bac",
+            "label": "Public Filter?",
+            "name": "public_filter",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Should this locations show up on public sites in the filter? No would only show up on internal sites.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "20",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor"
+            ],
+            "message": "",
+            "default_value": 1,
+            "allow_in_bindings": 1,
+            "ui_on_text": "Yes",
+            "ui_off_text": "No",
+            "ui": 1
+        },
+        {
+            "key": "field_64da89ef4b706",
+            "label": "Location\/Brand Logo",
+            "name": "location_brand_logo",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "40",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor"
+            ],
+            "uploader": "",
+            "return_format": "array",
+            "library": "all",
+            "acfe_thumbnail": 1,
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": 800,
+            "max_height": "",
+            "max_size": 2,
+            "mime_types": ".png",
+            "allow_in_bindings": 1,
+            "preview_size": "medium"
+        },
+        {
+            "key": "field_680aa25cdf514",
+            "label": "Location Signature Logo",
+            "name": "location_signature_logo",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "This logo will be used in the Signature Generator app. It should typically be in a square format and provided as an animated GIF. Please upload the image to the CDN server first, then paste the CDN link in the field below.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author"
+            ],
+            "default_value": "",
+            "allow_in_bindings": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_680a85347603d",
+            "label": "Location Signature Footer Graphic",
+            "name": "location_signature_footer",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "This graphic appears in the footer of email signatures for special campaigns or events. It can be updated periodically to reflect current promotions or initiatives. Use a web-optimized image format (e.g., PNG or GIF). Upload the image to the CDN server first, then paste the CDN link in the field below.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author"
+            ],
+            "default_value": "",
+            "allow_in_bindings": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_6793c142e413d",
+            "label": "Location Address",
+            "name": "location_address",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author"
+            ],
+            "layout": "block",
+            "acfe_seamless_style": 0,
+            "acfe_group_modal": 0,
+            "sub_fields": [
+                {
+                    "key": "field_6793c164e413e",
+                    "label": "Street Address",
+                    "name": "street_address",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author"
+                    ],
+                    "default_value": "",
+                    "readonly": 0,
+                    "disabled": 0,
+                    "maxlength": "",
+                    "allow_in_bindings": 0,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_6793c172e413f",
+                    "label": "City",
+                    "name": "city",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "25",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author"
+                    ],
+                    "default_value": "",
+                    "readonly": 0,
+                    "disabled": 0,
+                    "maxlength": "",
+                    "allow_in_bindings": 0,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_6793c17de4140",
+                    "label": "State",
+                    "name": "state",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "20",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author"
+                    ],
+                    "choices": {
+                        "AL": "Alabama",
+                        "AK": "Alaska",
+                        "AZ": "Arizona",
+                        "AR": "Arkansas",
+                        "CA": "California",
+                        "CO": "Colorado",
+                        "CT": "Connecticut",
+                        "DE": "Delaware",
+                        "FL": "Florida",
+                        "GA": "Georgia",
+                        "HI": "Hawaii",
+                        "ID": "Idaho",
+                        "IL": "Illinois",
+                        "IN": "Indiana",
+                        "IA": "Iowa",
+                        "KS": "Kansas",
+                        "KY": "Kentucky",
+                        "LA": "Louisiana",
+                        "ME": "Maine",
+                        "MD": "Maryland",
+                        "MA": "Massachusetts",
+                        "MI": "Michigan",
+                        "MN": "Minnesota",
+                        "MS": "Mississippi",
+                        "MO": "Missouri",
+                        "MT": "Montana",
+                        "NE": "Nebraska",
+                        "NV": "Nevada",
+                        "NH": "New Hampshire",
+                        "NJ": "New Jersey",
+                        "NM": "New Mexico",
+                        "NY": "New York",
+                        "NC": "North Carolina",
+                        "ND": "North Dakota",
+                        "OH": "Ohio",
+                        "OK": "Oklahoma",
+                        "OR": "Oregon",
+                        "PA": "Pennsylvania",
+                        "RI": "Rhode Island",
+                        "SC": "South Carolina",
+                        "SD": "South Dakota",
+                        "TN": "Tennessee",
+                        "TX": "Texas",
+                        "UT": "Utah",
+                        "VT": "Vermont",
+                        "VA": "Virginia",
+                        "WA": "Washington",
+                        "WV": "West Virginia",
+                        "WI": "Wisconsin",
+                        "WY": "Wyoming"
+                    },
+                    "default_value": false,
+                    "return_format": "value",
+                    "multiple": 0,
+                    "allow_custom": 0,
+                    "placeholder": "",
+                    "search_placeholder": "",
+                    "allow_null": 0,
+                    "allow_in_bindings": 0,
+                    "ui": 0,
+                    "ajax": 0
+                },
+                {
+                    "key": "field_6793c18ae4141",
+                    "label": "Postal Code",
+                    "name": "postal_code",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "15",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author"
+                    ],
+                    "default_value": "",
+                    "readonly": 0,
+                    "disabled": 0,
+                    "maxlength": "",
+                    "allow_in_bindings": 0,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_6793c195e4142",
+                    "label": "Country",
+                    "name": "country",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "15",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author"
+                    ],
+                    "default_value": "USA",
+                    "readonly": 1,
+                    "disabled": 0,
+                    "maxlength": "",
+                    "allow_in_bindings": 0,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                }
+            ],
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_6793c1b1e4143",
+            "label": "Location Website",
+            "name": "location_website",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author"
+            ],
+            "default_value": "",
+            "allow_in_bindings": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_680a84af7603b",
+            "label": "Location Google Maps Link",
+            "name": "location_google_maps",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author"
+            ],
+            "default_value": "",
+            "allow_in_bindings": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_680a63969d738",
+            "label": "Location Hours",
+            "name": "location_hours",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "acfe_repeater_stylised_button": 1,
+            "layout": "row",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add Hours",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_680a64009d739",
+                    "label": "Department Type",
+                    "name": "department_type",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "choices": {
+                        "sales": "Sales",
+                        "service": "Service",
+                        "parts": "Parts",
+                        "bodyshop": "Body Shop",
+                        "rentals": "Rentals",
+                        "office": "Office",
+                        "other": "Other"
+                    },
+                    "default_value": "sales",
+                    "return_format": "value",
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "allow_in_bindings": 0,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "allow_custom": 0,
+                    "search_placeholder": "",
+                    "parent_repeater": "field_680a63969d738"
+                },
+                {
+                    "key": "field_680a65889d73a",
+                    "label": "Daily Hours",
+                    "name": "daily_hours",
+                    "aria-label": "",
+                    "type": "group",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "layout": "row",
+                    "acfe_seamless_style": 1,
+                    "sub_fields": [
+                        {
+                            "key": "field_680a66ac9d73f",
+                            "label": "Sunday",
+                            "name": "sunday",
+                            "aria-label": "",
+                            "type": "group",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "100",
+                                "class": "",
+                                "id": ""
+                            },
+                            "custom_role_permissions": [
+                                "editor",
+                                "author",
+                                "contributor",
+                                "itsupportstaff"
+                            ],
+                            "layout": "block",
+                            "acfe_seamless_style": 1,
+                            "sub_fields": [
+                                {
+                                    "key": "field_680a66ac9d740",
+                                    "label": "Closed",
+                                    "name": "is_closed",
+                                    "aria-label": "",
+                                    "type": "true_false",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "20",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "message": "",
+                                    "default_value": 1,
+                                    "allow_in_bindings": 0,
+                                    "ui_on_text": "Closed",
+                                    "ui_off_text": "Open",
+                                    "ui": 1
+                                },
+                                {
+                                    "key": "field_680a66ac9d741",
+                                    "label": "Open Time",
+                                    "name": "open_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a66ac9d740",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                },
+                                {
+                                    "key": "field_680a66ac9d742",
+                                    "label": "Closed Time",
+                                    "name": "close_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a66ac9d740",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                }
+                            ],
+                            "acfe_group_modal": 0,
+                            "acfe_group_modal_close": 0,
+                            "acfe_group_modal_button": "",
+                            "acfe_group_modal_size": "large"
+                        },
+                        {
+                            "key": "field_680a6c5782c21",
+                            "label": "Monday",
+                            "name": "monday",
+                            "aria-label": "",
+                            "type": "group",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "100",
+                                "class": "",
+                                "id": ""
+                            },
+                            "custom_role_permissions": [
+                                "editor",
+                                "author",
+                                "contributor",
+                                "itsupportstaff"
+                            ],
+                            "layout": "block",
+                            "acfe_seamless_style": 1,
+                            "sub_fields": [
+                                {
+                                    "key": "field_680a6c5782c22",
+                                    "label": "Closed",
+                                    "name": "is_closed",
+                                    "aria-label": "",
+                                    "type": "true_false",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "20",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "message": "",
+                                    "default_value": 1,
+                                    "allow_in_bindings": 0,
+                                    "ui_on_text": "Closed",
+                                    "ui_off_text": "Open",
+                                    "ui": 1
+                                },
+                                {
+                                    "key": "field_680a6c5782c23",
+                                    "label": "Open Time",
+                                    "name": "open_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c5782c22",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                },
+                                {
+                                    "key": "field_680a6c5782c24",
+                                    "label": "Closed Time",
+                                    "name": "close_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c5782c22",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                }
+                            ],
+                            "acfe_group_modal": 0,
+                            "acfe_group_modal_close": 0,
+                            "acfe_group_modal_button": "",
+                            "acfe_group_modal_size": "large"
+                        },
+                        {
+                            "key": "field_680a6c6182c25",
+                            "label": "Tuesday",
+                            "name": "tuesday",
+                            "aria-label": "",
+                            "type": "group",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "100",
+                                "class": "",
+                                "id": ""
+                            },
+                            "custom_role_permissions": [
+                                "editor",
+                                "author",
+                                "contributor",
+                                "itsupportstaff"
+                            ],
+                            "layout": "block",
+                            "acfe_seamless_style": 1,
+                            "sub_fields": [
+                                {
+                                    "key": "field_680a6c6182c26",
+                                    "label": "Closed",
+                                    "name": "is_closed",
+                                    "aria-label": "",
+                                    "type": "true_false",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "20",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "message": "",
+                                    "default_value": 1,
+                                    "allow_in_bindings": 0,
+                                    "ui_on_text": "Closed",
+                                    "ui_off_text": "Open",
+                                    "ui": 1
+                                },
+                                {
+                                    "key": "field_680a6c6182c27",
+                                    "label": "Open Time",
+                                    "name": "open_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c6182c26",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                },
+                                {
+                                    "key": "field_680a6c6182c28",
+                                    "label": "Closed Time",
+                                    "name": "close_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c6182c26",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                }
+                            ],
+                            "acfe_group_modal": 0,
+                            "acfe_group_modal_close": 0,
+                            "acfe_group_modal_button": "",
+                            "acfe_group_modal_size": "large"
+                        },
+                        {
+                            "key": "field_680a6c6282c29",
+                            "label": "Wednesday",
+                            "name": "wednesday",
+                            "aria-label": "",
+                            "type": "group",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "100",
+                                "class": "",
+                                "id": ""
+                            },
+                            "custom_role_permissions": [
+                                "editor",
+                                "author",
+                                "contributor",
+                                "itsupportstaff"
+                            ],
+                            "layout": "block",
+                            "acfe_seamless_style": 1,
+                            "sub_fields": [
+                                {
+                                    "key": "field_680a6c6282c2a",
+                                    "label": "Closed",
+                                    "name": "is_closed",
+                                    "aria-label": "",
+                                    "type": "true_false",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "20",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "message": "",
+                                    "default_value": 1,
+                                    "allow_in_bindings": 0,
+                                    "ui_on_text": "Closed",
+                                    "ui_off_text": "Open",
+                                    "ui": 1
+                                },
+                                {
+                                    "key": "field_680a6c6282c2b",
+                                    "label": "Open Time",
+                                    "name": "open_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c6282c2a",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                },
+                                {
+                                    "key": "field_680a6c6282c2c",
+                                    "label": "Closed Time",
+                                    "name": "close_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c6282c2a",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                }
+                            ],
+                            "acfe_group_modal": 0,
+                            "acfe_group_modal_close": 0,
+                            "acfe_group_modal_button": "",
+                            "acfe_group_modal_size": "large"
+                        },
+                        {
+                            "key": "field_680a6c6482c2d",
+                            "label": "Thursday",
+                            "name": "thursday",
+                            "aria-label": "",
+                            "type": "group",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "100",
+                                "class": "",
+                                "id": ""
+                            },
+                            "custom_role_permissions": [
+                                "editor",
+                                "author",
+                                "contributor",
+                                "itsupportstaff"
+                            ],
+                            "layout": "block",
+                            "acfe_seamless_style": 1,
+                            "sub_fields": [
+                                {
+                                    "key": "field_680a6c6482c2e",
+                                    "label": "Closed",
+                                    "name": "is_closed",
+                                    "aria-label": "",
+                                    "type": "true_false",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "20",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "message": "",
+                                    "default_value": 1,
+                                    "allow_in_bindings": 0,
+                                    "ui_on_text": "Closed",
+                                    "ui_off_text": "Open",
+                                    "ui": 1
+                                },
+                                {
+                                    "key": "field_680a6c6482c2f",
+                                    "label": "Open Time",
+                                    "name": "open_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c6482c2e",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                },
+                                {
+                                    "key": "field_680a6c6482c30",
+                                    "label": "Closed Time",
+                                    "name": "close_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c6482c2e",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                }
+                            ],
+                            "acfe_group_modal": 0,
+                            "acfe_group_modal_close": 0,
+                            "acfe_group_modal_button": "",
+                            "acfe_group_modal_size": "large"
+                        },
+                        {
+                            "key": "field_680a6c6582c31",
+                            "label": "Friday",
+                            "name": "friday",
+                            "aria-label": "",
+                            "type": "group",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "100",
+                                "class": "",
+                                "id": ""
+                            },
+                            "custom_role_permissions": [
+                                "editor",
+                                "author",
+                                "contributor",
+                                "itsupportstaff"
+                            ],
+                            "layout": "block",
+                            "acfe_seamless_style": 1,
+                            "sub_fields": [
+                                {
+                                    "key": "field_680a6c6582c32",
+                                    "label": "Closed",
+                                    "name": "is_closed",
+                                    "aria-label": "",
+                                    "type": "true_false",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "20",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "message": "",
+                                    "default_value": 1,
+                                    "allow_in_bindings": 0,
+                                    "ui_on_text": "Closed",
+                                    "ui_off_text": "Open",
+                                    "ui": 1
+                                },
+                                {
+                                    "key": "field_680a6c6582c33",
+                                    "label": "Open Time",
+                                    "name": "open_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c6582c32",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                },
+                                {
+                                    "key": "field_680a6c6582c34",
+                                    "label": "Closed Time",
+                                    "name": "close_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c6582c32",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                }
+                            ],
+                            "acfe_group_modal": 0,
+                            "acfe_group_modal_close": 0,
+                            "acfe_group_modal_button": "",
+                            "acfe_group_modal_size": "large"
+                        },
+                        {
+                            "key": "field_680a6c6782c35",
+                            "label": "Saturday",
+                            "name": "saturday",
+                            "aria-label": "",
+                            "type": "group",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "100",
+                                "class": "",
+                                "id": ""
+                            },
+                            "custom_role_permissions": [
+                                "editor",
+                                "author",
+                                "contributor",
+                                "itsupportstaff"
+                            ],
+                            "layout": "block",
+                            "acfe_seamless_style": 1,
+                            "sub_fields": [
+                                {
+                                    "key": "field_680a6c6782c36",
+                                    "label": "Closed",
+                                    "name": "is_closed",
+                                    "aria-label": "",
+                                    "type": "true_false",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "20",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "message": "",
+                                    "default_value": 1,
+                                    "allow_in_bindings": 0,
+                                    "ui_on_text": "Closed",
+                                    "ui_off_text": "Open",
+                                    "ui": 1
+                                },
+                                {
+                                    "key": "field_680a6c6782c37",
+                                    "label": "Open Time",
+                                    "name": "open_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c6782c36",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                },
+                                {
+                                    "key": "field_680a6c6782c38",
+                                    "label": "Closed Time",
+                                    "name": "close_time",
+                                    "aria-label": "",
+                                    "type": "time_picker",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": [
+                                        [
+                                            {
+                                                "field": "field_680a6c6782c36",
+                                                "operator": "!=",
+                                                "value": "1"
+                                            }
+                                        ]
+                                    ],
+                                    "wrapper": {
+                                        "width": "40",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "custom_role_permissions": [
+                                        "editor",
+                                        "author",
+                                        "contributor",
+                                        "itsupportstaff"
+                                    ],
+                                    "display_format": "g:i a",
+                                    "return_format": "g:i a",
+                                    "allow_in_bindings": 0
+                                }
+                            ],
+                            "acfe_group_modal": 0,
+                            "acfe_group_modal_close": 0,
+                            "acfe_group_modal_button": "",
+                            "acfe_group_modal_size": "large"
+                        }
+                    ],
+                    "acfe_group_modal": 0,
+                    "acfe_group_modal_close": 0,
+                    "acfe_group_modal_button": "",
+                    "acfe_group_modal_size": "large",
+                    "parent_repeater": "field_680a63969d738"
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "taxonomy",
+                "operator": "==",
+                "value": "location"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "acfe_display_title": "",
+    "acfe_autosync": [
+        "json"
+    ],
+    "acfe_form": 0,
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1745528005
+}

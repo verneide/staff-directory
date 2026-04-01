@@ -1,0 +1,169 @@
+{
+    "key": "group_656f39056cb7b",
+    "title": "Staff Tag Groups",
+    "fields": [
+        {
+            "key": "field_656f3906776ae",
+            "label": "Staff Tag",
+            "name": "staff_tag",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Choose the tag that should be applied to the selected staff profiles below.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "taxonomy": "post_tag",
+            "add_term": 0,
+            "save_terms": 0,
+            "load_terms": 0,
+            "return_format": "id",
+            "field_type": "select",
+            "allow_null": 0,
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "allow_in_bindings": 1,
+            "bidirectional": 0,
+            "multiple": 0,
+            "bidirectional_target": []
+        },
+        {
+            "key": "field_656f3b9605b91",
+            "label": "Start Date",
+            "name": "staff_tag_start_date",
+            "aria-label": "",
+            "type": "date_time_picker",
+            "instructions": "Set the date for the selected staff to be tagged.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y g:i a",
+            "return_format": "Y-m-d H:i:s",
+            "first_day": 0,
+            "allow_in_bindings": 1
+        },
+        {
+            "key": "field_656f3b10f8aab",
+            "label": "Expiration Date (Optional)",
+            "name": "staff_tag_expiration_date",
+            "aria-label": "",
+            "type": "date_time_picker",
+            "instructions": "Set an expiration date for these tagged staff to have the tag removed.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y g:i a",
+            "return_format": "Y-m-d H:i:s",
+            "first_day": 0,
+            "allow_in_bindings": 1
+        },
+        {
+            "key": "field_656f395b776af",
+            "label": "Staff Tagged",
+            "name": "staff_tagged",
+            "aria-label": "",
+            "type": "post_object",
+            "instructions": "Choose the Staff Profiles to have the tag applied to.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "post_type": [
+                "staff"
+            ],
+            "post_status": [
+                "publish"
+            ],
+            "taxonomy": "",
+            "return_format": "id",
+            "multiple": 1,
+            "save_custom": 0,
+            "save_post_status": "publish",
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "allow_null": 0,
+            "allow_in_bindings": 1,
+            "bidirectional": 0,
+            "ui": 1,
+            "bidirectional_target": [],
+            "save_post_type": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "staff-tagged"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "field",
+    "hide_on_screen": [
+        "permalink",
+        "block_editor",
+        "the_content",
+        "excerpt",
+        "discussion",
+        "comments",
+        "slug",
+        "format",
+        "page_attributes",
+        "featured_image",
+        "categories",
+        "tags",
+        "send-trackbacks"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "acfe_display_title": "",
+    "acfe_autosync": [
+        "php",
+        "json"
+    ],
+    "acfe_form": 0,
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1734025372
+}

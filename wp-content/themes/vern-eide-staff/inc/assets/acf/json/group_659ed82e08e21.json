@@ -1,0 +1,100 @@
+{
+    "key": "group_659ed82e08e21",
+    "title": "Staff Tags",
+    "fields": [
+        {
+            "key": "field_659effa711ff1",
+            "label": "Card Visible?",
+            "name": "card_visible",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Yes, the tag name will be shown on the staff card on listings. No, it will just be used for filters.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 1,
+            "ui_on_text": "Yes",
+            "ui_off_text": "No",
+            "ui": 1
+        },
+        {
+            "key": "field_659edde6b9e28",
+            "label": "Public Visible?",
+            "name": "public_visible",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Yes, the tag will be shown on the staff card on public listings. No, would only show up on internal sites.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui_on_text": "Yes",
+            "ui_off_text": "No",
+            "ui": 1
+        },
+        {
+            "key": "field_659ed82e0e3aa",
+            "label": "Public Filter?",
+            "name": "public_filter",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Yes, the tag will show in tags filter dropdown. No, would only show up on internal sites.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_659edde6b9e28",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui_on_text": "Yes",
+            "ui_off_text": "No",
+            "ui": 1
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "taxonomy",
+                "operator": "==",
+                "value": "post_tag"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "acfe_display_title": "",
+    "acfe_autosync": [
+        "json"
+    ],
+    "acfe_form": 0,
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1704919022
+}

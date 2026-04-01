@@ -1,0 +1,69 @@
+/* CSS TO ONLY SHOW ON POST EDITORS FOR STAFF POST TYPES */
+/* Constrain the width of taxonomy dropdown select fields */
+.acf-taxonomy-field select {
+    max-width: 100%; /* Make the select box responsive within its container */
+    width: 100%; /* Ensure it takes the full width of the container */
+    box-sizing: border-box; /* Include padding and borders in the element's width */
+}
+
+/* Optional: Add padding or margin adjustments if needed */
+.acf-taxonomy-field {
+    overflow: hidden; /* Prevent overflow from exceeding container boundaries */
+}
+.acf-taxonomy-field .select2-container{
+	display: inline;
+}
+
+.acf-input {
+    max-width: 100%;
+    padding: 0 15px;
+    margin: 0 auto;
+}
+
+.acf-fields {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.acf-fields .acf-field{
+    padding-right: 15px;
+    padding-left: 15px;
+    box-sizing: border-box;
+}
+.acf-fields .acf-field:not(.acfe-column):not(.tab):not(.accordion):not(.acf-field-group):not(.acfe-field-group-layout-block):not(.acf-field-acfe-column) .acf-input {
+    padding: 0;
+}
+.acf-field-group .acf-fields .acf-field:not(.acfe-column) .acf-input{
+    padding-right: 15px;
+    padding-left: 15px;
+    box-sizing: border-box;
+}
+.acf-field-acfe-column .acf-fields .acf-field-group .acf-input:not(.acf-input .acf-input) {
+    padding-right: 15px !important;
+    padding-left: 15px !important;
+    box-sizing: border-box !important;
+}
+.acf-field.acf-field-acfe-column {
+	padding-right: 15px !important;
+    padding-left: 15px !important;
+    box-sizing: border-box !important; 
+}
+
+/* Crop Tool Overlay */
+/* Add a background overlay to the cropper area */
+.cropper-crop-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('/assets/plugins/ve-staff/admin/img/Staff-Photo-Crop-Overlay.svg') center center no-repeat;
+    background-size: contain; /* Adjust size based on your need */
+    opacity: 0.5; /* Adjust transparency */
+    pointer-events: none; /* Prevent interference with cropping */
+    z-index: 10; /* Ensure it is above the crop area */
+}
+

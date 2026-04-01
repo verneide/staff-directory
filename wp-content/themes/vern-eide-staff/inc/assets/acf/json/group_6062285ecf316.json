@@ -1,0 +1,71 @@
+{
+    "key": "group_6062285ecf316",
+    "title": "Staff Order",
+    "fields": [
+        {
+            "key": "field_6062286d595a5",
+            "label": "Sticky Order",
+            "name": "sticky_order",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Enter the sticky order number. Only enter a number if you want to make this staff member sticky to the top of the results. Then the number defines the order they are within the sticky staff. Leave default (99999) add this staff to the normal sort.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-12",
+                "id": ""
+            },
+            "default_value": 99999,
+            "min": "",
+            "max": "",
+            "placeholder": "",
+            "step": "",
+            "prepend": "",
+            "append": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "staff"
+            },
+            {
+                "param": "current_user_role",
+                "operator": "==",
+                "value": "administrator"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "staff"
+            },
+            {
+                "param": "current_user_role",
+                "operator": "==",
+                "value": "editor"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "side",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "acfe_display_title": "",
+    "acfe_autosync": [
+        "json"
+    ],
+    "acfe_form": 0,
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1731954745
+}

@@ -1,0 +1,2507 @@
+{
+    "key": "group_60392976bd742",
+    "title": "Staff",
+    "fields": [
+        {
+            "key": "field_6050c942472c6",
+            "label": "Basic Information",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_656a37c7cfddb",
+            "label": "(Column 8\/12)",
+            "name": "",
+            "aria-label": "",
+            "type": "acfe_column",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "columns": "8\/12",
+            "endpoint": 0,
+            "allow_in_bindings": 1
+        },
+        {
+            "key": "field_6039297eabbcd",
+            "label": "First Name",
+            "name": "first_name",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "col-xs-12",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff",
+                "basic-editor"
+            ],
+            "default_value": "",
+            "readonly": 0,
+            "disabled": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "maxlength": "",
+            "acfe_permissions": "",
+            "allow_in_bindings": 1,
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_603929a6abbce",
+            "label": "Last Name",
+            "name": "last_name",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "col-xs-12",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff",
+                "basic-editor"
+            ],
+            "default_value": "",
+            "readonly": 0,
+            "disabled": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "maxlength": "",
+            "acfe_permissions": "",
+            "allow_in_bindings": 1,
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_6047ac10e2653",
+            "label": "Primary Location",
+            "name": "primary_location",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Choose the employee's primary location. This location will be displayed under their department when used on the group site or on internal directory.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6 col-xs-12",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "taxonomy": "location",
+            "add_term": 0,
+            "save_terms": 1,
+            "load_terms": 0,
+            "return_format": "object",
+            "field_type": "select",
+            "allow_null": 0,
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff",
+                "basic-editor"
+            ],
+            "allow_in_bindings": 1,
+            "bidirectional": 0,
+            "multiple": 0,
+            "bidirectional_target": []
+        },
+        {
+            "key": "field_60392a09abbd1",
+            "label": "Department",
+            "name": "department",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Choose the department they should be listed under on the listings.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6 col-xs-12",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "taxonomy": "department",
+            "add_term": 0,
+            "save_terms": 1,
+            "load_terms": 0,
+            "return_format": "object",
+            "field_type": "select",
+            "allow_null": 0,
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff",
+                "basic-editor"
+            ],
+            "allow_in_bindings": 1,
+            "bidirectional": 0,
+            "multiple": 0,
+            "bidirectional_target": []
+        },
+        {
+            "key": "field_60392abdabbd2",
+            "label": "Title",
+            "name": "title",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Enter the staff title, this will be positioned below their name. (ie. Sales Consultant)",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "75",
+                "class": "col-xs-12",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "taxonomy": "staff-title",
+            "add_term": 1,
+            "save_terms": 1,
+            "load_terms": 1,
+            "return_format": "object",
+            "field_type": "select",
+            "allow_null": 0,
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": "",
+            "allow_in_bindings": 0,
+            "bidirectional": 0,
+            "multiple": 0,
+            "bidirectional_target": []
+        },
+        {
+            "key": "field_61b266bf1f617",
+            "label": "Promotion Date",
+            "name": "promotion_date",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "Choose a promotion date if applies used to display in New & Promotions view.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_629135cf7a603",
+            "label": "Start \/ Hire Date",
+            "name": "start_date",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "Enter the employee’s Start Date, or the Original Hire Date if they are a rehire. If left blank, the publish date will be used.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-3",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_673ccc22b1937",
+            "label": "Term Date 1",
+            "name": "term_date_1",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "The termination date of the first timeframe employed.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-3",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_6734ecb117758",
+            "label": "Rehire Date 1",
+            "name": "rehire_date_1",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "For rehires, keep the Start\/Original Hire Date as it is and enter the Rehire Date here. If this is not a rehire, leave this field blank.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-3",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_673ccc70b1938",
+            "label": "Term Date 2",
+            "name": "term_date_2",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "The termination date of the second timeframe employed.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_6734ecb117758",
+                        "operator": "!=empty"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-3",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_6734effbd367f",
+            "label": "Rehire Date 2",
+            "name": "rehire_date_2",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "For rehires, keep the Start\/Original Hire Date as it is and enter the Rehire Date here. If this is not a rehire, leave this field blank.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_6734ecb117758",
+                        "operator": "!=empty"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-3",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_673ccc79b1939",
+            "label": "Term Date 3",
+            "name": "term_date_3",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "The termination date of the third timeframe employed.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_6734effbd367f",
+                        "operator": "!=empty"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-3",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_6734f000d3680",
+            "label": "Rehire Date 3",
+            "name": "rehire_date_3",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "For rehires, keep the Start\/Original Hire Date as it is and enter the Rehire Date here. If this is not a rehire, leave this field blank.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_6734effbd367f",
+                        "operator": "!=empty"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-3",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_673ccc94b193a",
+            "label": "Term Date 4",
+            "name": "term_date_4",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "The termination date of the fourth timeframe employed.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_6734f000d3680",
+                        "operator": "!=empty"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-3",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_6734f002d3681",
+            "label": "Rehire Date 4",
+            "name": "rehire_date_4",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "For rehires, keep the Start\/Original Hire Date as it is and enter the Rehire Date here. If this is not a rehire, leave this field blank.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_6734f000d3680",
+                        "operator": "!=empty"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-3",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_673ccd23b193c",
+            "label": "Term Date 5",
+            "name": "term_date_5",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "The termination date of the fourth timeframe employed.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_6734f002d3681",
+                        "operator": "!=empty"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-3",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_673ccd12b193b",
+            "label": "Rehire Date 5",
+            "name": "rehire_date_5",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "For rehires, keep the Start\/Original Hire Date as it is and enter the Rehire Date here. If this is not a rehire, leave this field blank.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_6734f002d3681",
+                        "operator": "!=empty"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-3",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "display_format": "m\/d\/Y",
+            "return_format": "Y-m-d",
+            "first_day": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_656a417c09d49",
+            "label": "(Column 4\/12)",
+            "name": "",
+            "aria-label": "",
+            "type": "acfe_column",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "columns": "4\/12",
+            "endpoint": 0,
+            "allow_in_bindings": 1
+        },
+        {
+            "key": "field_60392b1fabbd4",
+            "label": "Photo",
+            "name": "photo",
+            "aria-label": "",
+            "type": "image_aspect_ratio_crop",
+            "instructions": "Minimum size 200x200. If no photo is uploaded a default generic photo will be used.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff",
+                "basic-editor"
+            ],
+            "crop_type": "aspect_ratio",
+            "aspect_ratio_width": 1,
+            "aspect_ratio_height": 1,
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "uploadedTo",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ".PNG,.png, .JPG, .jpg, .jpeg, .JPEG, .webp",
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": "",
+            "allow_in_bindings": 1
+        },
+        {
+            "key": "field_656a418309d4a",
+            "label": "(Column Endpoint)",
+            "name": "",
+            "aria-label": "",
+            "type": "acfe_column",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "endpoint": 1,
+            "columns": "6\/12"
+        },
+        {
+            "key": "field_6734f6d67ce46",
+            "label": "Anniversary Data",
+            "name": "anniversary",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "layout": "block",
+            "acfe_seamless_style": 1,
+            "acfe_settings": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff",
+                "basic-editor"
+            ],
+            "sub_fields": [
+                {
+                    "key": "field_66e1a90a19f1e",
+                    "label": "Add Years of Service",
+                    "name": "add_yrs_service",
+                    "aria-label": "",
+                    "type": "number",
+                    "instructions": "Use this field to add previous years of service to the most recent rehire date, adjusting the anniversary date to reflect total service time.<br><br>\r\n<i>Example: If the employee previously worked for 5 years and was rehired on 01\/01\/2025, the anniversary date on 01\/01\/2026 would show 6 years of service.<\/i>",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "25",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor"
+                    ],
+                    "default_value": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "min": "",
+                    "max": "",
+                    "acfe_permissions": [
+                        "administrator",
+                        "editor"
+                    ],
+                    "allow_in_bindings": 0,
+                    "placeholder": "",
+                    "step": 1,
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_6734f67b7ce45",
+                    "label": "Anniversary Date (Next)",
+                    "name": "anniversary_date",
+                    "aria-label": "",
+                    "type": "date_picker",
+                    "instructions": "Calculated Anniversary Date from the Start or Rehire Dates.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "25",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor"
+                    ],
+                    "display_format": "m\/d\/Y",
+                    "return_format": "Y-m-d",
+                    "first_day": 0,
+                    "default_to_current_date": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1
+                },
+                {
+                    "key": "field_6908d03e201d1",
+                    "label": "Anniversary Date (Last)",
+                    "name": "anniversary_date_last",
+                    "aria-label": "",
+                    "type": "date_picker",
+                    "instructions": "Calculated Anniversary Date from the Start or Rehire Dates.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "25",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor"
+                    ],
+                    "display_format": "m\/d\/Y",
+                    "return_format": "Y-m-d",
+                    "first_day": 0,
+                    "default_to_current_date": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1
+                },
+                {
+                    "key": "field_6734f71b7ce4b",
+                    "label": "Years of Service - Current",
+                    "name": "years_service_current",
+                    "aria-label": "",
+                    "type": "number",
+                    "instructions": "Employees current years of service, calculated by the dates given.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "25",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "min": "",
+                    "max": "",
+                    "allow_in_bindings": 0,
+                    "placeholder": "",
+                    "step": "",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_6734f7607ce4c",
+                    "label": "Years of Service - Anniversary Date",
+                    "name": "years_service_on_anniversary",
+                    "aria-label": "",
+                    "type": "number",
+                    "instructions": "Employees current years of service, calculated by the dates given.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "25",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "min": "",
+                    "max": "",
+                    "allow_in_bindings": 0,
+                    "placeholder": "",
+                    "step": "",
+                    "prepend": "",
+                    "append": ""
+                }
+            ],
+            "acfe_group_modal": 0,
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_656a370dfa2b5",
+            "label": "External Listings Info",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 1,
+            "selected": 0
+        },
+        {
+            "key": "field_656a4388dfaf6",
+            "label": "(Column 6\/12)",
+            "name": "",
+            "aria-label": "",
+            "type": "acfe_column",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "columns": "6\/12",
+            "endpoint": 0,
+            "acfe_permissions": "",
+            "allow_in_bindings": 1
+        },
+        {
+            "key": "field_6050f0cb19afe",
+            "label": "Website Visible",
+            "name": "website_visible",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Choose if this staff should be listed on the individual website or not. <i>NOTE: The staff will still be visible internally<\/i>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "message": "",
+            "default_value": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "ui_on_text": "Visible",
+            "ui_off_text": "Not Visible",
+            "ui": 1
+        },
+        {
+            "key": "field_603929bdabbcf",
+            "label": "Website Phone",
+            "name": "phone",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Enter a number if you want a \"Call\/Text\" button shown on the profile.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "col-xs-12",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "default_value": "",
+            "readonly": 0,
+            "disabled": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "maxlength": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_604a40b8a521e",
+            "label": "Website Phone Type",
+            "name": "phone_type",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Choose the phone type. If mobile it will show a \"TEXT\" button on mobile.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "col-xs-12",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "choices": {
+                "--Not Listed": "--Not Listed",
+                "Mobile": "Mobile",
+                "Office": "Office"
+            },
+            "default_value": false,
+            "return_format": "label",
+            "multiple": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "allow_null": 0,
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "create_options": 0,
+            "save_options": 0,
+            "allow_custom": 0,
+            "search_placeholder": ""
+        },
+        {
+            "key": "field_6644fd0331af2",
+            "label": "Schedule Appointment URL",
+            "name": "schedule_appointment_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "Acuity Scheduling or other online scheduling tool. If provided it will show a \"Book an Appointment\" button on their profile.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "default_value": "",
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "placeholder": ""
+        },
+        {
+            "key": "field_656a4395dfaf7",
+            "label": "(Column 6\/12)",
+            "name": "",
+            "aria-label": "",
+            "type": "acfe_column",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "columns": "6\/12",
+            "endpoint": 0
+        },
+        {
+            "key": "field_6047ac96be23a",
+            "label": "Website Listed Locations",
+            "name": "listed_locations",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Choose all the locations that this employee should be listed. (Individual location websites)",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "taxonomy": "location",
+            "add_term": 0,
+            "save_terms": 1,
+            "load_terms": 0,
+            "return_format": "object",
+            "field_type": "checkbox",
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1,
+            "bidirectional": 0,
+            "multiple": 0,
+            "allow_null": 0,
+            "bidirectional_target": []
+        },
+        {
+            "key": "field_656a43addfaf8",
+            "label": "(Column Endpoint)",
+            "name": "",
+            "aria-label": "",
+            "type": "acfe_column",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "endpoint": 1,
+            "columns": "6\/12"
+        },
+        {
+            "key": "field_60392adeabbd3",
+            "label": "Biography",
+            "name": "biography",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "default_value": "",
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "acfe_permissions": "",
+            "allow_in_bindings": 1,
+            "tabs": "all",
+            "toolbar": "basic",
+            "media_upload": 0,
+            "delay": 0
+        },
+        {
+            "key": "field_64ef9dc7f51a9",
+            "label": "Bio Youtube Video ID",
+            "name": "bio_yt_video_id",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Embedded video within the employee bio modal at the bottom.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "default_value": "",
+            "readonly": 0,
+            "disabled": 0,
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "maxlength": "",
+            "acfe_permissions": "",
+            "allow_in_bindings": 1,
+            "placeholder": "oHg5SJYRHA0",
+            "prepend": "https:\/\/www.youtube.com\/embed\/",
+            "append": "\/"
+        },
+        {
+            "key": "field_6050c99f92223",
+            "label": "Internal Listings Info",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_656a448afa21b",
+            "label": "(Column 9\/12)",
+            "name": "",
+            "aria-label": "",
+            "type": "acfe_column",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "columns": "9\/12",
+            "endpoint": 0,
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1
+        },
+        {
+            "key": "field_6050e1f967a48",
+            "label": "Contact Info",
+            "name": "office_contact_info",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "Enter the staff's contact information to be visible only on internal sites. (Eide Web)",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": "staffgroup"
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "layout": "block",
+            "acfe_seamless_style": 0,
+            "acfe_group_modal": 0,
+            "acfe_settings": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "sub_fields": [
+                {
+                    "key": "field_656a457b73c0f",
+                    "label": "(Column 4\/12)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "columns": "4\/12",
+                    "endpoint": 0
+                },
+                {
+                    "key": "field_614ca16f00635",
+                    "label": "Office Extension Helper",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "message",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor"
+                    ],
+                    "message": "<table class=\"table\" style=\"width:100%;\">\r\n  <thead>\r\n    <tr>\r\n      <th style=\"width:50%; text-align: left;\">Extension<\/th>\r\n      <th style=\"width:50%; text-align: left;\">Prefix<\/th>\r\n    <\/tr>\r\n  <\/thead>\r\n  <tbody>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">06xx<\/td>\r\n      <td style=\"color:#1F497D;\">221<\/td>\r\n    <\/tr>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">32xx<\/td>\r\n      <td style=\"color:#1F497D;\">275<\/td>\r\n    <\/tr>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">33xx<\/td>\r\n      <td style=\"color:#1F497D;\">275<\/td>\r\n    <\/tr>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">38xx<\/td>\r\n      <td style=\"color:#1F497D;\">No Direct Dial<\/td>\r\n    <\/tr>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">39xx<\/td>\r\n      <td style=\"color:#1F497D;\">292<\/td>\r\n    <\/tr>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">48xx<\/td>\r\n      <td style=\"color:#1F497D;\">679<\/td>\r\n    <\/tr>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">64xx<\/td>\r\n      <td style=\"color:#1F497D;\">362 & 444<\/td>\r\n    <\/tr>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">65xx<\/td>\r\n      <td style=\"color:#1F497D;\">444<\/td>\r\n    <\/tr>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">66xx<\/td>\r\n      <td style=\"color:#1F497D;\">444<\/td>\r\n    <\/tr>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">67xx<\/td>\r\n      <td style=\"color:#1F497D;\">444<\/td>\r\n    <\/tr>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">79xx<\/td>\r\n      <td style=\"color:#1F497D;\">274<\/td>\r\n    <\/tr>\r\n    <tr>\r\n      <td style=\"color:#1F497D;\">95xx<\/td>\r\n      <td style=\"color:#1F497D;\">271<\/td>\r\n    <\/tr>\r\n  <\/tbody>\r\n<\/table>",
+                    "new_lines": "",
+                    "esc_html": 0,
+                    "acfe_settings": "",
+                    "acfe_permissions": ""
+                },
+                {
+                    "key": "field_656a458a73c10",
+                    "label": "(Column 8\/12)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "columns": "8\/12",
+                    "endpoint": 0
+                },
+                {
+                    "key": "field_6050e23e67a49",
+                    "label": "Office Phone Area Code\/Prefix",
+                    "name": "office_phone_prefix",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "Choose the direct office number area code\/prefix. <small>Leave blank if no direct dial.<\/small>",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "col-xs-12",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "choices": {
+                        "605-221": "605-221",
+                        "605-271": "605-271",
+                        "605-274": "605-274",
+                        "605-275": "605-275",
+                        "605-292": "605-292",
+                        "605-362": "605-362",
+                        "605-444": "605-444",
+                        "605-679": "605-679",
+                        "712-274": "712-274",
+                        "Other": "Other"
+                    },
+                    "default_value": false,
+                    "return_format": "value",
+                    "multiple": 0,
+                    "placeholder": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "allow_null": 1,
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "ui": 0,
+                    "ajax": 0,
+                    "create_options": 0,
+                    "save_options": 0,
+                    "allow_custom": 0,
+                    "search_placeholder": ""
+                },
+                {
+                    "key": "field_6050e29967a4a",
+                    "label": "Office Other Direct",
+                    "name": "office_other_direct",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Enter a direct office phone number.",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_6050e23e67a49",
+                                "operator": "==",
+                                "value": "Other"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "50",
+                        "class": "col-xs-12",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "default_value": "",
+                    "readonly": 0,
+                    "disabled": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "maxlength": 12,
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "605-123-4567",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_677c156749488",
+                    "label": "Office Tracking Number",
+                    "name": "office_phone_tracking",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Enter a direct tracking number that routes to the direct office number.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "col-xs-12",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "default_value": "",
+                    "readonly": 0,
+                    "disabled": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "maxlength": 12,
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "605-123-4567",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_6050e2ef67a4b",
+                    "label": "Office Extension",
+                    "name": "office_extension",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Enter direct extension. <i>Leave blank if no extension.<\/i>",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "col-xs-12",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "default_value": "",
+                    "readonly": 0,
+                    "disabled": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "maxlength": 4,
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_6050e37f67a4d",
+                    "label": "Office Email",
+                    "name": "office_email",
+                    "aria-label": "",
+                    "type": "email",
+                    "instructions": "Enter the office email. <i>Leave blank if no email<\/i>",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "default_value": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_656a459e73c11",
+                    "label": "(Column Endpoint)",
+                    "name": "",
+                    "aria-label": "",
+                    "type": "acfe_column",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "endpoint": 1,
+                    "columns": "6\/12"
+                },
+                {
+                    "key": "field_6050e33067a4c",
+                    "label": "Cell #",
+                    "name": "office_cell_phone",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Enter cell phone number without dashes or dots.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "col-md-4",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "default_value": "",
+                    "readonly": 0,
+                    "disabled": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "maxlength": 10,
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": 6051234567,
+                    "prepend": "+1",
+                    "append": ""
+                },
+                {
+                    "key": "field_6245c5114a96c",
+                    "label": "Cell # Visible",
+                    "name": "office_cell_phone_visible",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "Yes (Shown on internal listings) No (Hidden on listings but left in database)",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "col-md-4",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "message": "",
+                    "default_value": 1,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "ui_on_text": "Visible",
+                    "ui_off_text": "Not Visible",
+                    "ui": 1
+                },
+                {
+                    "key": "field_62470a1c96fb4",
+                    "label": "SMS Communication",
+                    "name": "office_sms_status",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "Turn off will remove staff from any SMS communcation groups. Leave on by default.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "col-md-4",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "message": "",
+                    "default_value": 1,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "ui_on_text": "On",
+                    "ui_off_text": "Off",
+                    "ui": 1
+                },
+                {
+                    "key": "field_605b69912f549",
+                    "label": "Additional Numbers",
+                    "name": "additional_numbers",
+                    "aria-label": "",
+                    "type": "repeater",
+                    "instructions": "Add additional numbers for the staff to be reached at. Example: multiple locations, or multiple offices.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "col-md-12",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "acfe_repeater_stylised_button": 0,
+                    "layout": "table",
+                    "pagination": 0,
+                    "acfe_settings": "",
+                    "min": 0,
+                    "max": 4,
+                    "acfe_permissions": "",
+                    "collapsed": "",
+                    "button_label": "Add Additional Phone",
+                    "rows_per_page": 20,
+                    "sub_fields": [
+                        {
+                            "key": "field_605b6bad5aa08",
+                            "label": "Type",
+                            "name": "type",
+                            "aria-label": "",
+                            "type": "select",
+                            "instructions": "Choose the type of additional number to list.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "custom_role_permissions": [
+                                "editor",
+                                "author",
+                                "contributor",
+                                "itsupportstaff"
+                            ],
+                            "acfe_permissions": "",
+                            "choices": {
+                                "Extension": "Extension",
+                                "Phone": "Phone"
+                            },
+                            "default_value": false,
+                            "return_format": "label",
+                            "multiple": 0,
+                            "acfe_settings": "",
+                            "acfe_validate": "",
+                            "allow_null": 0,
+                            "allow_in_bindings": 1,
+                            "ui": 0,
+                            "ajax": 0,
+                            "placeholder": "",
+                            "create_options": 0,
+                            "save_options": 0,
+                            "allow_custom": 0,
+                            "search_placeholder": "",
+                            "parent_repeater": "field_605b69912f549"
+                        },
+                        {
+                            "key": "field_605b6a192f54a",
+                            "label": "Label",
+                            "name": "phone_label",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "Enter the label for the number. <i>(listed to the left of the number)<\/i> <br><i>Example: Home, Sales Desk, Office<\/i>",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "custom_role_permissions": [
+                                "editor",
+                                "author",
+                                "contributor",
+                                "itsupportstaff"
+                            ],
+                            "acfe_permissions": "",
+                            "default_value": "",
+                            "readonly": 0,
+                            "disabled": 0,
+                            "acfe_settings": "",
+                            "acfe_validate": "",
+                            "maxlength": 12,
+                            "allow_in_bindings": 1,
+                            "placeholder": "Sales Desk",
+                            "prepend": "",
+                            "append": "",
+                            "parent_repeater": "field_605b69912f549"
+                        },
+                        {
+                            "key": "field_605b6a6b2f54b",
+                            "label": "Phone",
+                            "name": "phone",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "Enter the additional number to list.",
+                            "required": 0,
+                            "conditional_logic": [
+                                [
+                                    {
+                                        "field": "field_605b6bad5aa08",
+                                        "operator": "==contains",
+                                        "value": "Phone"
+                                    }
+                                ]
+                            ],
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "custom_role_permissions": [
+                                "editor",
+                                "author",
+                                "contributor",
+                                "itsupportstaff"
+                            ],
+                            "acfe_permissions": "",
+                            "default_value": "",
+                            "readonly": 0,
+                            "disabled": 0,
+                            "acfe_settings": "",
+                            "acfe_validate": "",
+                            "maxlength": 12,
+                            "allow_in_bindings": 1,
+                            "placeholder": "605-123-4567",
+                            "prepend": "",
+                            "append": "",
+                            "parent_repeater": "field_605b69912f549"
+                        },
+                        {
+                            "key": "field_605b74a9bc856",
+                            "label": "Extension",
+                            "name": "extension",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "Enter the extension to list.",
+                            "required": 0,
+                            "conditional_logic": [
+                                [
+                                    {
+                                        "field": "field_605b6bad5aa08",
+                                        "operator": "==contains",
+                                        "value": "Extension"
+                                    }
+                                ]
+                            ],
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "custom_role_permissions": [
+                                "editor",
+                                "author",
+                                "contributor",
+                                "itsupportstaff"
+                            ],
+                            "acfe_permissions": "",
+                            "default_value": "",
+                            "readonly": 0,
+                            "disabled": 0,
+                            "acfe_settings": "",
+                            "acfe_validate": "",
+                            "maxlength": 4,
+                            "allow_in_bindings": 1,
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "parent_repeater": "field_605b69912f549"
+                        }
+                    ]
+                }
+            ],
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_656a4490fa21c",
+            "label": "(Column 3\/12)",
+            "name": "",
+            "aria-label": "",
+            "type": "acfe_column",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "columns": "3\/12",
+            "endpoint": 0,
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "allow_in_bindings": 1
+        },
+        {
+            "key": "field_6050dea3c5bda",
+            "label": "Birthday",
+            "name": "birthday",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "Choose the staff's birthday by choosing the birthday month and then the birthday day of the month.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": "staffgroup"
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "layout": "block",
+            "acfe_seamless_style": 0,
+            "acfe_group_modal": 0,
+            "acfe_settings": "",
+            "acfe_permissions": "",
+            "sub_fields": [
+                {
+                    "key": "field_6050ded0c5bdb",
+                    "label": "Birthday Month",
+                    "name": "birthday_month",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "Choose the birthday month number.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "choices": {
+                        "01": "01",
+                        "02": "02",
+                        "03": "03",
+                        "04": "04",
+                        "05": "05",
+                        "06": "06",
+                        "07": "07",
+                        "08": "08",
+                        "09": "09",
+                        "10": "10",
+                        "11": "11",
+                        "12": "12"
+                    },
+                    "default_value": false,
+                    "return_format": "value",
+                    "multiple": 0,
+                    "placeholder": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "allow_null": 1,
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "ui": 0,
+                    "ajax": 0,
+                    "create_options": 0,
+                    "save_options": 0,
+                    "allow_custom": 0,
+                    "search_placeholder": ""
+                },
+                {
+                    "key": "field_6050df0fc5bdc",
+                    "label": "Birthday Day",
+                    "name": "birthday_day",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "Choose the birthday day of the month.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": [
+                        "editor",
+                        "author",
+                        "contributor",
+                        "itsupportstaff"
+                    ],
+                    "choices": {
+                        "01": "01",
+                        "02": "02",
+                        "03": "03",
+                        "04": "04",
+                        "05": "05",
+                        "06": "06",
+                        "07": "07",
+                        "08": "08",
+                        "09": "09",
+                        "10": "10",
+                        "11": "11",
+                        "12": "12",
+                        "13": "13",
+                        "14": "14",
+                        "15": "15",
+                        "16": "16",
+                        "17": "17",
+                        "18": "18",
+                        "19": "19",
+                        "20": "20",
+                        "21": "21",
+                        "22": "22",
+                        "23": "23",
+                        "24": "24",
+                        "25": "25",
+                        "26": "26",
+                        "27": "27",
+                        "28": "28",
+                        "29": "29",
+                        "30": "30",
+                        "31": "31"
+                    },
+                    "default_value": false,
+                    "return_format": "value",
+                    "multiple": 0,
+                    "placeholder": "",
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "allow_null": 1,
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "ui": 0,
+                    "ajax": 0,
+                    "create_options": 0,
+                    "save_options": 0,
+                    "allow_custom": 0,
+                    "search_placeholder": ""
+                }
+            ],
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_656a4495fa21d",
+            "label": "(Column Endpoint)",
+            "name": "",
+            "aria-label": "",
+            "type": "acfe_column",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "endpoint": 1,
+            "columns": "6\/12"
+        },
+        {
+            "key": "field_65c3a55bf7b88",
+            "label": "Managers",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_65c3aae902e7b",
+            "label": "Managers Info",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "role_can_edit_editor": 1,
+            "role_can_edit_author": 0,
+            "role_can_edit_contributor": 0,
+            "role_can_edit_subscriber": 0,
+            "role_can_edit_vendersupport": 0,
+            "role_can_edit_businessmanager": 0,
+            "role_can_edit_itsupportstaff": 0,
+            "message": "The following fields pertain to the management and coaching relationships within this staff profile. The \"Performance Manager\" field identifies the coach assigned to the staff member. The \"Assigned Staff\" field, applicable to coach profiles, displays the list of staff members assigned to that coach for guidance and development.",
+            "new_lines": "wpautop",
+            "esc_html": 0,
+            "acfe_settings": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor"
+            ]
+        },
+        {
+            "key": "field_65c3a575f7b89",
+            "label": "Performance Coach",
+            "name": "manager_performance_coach",
+            "aria-label": "",
+            "type": "relationship",
+            "instructions": "Who is this employees performance coach?",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "post_type": [
+                "staff"
+            ],
+            "post_status": "",
+            "taxonomy": "",
+            "filters": [
+                "search"
+            ],
+            "return_format": "id",
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "min": "",
+            "max": 1,
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "allow_in_bindings": 1,
+            "elements": [
+                "featured_image"
+            ],
+            "bidirectional": 1,
+            "bidirectional_target": [
+                "field_65c3a6837a81b"
+            ]
+        },
+        {
+            "key": "field_65c3a6837a81b",
+            "label": "Performance Coach - Staff Assignments",
+            "name": "manager_performance_coach_staff",
+            "aria-label": "",
+            "type": "relationship",
+            "instructions": "Lists all staff members assigned to this performance manager for coaching and development.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "post_type": [
+                "staff"
+            ],
+            "post_status": "",
+            "taxonomy": "",
+            "filters": [
+                "search"
+            ],
+            "return_format": "id",
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "acfe_settings": "",
+            "acfe_validate": "",
+            "min": "",
+            "max": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "allow_in_bindings": 1,
+            "elements": [
+                "featured_image"
+            ],
+            "bidirectional": 1,
+            "bidirectional_target": [
+                "field_65c3a575f7b89"
+            ]
+        },
+        {
+            "key": "field_62f15ebdeb4fa",
+            "label": "Other",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_62f15ee6eb4fb",
+            "label": "Profile Customizations",
+            "name": "profile_customizations",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author",
+                "contributor"
+            ],
+            "layout": "block",
+            "acfe_seamless_style": 0,
+            "acfe_group_modal": 0,
+            "acfe_settings": "",
+            "acfe_permissions": [
+                "administrator",
+                "editor",
+                "author",
+                "contributor",
+                "itsupportstaff"
+            ],
+            "sub_fields": [
+                {
+                    "key": "field_62f15f38eb4fc",
+                    "label": "Display Screen Bottom Message",
+                    "name": "display_bottom_message",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Enter any message to be displayed on the bottom of the staff card when displayed on store displays.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": 35
+                }
+            ],
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_636a811543c9a",
+            "label": "Logs",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_64305ec800aa4",
+            "label": "SMS History",
+            "name": "sms_history_log",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": "",
+            "acfe_repeater_stylised_button": 0,
+            "layout": "table",
+            "pagination": 0,
+            "acfe_settings": "",
+            "min": 0,
+            "max": 0,
+            "acfe_permissions": [
+                "administrator",
+                "editor"
+            ],
+            "collapsed": "",
+            "button_label": "Add Row",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_64305f0300aa5",
+                    "label": "Action",
+                    "name": "action",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "15",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": "",
+                    "default_value": "",
+                    "readonly": 0,
+                    "disabled": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "maxlength": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_64305ec800aa4"
+                },
+                {
+                    "key": "field_64305f3500aa6",
+                    "label": "Source",
+                    "name": "source",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "20",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": "",
+                    "default_value": "",
+                    "readonly": 0,
+                    "disabled": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "maxlength": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_64305ec800aa4"
+                },
+                {
+                    "key": "field_64305f4d00aa7",
+                    "label": "Reference\/Notes",
+                    "name": "ref_notes",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": "",
+                    "default_value": "",
+                    "acfe_textarea_code": 0,
+                    "readonly": 0,
+                    "disabled": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "maxlength": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "rows": 4,
+                    "placeholder": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_64305ec800aa4"
+                },
+                {
+                    "key": "field_643060a570498",
+                    "label": "Timestamp",
+                    "name": "timestamp",
+                    "aria-label": "",
+                    "type": "date_time_picker",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "15",
+                        "class": "",
+                        "id": ""
+                    },
+                    "custom_role_permissions": "",
+                    "display_format": "m\/d\/Y g:i a",
+                    "return_format": "m\/d\/Y g:i a",
+                    "first_day": 0,
+                    "acfe_settings": "",
+                    "acfe_validate": "",
+                    "acfe_permissions": "",
+                    "allow_in_bindings": 1,
+                    "default_to_current_date": 0,
+                    "parent_repeater": "field_64305ec800aa4"
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "staff"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "tooltip",
+    "hide_on_screen": [
+        "the_content",
+        "excerpt",
+        "discussion",
+        "comments",
+        "author",
+        "featured_image",
+        "send-trackbacks"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "acfe_display_title": "",
+    "acfe_autosync": [
+        "json"
+    ],
+    "acfe_permissions": [
+        "administrator",
+        "editor",
+        "author",
+        "contributor",
+        "itsupportstaff",
+        "basic-editor"
+    ],
+    "acfe_form": 1,
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1763155981
+}

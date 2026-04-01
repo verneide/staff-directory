@@ -1,0 +1,342 @@
+{
+    "key": "group_6581ffff99b13",
+    "title": "Staff Options - Main",
+    "fields": [
+        {
+            "key": "field_658326086d8fc",
+            "label": "Main",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_6904ebe4b5fa7",
+            "label": "Anniversary Tagging Settings",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author"
+            ],
+            "message": "",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_6904eb30b5fa5",
+            "label": "Days Before Anniversary to Start Tagging",
+            "name": "anniversary_days_before",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Start tagging staff this many days before their anniversary (e.g. 7 = one week early).",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author"
+            ],
+            "default_value": 0,
+            "min": 0,
+            "max": 90,
+            "allow_in_bindings": 0,
+            "placeholder": "",
+            "step": 1,
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_6904eb8eb5fa6",
+            "label": "Months After Anniversary to Keep Tag",
+            "name": "anniversary_months_after",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Keep the anniversary tag active for this many months after the anniversary date.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author"
+            ],
+            "default_value": 6,
+            "min": 1,
+            "max": 9,
+            "allow_in_bindings": 0,
+            "placeholder": "",
+            "step": 1,
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_658325803e426",
+            "label": "Advanced",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_658203d83815e",
+            "label": "Allowed Referrer Logic",
+            "name": "ve_allowed_referrer_logic",
+            "aria-label": "",
+            "type": "checkbox",
+            "instructions": "Choose the type of referrer traffic sources that will be checked against the Allowed Referrer's list.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "iframe": "Iframes\/Embeds",
+                "direct": "Direct Access",
+                "script": "Script Embeds"
+            },
+            "default_value": [],
+            "return_format": "value",
+            "acfe_settings": {
+                "65832a05fc30d": {
+                    "acfe_settings_location": "",
+                    "acfe_settings_settings": ""
+                }
+            },
+            "acfe_validate": "",
+            "allow_custom": 0,
+            "acfe_permissions": "",
+            "layout": "horizontal",
+            "toggle": 1,
+            "save_custom": 0,
+            "custom_choice_button_text": "Add new choice"
+        },
+        {
+            "key": "field_658200006fe75",
+            "label": "Allowed Referrer's",
+            "name": "ve_allowed_referrers",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "The following are a list of allowed referrers to the Staff Listings & Displays. Referrers not listed here will be denied accesss.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "acfe_repeater_stylised_button": 0,
+            "layout": "table",
+            "pagination": 1,
+            "rows_per_page": 25,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add New Referrer",
+            "sub_fields": [
+                {
+                    "key": "field_658200d26fe77",
+                    "label": "Match Type",
+                    "name": "match_type",
+                    "aria-label": "",
+                    "type": "radio",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "10",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "url": "URL",
+                        "ip": "IP(s)"
+                    },
+                    "default_value": "",
+                    "return_format": "value",
+                    "allow_null": 0,
+                    "other_choice": 0,
+                    "layout": "vertical",
+                    "save_other_choice": 0,
+                    "parent_repeater": "field_658200006fe75"
+                },
+                {
+                    "key": "field_658201456fe79",
+                    "label": "Name",
+                    "name": "name",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "readonly": 0,
+                    "disabled": 0,
+                    "maxlength": "",
+                    "placeholder": "Reference Name",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_658200006fe75"
+                },
+                {
+                    "key": "field_658200836fe76",
+                    "label": "URL",
+                    "name": "url",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_658200d26fe77",
+                                "operator": "==",
+                                "value": "url"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "readonly": 0,
+                    "disabled": 0,
+                    "maxlength": "",
+                    "placeholder": "verneide.com",
+                    "prepend": "https:\/\/",
+                    "append": "\/",
+                    "parent_repeater": "field_658200006fe75"
+                },
+                {
+                    "key": "field_6582011a6fe78",
+                    "label": "IP Address(es)",
+                    "name": "ip_address",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "Multiple IPs must be separated by a comma.",
+                    "required": 1,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_658200d26fe77",
+                                "operator": "==",
+                                "value": "ip"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "acfe_textarea_code": 0,
+                    "readonly": 0,
+                    "disabled": 0,
+                    "maxlength": "",
+                    "rows": 1,
+                    "placeholder": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_658200006fe75"
+                },
+                {
+                    "key": "field_658201616fe7a",
+                    "label": "Comments",
+                    "name": "comments",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "acfe_textarea_code": 0,
+                    "readonly": 0,
+                    "disabled": 0,
+                    "maxlength": "",
+                    "rows": 1,
+                    "placeholder": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_658200006fe75"
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "ve-staff-settings"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "acfe_display_title": "",
+    "acfe_autosync": [
+        "php",
+        "json"
+    ],
+    "acfe_form": 0,
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1761930664
+}

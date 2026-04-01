@@ -1,0 +1,71 @@
+{
+    "key": "group_62ec1b3b25ec6",
+    "title": "Embed Code",
+    "fields": [
+        {
+            "key": "field_62ec1b595e372",
+            "label": "Embed Custom CSS",
+            "name": "embed_custom_css",
+            "aria-label": "",
+            "type": "acfe_code_editor",
+            "instructions": "Add any custom CSS to be embeded with the embed code, this can be to ovveride styles for a specific list etc. <br>\r\n<strong><i>No &lt;style&gt; tag is needed.<\/strong>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "mode": "css",
+            "lines": 1,
+            "indent_unit": 4,
+            "maxlength": "",
+            "rows": 8,
+            "max_rows": "",
+            "return_entities": 0,
+            "return_format": []
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "listing"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "simple-listing"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "display"
+            }
+        ]
+    ],
+    "menu_order": 99,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Embed code overides.",
+    "show_in_rest": 0,
+    "acfe_display_title": "",
+    "acfe_autosync": [
+        "json"
+    ],
+    "acfe_form": 0,
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1731954766
+}

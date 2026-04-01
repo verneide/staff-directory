@@ -1,0 +1,1239 @@
+{
+    "key": "group_62e82e6c0bee0",
+    "title": "Staff Displays",
+    "fields": [
+        {
+            "key": "field_62ed8dcdd85f3",
+            "label": "Display Title (Title Bar Left Side)",
+            "name": "staff_display_title",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Custom title text, leave back to use page title.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_62ed8e7d232df",
+            "label": "Display Logo (Title Bar Right Side)",
+            "name": "staff_display_logo",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Upload a store logo or icon (white recommended) (PNG Only)",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "uploader": "",
+            "acfe_thumbnail": 0,
+            "return_format": "array",
+            "min_width": "100px",
+            "min_height": "50px",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ".png, .PNG",
+            "preview_size": "medium",
+            "library": "all"
+        },
+        {
+            "key": "field_63b7432aaf0e2",
+            "label": "Primary Color",
+            "name": "staff_display_primary_color",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "The primary color used in the display (ie. Title Bar)",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "default_value": "#1281c7",
+            "enable_opacity": 0,
+            "return_format": "string",
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true
+        },
+        {
+            "key": "field_63b7439faf0e3",
+            "label": "Secondary Color",
+            "name": "staff_display_secondary_color",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "The secondary color used in the display (ie. Profile Message Bar)",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "default_value": "#1281c7",
+            "enable_opacity": 0,
+            "return_format": "string",
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true
+        },
+        {
+            "key": "field_62e82e6d086d5",
+            "label": "Display Type",
+            "name": "staff_display_type",
+            "aria-label": "",
+            "type": "radio",
+            "instructions": "Choose the type of display you will be creating.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor"
+            ],
+            "choices": {
+                "results": "Filters (Display by Location, Departments & Other FIlters)",
+                "staff": "Choose Staff Profiles (Choose Each)",
+                "individual": "Individual Staff (1 Person)",
+                "birthday": "Upcoming \/ Recent Birthdays",
+                "newpromo": "New \/ Promoted Employees",
+                "anniversary": "Recent Anniversary Milestones"
+            },
+            "default_value": "",
+            "return_format": "value",
+            "allow_null": 0,
+            "other_choice": 0,
+            "allow_in_bindings": 1,
+            "layout": "horizontal",
+            "save_other_choice": 0
+        },
+        {
+            "key": "field_63b7272af26f5",
+            "label": "Display Orientation (Ratio)",
+            "name": "staff_display_ratio",
+            "aria-label": "",
+            "type": "radio",
+            "instructions": "Choose the orientation of the display. This will force the container to that ratio.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "choices": {
+                "16x9": "Horizontal (16x9)",
+                "9x16": "Vertical (9x16)"
+            },
+            "default_value": "16x9",
+            "return_format": "value",
+            "allow_null": 0,
+            "other_choice": 0,
+            "layout": "horizontal",
+            "save_other_choice": 0
+        },
+        {
+            "key": "field_62e83707b80cc",
+            "label": "Profile Information Displayed",
+            "name": "staff_display_profile_info_displayed",
+            "aria-label": "",
+            "type": "checkbox",
+            "instructions": "Choose the information from the staff profile to display.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "choices": {
+                "firstname": "First Name",
+                "lastname": "Last Name",
+                "title": "Title",
+                "department": "Department",
+                "location": "Location \/ Group"
+            },
+            "allow_custom": 0,
+            "default_value": [
+                "firstname",
+                "lastname",
+                "title",
+                "department",
+                "location"
+            ],
+            "layout": "horizontal",
+            "toggle": 0,
+            "return_format": "value",
+            "show_column": 0,
+            "show_column_weight": 1000,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0,
+            "save_custom": 0,
+            "custom_choice_button_text": "Add new choice"
+        },
+        {
+            "key": "field_66c37498ab74b",
+            "label": "Show Location Logo",
+            "name": "display_show_location_logo",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Shows locations logo on each staff card.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui_on_text": "Shown",
+            "ui_off_text": "Not Shown",
+            "ui": 1
+        },
+        {
+            "key": "field_62ea978f7952e",
+            "label": "Max Profiles Displayed",
+            "name": "staff_display_max_profiles_displayed",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "default_value": 12,
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "show_column": 0,
+            "show_column_sortable": 0,
+            "show_column_weight": 1000,
+            "allow_quickedit": 0,
+            "allow_bulkedit": 0
+        },
+        {
+            "key": "field_66c39a7324c31",
+            "label": "Profiles Per Row",
+            "name": "staff_display_profiles_per_row",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "choices": {
+                "6": "6 Profiles Per Row (Default)",
+                "5": "5 Profiles Per Row",
+                "4": "4 Profiles Per Row"
+            },
+            "default_value": 6,
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "allow_custom": 0,
+            "search_placeholder": "",
+            "create_options": 0,
+            "save_options": 0
+        },
+        {
+            "key": "field_6909250e50633",
+            "label": "Row Height",
+            "name": "staff_display_row_height",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Sets the max height of the cards. 6 or less cards stretch to full height. Setting to normal will normalize the height to other pages.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor",
+                "author"
+            ],
+            "choices": {
+                "full": "Full Height (Default)",
+                "normal": "Normalized (Best for Paginations)"
+            },
+            "default_value": "full",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "allow_in_bindings": 1,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "create_options": 0,
+            "save_options": 0,
+            "allow_custom": 0,
+            "search_placeholder": ""
+        },
+        {
+            "key": "field_66c38f74d6984",
+            "label": "Page Number",
+            "name": "staff_display_page_number",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Max profiles per display is 12, if the filter results have more than 12 then you will need to split the displays into pages. If you choose page 2, it will display profiles 13-25.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "default_value": 1,
+            "min": 1,
+            "max": 12,
+            "placeholder": "",
+            "step": 1,
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_62e835df73c33",
+            "label": "Birthdays",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "birthday"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_62e82e6d0878f",
+            "label": "Birthday Display",
+            "name": "birthday_display",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "The following settings are for displaying staff based on their birthday.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "birthday"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": "staffgroup"
+            },
+            "layout": "block",
+            "acfe_seamless_style": 0,
+            "acfe_group_modal": 0,
+            "sub_fields": [
+                {
+                    "key": "field_62e82e6d139fb",
+                    "label": "Days Before Today to Show",
+                    "name": "days_shown_before",
+                    "aria-label": "",
+                    "type": "range",
+                    "instructions": "Choose the range of days from today backward to show staff birthdays. <small>(ie. -5 would show birthdays 5 days ago from today)<\/small>",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "col-md-6",
+                        "id": ""
+                    },
+                    "default_value": -5,
+                    "min": -30,
+                    "max": -1,
+                    "step": "",
+                    "prepend": "",
+                    "append": "Days Before Today",
+                    "show_column": 0,
+                    "show_column_sortable": 0,
+                    "show_column_weight": 1000,
+                    "allow_quickedit": 0,
+                    "allow_bulkedit": 0
+                },
+                {
+                    "key": "field_62e82e6d13a37",
+                    "label": "Days After Today to Show",
+                    "name": "days_shown_after",
+                    "aria-label": "",
+                    "type": "range",
+                    "instructions": "Choose the range of days from today backward to show staff birthdays. <small>(ie. 15 would show birthdays 15 days from today)<\/small>",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "col-md-6",
+                        "id": ""
+                    },
+                    "default_value": 15,
+                    "min": 0,
+                    "max": 90,
+                    "step": "",
+                    "prepend": "",
+                    "append": "Days After Today",
+                    "show_column": 0,
+                    "show_column_sortable": 0,
+                    "show_column_weight": 1000,
+                    "allow_quickedit": 0,
+                    "allow_bulkedit": 0
+                }
+            ],
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_62e835ff73c34",
+            "label": "New & Promotions",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "newpromo"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_62e82e6d087b6",
+            "label": "New\/Promotion Display",
+            "name": "new_promotion_display",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "The following settings are for displaying staff based on their published date or if they have recently been promoted.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "newpromo"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": "staffgroup"
+            },
+            "layout": "block",
+            "acfe_seamless_style": 0,
+            "acfe_group_modal": 0,
+            "sub_fields": [
+                {
+                    "key": "field_62e82e6d19ecf",
+                    "label": "Months Prior to Show",
+                    "name": "months_before_current",
+                    "aria-label": "",
+                    "type": "range",
+                    "instructions": "Choose the number of months from the current month backward to show new published staff or new promotions. <small>(ie. -1 would show current month & last & 0 would show just this month)<\/small>",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "col-md-6",
+                        "id": ""
+                    },
+                    "default_value": -1,
+                    "min": -24,
+                    "max": 0,
+                    "step": -1,
+                    "prepend": "",
+                    "append": "Months Prior to Current",
+                    "show_column": 0,
+                    "show_column_sortable": 0,
+                    "show_column_weight": 1000,
+                    "allow_quickedit": 0,
+                    "allow_bulkedit": 0
+                }
+            ],
+            "acfe_group_modal_close": 0,
+            "acfe_group_modal_button": "",
+            "acfe_group_modal_size": "large"
+        },
+        {
+            "key": "field_62e8353df1a18",
+            "label": "Filters",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "results"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "birthday"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "newpromo"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "anniversary"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_62e82e6d08715",
+            "label": "Location(s) \/ Group(s)",
+            "name": "staff_display_locations",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Choose the location(s) or group(s) that you want this display to show. Leave all unchecked to show all.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "results"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "birthday"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "newpromo"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "anniversary"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor"
+            ],
+            "taxonomy": "location",
+            "add_term": 0,
+            "save_terms": 0,
+            "load_terms": 0,
+            "return_format": "id",
+            "field_type": "checkbox",
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "allow_in_bindings": 1,
+            "bidirectional": 0,
+            "multiple": 0,
+            "allow_null": 0,
+            "bidirectional_target": []
+        },
+        {
+            "key": "field_62e833c913fc7",
+            "label": "Department(s)",
+            "name": "staff_display_departments",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Choose the departments that you want this display to show. Leave all unchecked to show all.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "results"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "birthday"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "newpromo"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "anniversary"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "custom_role_permissions": [
+                "editor"
+            ],
+            "taxonomy": "department",
+            "add_term": 0,
+            "save_terms": 0,
+            "load_terms": 0,
+            "return_format": "id",
+            "field_type": "checkbox",
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "allow_in_bindings": 1,
+            "bidirectional": 0,
+            "multiple": 0,
+            "allow_null": 0,
+            "bidirectional_target": []
+        },
+        {
+            "key": "field_66c3bdc023940",
+            "label": "Staff Tags",
+            "name": "staff_display_tags",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Choose tags to filter down by the tag, otherwise leave all unchecked.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "results"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "taxonomy": "post_tag",
+            "add_term": 0,
+            "save_terms": 0,
+            "load_terms": 0,
+            "return_format": "id",
+            "field_type": "checkbox",
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "bidirectional": 0,
+            "multiple": 0,
+            "allow_null": 0,
+            "bidirectional_target": []
+        },
+        {
+            "key": "field_62f28bf8c89a5",
+            "label": "Staff Field Filters",
+            "name": "staff_display_field_filters",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "Create custom filter options below using IF statements and the field to filter by. <br>\r\nExample (Using AND as GROUP RELATION): <br>\r\n<strong>Group A:<\/strong> IF STAFF TITLE CONTAINS \"Service\" OR IF STAFF TITLE CONTAINS \"Fixed Operations\" <br>\r\n<strong>Group B:<\/strong> IF STAFF TITLE DOES NOT CONTAIN \"PARTS\" AND IF STAFF TITLE DOES NOT CONTAIN \"PARTS\" <br>",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "results"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "birthday"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "newpromo"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-12",
+                "id": ""
+            },
+            "acfe_repeater_stylised_button": 1,
+            "layout": "table",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "field_62f2a190cf6ec",
+            "button_label": "Add Filter Group",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_62f5267b71285",
+                    "label": "Individual Filters Relation",
+                    "name": "relation_condition_filters",
+                    "aria-label": "",
+                    "type": "radio",
+                    "instructions": "Used between filters in the group. (OR is typically used)",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "10",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "OR": "OR",
+                        "AND": "AND"
+                    },
+                    "allow_null": 0,
+                    "other_choice": 0,
+                    "default_value": "OR",
+                    "layout": "horizontal",
+                    "return_format": "value",
+                    "show_column": 0,
+                    "show_column_sortable": 0,
+                    "show_column_weight": 1000,
+                    "allow_quickedit": 0,
+                    "allow_bulkedit": 0,
+                    "save_other_choice": 0,
+                    "parent_repeater": "field_62f28bf8c89a5"
+                },
+                {
+                    "key": "field_62f2a190cf6ec",
+                    "label": "Condition Filters",
+                    "name": "condition_filters",
+                    "aria-label": "",
+                    "type": "repeater",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "90",
+                        "class": "",
+                        "id": ""
+                    },
+                    "acfe_repeater_stylised_button": 1,
+                    "collapsed": "",
+                    "min": 0,
+                    "max": 0,
+                    "layout": "table",
+                    "button_label": "Add New Filter Statement",
+                    "sub_fields": [
+                        {
+                            "key": "field_62f50c2a63d3c",
+                            "label": "",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "message",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "2",
+                                "class": "",
+                                "id": ""
+                            },
+                            "message": "IF",
+                            "new_lines": "",
+                            "esc_html": 0,
+                            "parent_repeater": "field_62f2a190cf6ec"
+                        },
+                        {
+                            "key": "field_62f5081864b05",
+                            "label": "Filter Field",
+                            "name": "filter_field",
+                            "aria-label": "",
+                            "type": "select",
+                            "instructions": "Staff field used in filter.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "15",
+                                "class": "",
+                                "id": ""
+                            },
+                            "choices": {
+                                "title": "Staff Title"
+                            },
+                            "default_value": "title",
+                            "allow_null": 0,
+                            "multiple": 0,
+                            "ui": 0,
+                            "return_format": "value",
+                            "show_column": 0,
+                            "show_column_sortable": 0,
+                            "show_column_weight": 1000,
+                            "allow_quickedit": 0,
+                            "allow_bulkedit": 0,
+                            "ajax": 0,
+                            "placeholder": "",
+                            "create_options": 0,
+                            "save_options": 0,
+                            "allow_custom": 0,
+                            "search_placeholder": "",
+                            "parent_repeater": "field_62f2a190cf6ec"
+                        },
+                        {
+                            "key": "field_62f28c6ac89a6",
+                            "label": "Compare Option",
+                            "name": "filter_compare_option",
+                            "aria-label": "",
+                            "type": "select",
+                            "instructions": "Choose how to compare the filter to the filter field.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "15",
+                                "class": "",
+                                "id": ""
+                            },
+                            "choices": {
+                                "LIKE": "Contains",
+                                "NOT LIKE": "Not Contains",
+                                "=": "Equal To",
+                                "!=": "Not Equal To",
+                                "IN": "In List (Comma Seperate)",
+                                "NOT IN": "Not In List (Comma Seperate)"
+                            },
+                            "default_value": "LIKE",
+                            "allow_null": 0,
+                            "multiple": 0,
+                            "ui": 0,
+                            "return_format": "value",
+                            "ajax": 0,
+                            "placeholder": "",
+                            "create_options": 0,
+                            "save_options": 0,
+                            "allow_custom": 0,
+                            "search_placeholder": "",
+                            "parent_repeater": "field_62f2a190cf6ec"
+                        },
+                        {
+                            "key": "field_62f28d03c89a7",
+                            "label": "Staff Title",
+                            "name": "filter_value",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "Enter value for filter.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "85",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "maxlength": "",
+                            "show_column": 0,
+                            "show_column_sortable": 0,
+                            "show_column_weight": 1000,
+                            "allow_quickedit": 0,
+                            "allow_bulkedit": 0,
+                            "parent_repeater": "field_62f2a190cf6ec"
+                        }
+                    ],
+                    "rows_per_page": 20,
+                    "parent_repeater": "field_62f28bf8c89a5"
+                }
+            ]
+        },
+        {
+            "key": "field_62f2a22ecf990",
+            "label": "Staff Filter Group Relation (Between Groups)",
+            "name": "staff_display_field_groups_relation",
+            "aria-label": "",
+            "type": "radio",
+            "instructions": "Used between to compare the filter groups. (Typically AND is used)",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62f28bf8c89a5",
+                        "operator": ">",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "!=",
+                        "value": "staff"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_62f28bf8c89a5",
+                        "operator": ">",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "!=",
+                        "value": "individual"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "AND": "AND",
+                "OR": "OR"
+            },
+            "default_value": "",
+            "return_format": "value",
+            "allow_null": 0,
+            "other_choice": 0,
+            "layout": "horizontal",
+            "save_other_choice": 0
+        },
+        {
+            "key": "field_62e83578f1a19",
+            "label": "Staff Choice",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "staff"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_62e8307b66435",
+            "label": "Staff Displayed",
+            "name": "staff_displayed",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "staff"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-12",
+                "id": ""
+            },
+            "acfe_repeater_stylised_button": 1,
+            "layout": "table",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add Staff Profile",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_62e830be66436",
+                    "label": "Staff Profile",
+                    "name": "staff_profile",
+                    "aria-label": "",
+                    "type": "post_object",
+                    "instructions": "Choose the employee to be shown on this display.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "post_type": [
+                        "staff"
+                    ],
+                    "taxonomy": "",
+                    "allow_null": 0,
+                    "multiple": 0,
+                    "return_format": "object",
+                    "show_column": 0,
+                    "show_column_weight": 1000,
+                    "allow_quickedit": 0,
+                    "allow_bulkedit": 0,
+                    "ui": 1,
+                    "bidirectional_target": [],
+                    "save_custom": 0,
+                    "save_post_type": "",
+                    "save_post_status": "",
+                    "parent_repeater": "field_62e8307b66435"
+                },
+                {
+                    "key": "field_62e83260d3eff",
+                    "label": "Title Override",
+                    "name": "staff_title_override",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Custom Title to be displayed, it will override the staff's actual title in their profile.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": "",
+                    "show_column": 0,
+                    "show_column_sortable": 0,
+                    "show_column_weight": 1000,
+                    "allow_quickedit": 0,
+                    "allow_bulkedit": 0,
+                    "parent_repeater": "field_62e8307b66435"
+                }
+            ]
+        },
+        {
+            "key": "field_62e83671b80ca",
+            "label": "Individual Staff",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "individual"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_62e83691b80cb",
+            "label": "Staff Profile",
+            "name": "staff_display_individual",
+            "aria-label": "",
+            "type": "post_object",
+            "instructions": "Choose the staff profile to display on this page.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_62e82e6d086d5",
+                        "operator": "==",
+                        "value": "individual"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "col-md-6",
+                "id": ""
+            },
+            "post_type": [
+                "staff"
+            ],
+            "post_status": "",
+            "taxonomy": "",
+            "return_format": "object",
+            "multiple": 0,
+            "save_custom": 0,
+            "save_post_status": "publish",
+            "acfe_bidirectional": {
+                "acfe_bidirectional_enabled": "0"
+            },
+            "allow_null": 0,
+            "bidirectional": 0,
+            "ui": 1,
+            "bidirectional_target": [],
+            "save_post_type": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "display"
+            },
+            {
+                "param": "current_user_role",
+                "operator": "==",
+                "value": "administrator"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "display"
+            },
+            {
+                "param": "current_user_role",
+                "operator": "==",
+                "value": "editor"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "display"
+            },
+            {
+                "param": "current_user_role",
+                "operator": "==",
+                "value": "administrator"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "the_content",
+        "excerpt",
+        "discussion",
+        "comments",
+        "author",
+        "categories",
+        "tags"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "acfe_display_title": "",
+    "acfe_autosync": [
+        "json"
+    ],
+    "acfe_form": 0,
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1762207126
+}

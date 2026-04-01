@@ -1,0 +1,63 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+ pre {
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+ }
+
+/* Columns for Checkbox and Radio */
+.acf-field-checkbox.two-columns ul,
+.acf-field-radio.two-columns ul,
+.acf-field-checkbox.three-columns ul,
+.acf-field-radio.three-columns ul,
+.acf-field-checkbox.four-columns ul,
+.acf-field-radio.four-columns ul { 
+	-webkit-column-gap: 20px;
+	-moz-column-gap: 20px;
+	column-gap: 20px;
+}
+
+.acf-field-checkbox.two-columns ul,
+.acf-field-radio.two-columns ul {
+	-webkit-column-count: 2;
+	-moz-column-count: 2; 
+	column-count: 2;
+}
+
+.acf-field-checkbox.three-columns ul,
+.acf-field-radio.three-columns ul {
+	-webkit-column-count: 3;
+	-moz-column-count: 3; 
+	column-count: 3;
+}
+
+.acf-field-checkbox.four-columns ul,
+.acf-field-radio.four-columns ul {
+	-webkit-column-count: 4;
+	-moz-column-count: 4; 
+	column-count: 4;
+}
+
+@media screen and (max-width: 782px) {
+	.acf-field-checkbox.two-columns ul,
+	.acf-field-radio.two-columns ul,
+	.acf-field-checkbox.three-columns ul,
+	.acf-field-radio.three-columns ul,
+	.acf-field-checkbox.four-columns ul,
+	.acf-field-radio.four-columns ul { 
+		-webkit-column-count: auto;
+		-moz-column-count: auto;
+		column-count: auto;
+		-webkit-column-gap: normal;
+		-moz-column-gap: normal;
+		column-gap: normal;
+	}
+}
+

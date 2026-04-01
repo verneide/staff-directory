@@ -1,0 +1,110 @@
+/*!
+ * CUSTOM CSS FOR ADMIN POSTS (BACKEND)
+ */
+
+#staffgroup > div.acf-input > div{
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+#staffgroup {
+	min-width: 100% !important;
+}
+
+#post-body-content .inside.acf-fields{
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+[id^='acf-group_'] .inside.acf-fields{
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.acf-settings-wrap [id^='acf-group_'] .inside.acf-fields{
+  display: -ms-flexbox;
+  display: inherit;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+#post-body-content .acf-tab-wrap{
+	min-width: 100% !important;
+}
+
+#post-body-content .acf-field[data-type="wysiwyg"] {
+	width: 100%;
+}
+
+#post-body-content td.acf-field.acf-field-select.col-md-auto {
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 100%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-1 {
+    -ms-flex: 0 0 8.333333%;
+    flex: 0 0 8.333333%;
+    max-width: 8.333333%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-2 {
+    -ms-flex: 0 0 16.666667%;
+    flex: 0 0 16.666667%;
+    max-width: 16.666667%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-3 {
+    -ms-flex: 0 0 25%;
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-4 {
+    -ms-flex: 0 0 33.333333%;
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-5 {
+    -ms-flex: 0 0 41.666667%;
+    flex: 0 0 41.666667%;
+    max-width: 41.666667%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-6 {
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-7 {
+    -ms-flex: 0 0 58.333333%;
+    flex: 0 0 58.333333%;
+    max-width: 58.333333%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-8 {
+    -ms-flex: 0 0 66.666667%;
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-9 {
+    -ms-flex: 0 0 75%;
+    flex: 0 0 75%;
+    max-width: 75%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-10 {
+    -ms-flex: 0 0 83.333333%;
+    flex: 0 0 83.333333%;
+    max-width: 83.333333%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-11 {
+    -ms-flex: 0 0 91.666667%;
+    flex: 0 0 91.666667%;
+    max-width: 91.666667%;
+  }
+#post-body-content td.acf-field.acf-field-select.col-md-12 {
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
