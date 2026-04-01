@@ -34,4 +34,4 @@ jobs:
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SG_PORT }}" \
             assets/themes/vern-eide-staff/ \
-            ${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/staff.eideweb.com/public_html/assets/plugins/vern-eide-staff/
+            ${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/staff.eideweb.com/public_html/assets/themes/vern-eide-staff/
