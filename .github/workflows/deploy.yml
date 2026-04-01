@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install rsync
         run: sudo apt-get update && sudo apt-get install -y rsync
@@ -26,12 +26,12 @@ jobs:
         run: |
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SG_PORT }}" \
-            wp-content/plugins/ve-staff/ \
+            assets/plugins/ve-staff/ \
             ${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/staff.eideweb.com/public_html/assets/plugins/ve-staff/
 
       - name: Deploy vern-eide-staff theme
         run: |
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SG_PORT }}" \
-            wp-content/themes/vern-eide-staff/ \
+            assets/themes/vern-eide-staff/ \
             ${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/staff.eideweb.com/public_html/assets/plugins/vern-eide-staff/
