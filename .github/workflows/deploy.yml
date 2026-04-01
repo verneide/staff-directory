@@ -22,23 +22,16 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p ${{ secrets.SG_PORT }} ${{ secrets.SG_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy vem-lightspeed
+      - name: Deploy ve-staff plugin
         run: |
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SG_PORT }}" \
-            wp-content/plugins/vem-lightspeed/ \
-            ${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/motopowershop.com/public_html/wp-content/plugins/vem-lightspeed/
+            wp-content/plugins/ve-staff/ \
+            ${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/staff.eideweb.com/public_html/assets/plugins/ve-staff/
 
-      - name: Deploy vem-woocommerce
+      - name: Deploy vern-eide-staff theme
         run: |
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SG_PORT }}" \
-            wp-content/plugins/vem-woocommerce/ \
-            ${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/motopowershop.com/public_html/wp-content/plugins/vem-woocommerce/
-
-      - name: Deploy motopowershop-astra
-        run: |
-          rsync -avz --delete \
-            -e "ssh -p ${{ secrets.SG_PORT }}" \
-            wp-content/themes/motopowershop-astra/ \
-            ${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/motopowershop.com/public_html/wp-content/themes/motopowershop-astra/
+            wp-content/themes/vern-eide-staff/ \
+            ${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/staff.eideweb.com/public_html/assets/plugins/vern-eide-staff/
