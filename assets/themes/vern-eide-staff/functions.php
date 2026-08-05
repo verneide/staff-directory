@@ -301,6 +301,10 @@ function ve_staff_enqueue_scripts() {
 	wp_register_script( 'listing-js', get_template_directory_uri() . '/inc/assets/js/listing.js', array ( 'jquery' ), 1.1, false);
 	wp_register_script( 've-lazy-load', get_template_directory_uri() . '/inc/assets/js/ve-lazy-load.js', array ( 'jquery' ), 1.1, false);
 	wp_register_script( 've-ga-events', get_template_directory_uri() . '/inc/assets/js/ga-events.js', array ( 'jquery' ), 1.1, false);
+	wp_localize_script('listing-js', 'veStaffSuggestEdit', array(
+		'ajaxUrl' => admin_url('admin-ajax.php'),
+		'nonce' => wp_create_nonce('ve_staff_suggest_edit'),
+	));
 }
 // Register style sheet.
 add_action( 'wp_enqueue_scripts', 've_staff_enqueue_scripts' );
@@ -618,3 +622,187 @@ function staff_debug_show_dialog() {
 }
 
 
+
+/**
+ * Staff suggested edit submissions.
+ */
+function ve_staff_suggest_edit_allowed_fields() {
+	return array(
+		'email' => 'Email',
+		'extension' => 'Extension',
+		'tracking_number' => 'Tracking Number',
+		'title' => 'Title',
+		'cell_phone' => 'Cell Phone',
+		'direct_office' => 'Direct Office',
+		'other' => 'Other',
+	);
+}
+
+function ve_staff_suggest_edit_table_name() {
+	global $wpdb;
+	return $wpdb->prefix . 've_staff_suggested_edits';
+}
+
+function ve_staff_register_suggest_edit_setting() {
+	register_setting('acf_options_ve-staff-settings', 've_staff_suggest_edit_recipient_email', array('sanitize_callback' => 'sanitize_email'));
+	add_settings_section('ve_staff_suggest_edit_settings', 'Suggested Edit Notifications', '__return_false', 've-staff-settings');
+	add_settings_field('ve_staff_suggest_edit_recipient_email', 'Suggested Edit Recipient Email', 've_staff_suggest_edit_recipient_email_field', 've-staff-settings', 've_staff_suggest_edit_settings');
+}
+add_action('admin_init', 've_staff_register_suggest_edit_setting');
+
+function ve_staff_suggest_edit_recipient_email_field() {
+	$value = get_option('ve_staff_suggest_edit_recipient_email', get_option('admin_email'));
+	echo '<input type="email" class="regular-text" name="ve_staff_suggest_edit_recipient_email" value="' . esc_attr($value) . '">';
+}
+
+function ve_staff_render_suggest_edit_settings() {
+	if (!current_user_can('manage_options')) {
+		return;
+	}
+	settings_fields('acf_options_ve-staff-settings');
+	do_settings_sections('ve-staff-settings');
+}
+add_action('acf/options_page/submitbox_major_actions', 've_staff_render_suggest_edit_settings');
+
+function ve_staff_create_suggest_edit_table() {
+	global $wpdb;
+	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	$table_name = ve_staff_suggest_edit_table_name();
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE {$table_name} (
+		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		staff_post_id bigint(20) unsigned NOT NULL,
+		employee_name varchar(255) NOT NULL,
+		requester_name varchar(255) NOT NULL,
+		requester_email varchar(255) NOT NULL,
+		changes longtext NOT NULL,
+		submitted_at datetime NOT NULL,
+		remote_addr varchar(100) NOT NULL,
+		PRIMARY KEY  (id),
+		KEY staff_post_id (staff_post_id)
+	) {$charset_collate};";
+	dbDelta($sql);
+}
+add_action('after_switch_theme', 've_staff_create_suggest_edit_table');
+add_action('admin_init', 've_staff_create_suggest_edit_table');
+
+function ve_staff_sanitize_suggest_edit_value($value) {
+	if (!is_string($value)) {
+		return '';
+	}
+	return sanitize_textarea_field(wp_unslash($value));
+}
+
+function ve_staff_handle_suggest_edit_submission() {
+	if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 've_staff_suggest_edit')) {
+		wp_send_json_error(array('message' => 'Invalid security token.'), 403);
+	}
+
+	$is_internal_listing = isset($_POST['internal_listing']) && sanitize_text_field(wp_unslash($_POST['internal_listing'])) === '1';
+	if (!$is_internal_listing) {
+		wp_send_json_error(array('message' => 'Suggested edits are only available on internal listings.'), 403);
+	}
+
+	$staff_post_id = isset($_POST['staff_post_id']) ? absint($_POST['staff_post_id']) : 0;
+	$employee_name = isset($_POST['employee_name']) ? sanitize_text_field(wp_unslash($_POST['employee_name'])) : '';
+	$requester_name = isset($_POST['requester_name']) ? sanitize_text_field(wp_unslash($_POST['requester_name'])) : '';
+	$requester_email = isset($_POST['requester_email']) ? sanitize_email(wp_unslash($_POST['requester_email'])) : '';
+
+	if (!$staff_post_id || get_post_type($staff_post_id) !== 'staff' || $employee_name === '' || $requester_name === '' || !is_email($requester_email)) {
+		wp_send_json_error(array('message' => 'Please complete all required fields with valid values.'), 400);
+	}
+
+	$allowed_fields = ve_staff_suggest_edit_allowed_fields();
+	$changes = array();
+	foreach ($allowed_fields as $field_key => $field_label) {
+		$current_key = 'current_' . $field_key;
+		$suggested_key = 'suggested_' . $field_key;
+		$current_value = isset($_POST[$current_key]) ? ve_staff_sanitize_suggest_edit_value($_POST[$current_key]) : '';
+		$suggested_value = isset($_POST[$suggested_key]) ? ve_staff_sanitize_suggest_edit_value($_POST[$suggested_key]) : '';
+		if ($suggested_value !== '') {
+			$changes[$field_key] = array('label' => $field_label, 'current' => $current_value, 'suggested' => $suggested_value);
+		}
+	}
+
+	if (!$changes) {
+		wp_send_json_error(array('message' => 'Please enter at least one suggested edit.'), 400);
+	}
+
+	ve_staff_create_suggest_edit_table();
+
+	global $wpdb;
+	$submitted_at = current_time('mysql');
+	$remote_addr = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
+	$wpdb->insert(ve_staff_suggest_edit_table_name(), array(
+		'staff_post_id' => $staff_post_id,
+		'employee_name' => $employee_name,
+		'requester_name' => $requester_name,
+		'requester_email' => $requester_email,
+		'changes' => wp_json_encode($changes),
+		'submitted_at' => $submitted_at,
+		'remote_addr' => $remote_addr,
+	), array('%d', '%s', '%s', '%s', '%s', '%s', '%s'));
+
+	$recipient = get_option('ve_staff_suggest_edit_recipient_email', get_option('admin_email'));
+	$edit_link = admin_url('post.php?post=' . $staff_post_id . '&action=edit');
+	$rows = '';
+	foreach ($changes as $change) {
+		$rows .= '<tr><th align="left">' . esc_html($change['label']) . '</th><td><del>' . esc_html($change['current']) . '</del> &rarr; <strong>' . esc_html($change['suggested']) . '</strong></td></tr>';
+	}
+	$message = '<p>A suggested edit was submitted by ' . esc_html($requester_name) . ' on ' . esc_html(wp_date('F j, Y g:i a')) . ' for ' . esc_html($employee_name) . '.</p><table cellpadding="6" cellspacing="0" border="1">' . $rows . '</table><p><a href="' . esc_url($edit_link) . '">Edit this staff member</a></p>';
+	wp_mail($recipient, 'Suggested Staff Edit: ' . $employee_name, $message, array('Content-Type: text/html; charset=UTF-8', 'Reply-To: ' . $requester_name . ' <' . $requester_email . '>'));
+
+	wp_send_json_success(array('message' => 'Thank you. Your suggested edit has been submitted.'));
+}
+add_action('wp_ajax_ve_staff_suggest_edit', 've_staff_handle_suggest_edit_submission');
+add_action('wp_ajax_nopriv_ve_staff_suggest_edit', 've_staff_handle_suggest_edit_submission');
+
+function ve_staff_suggest_edit_modal_html() {
+	$fields = ve_staff_suggest_edit_allowed_fields();
+	ob_start();
+	?>
+	<div class="vemodal vefade ve-suggest-edit-modal" id="veSuggestEditModal" tabindex="-1" role="dialog" aria-hidden="true" style="display:none;">
+		<div class="vemodal-dialog vemodal-lg vemodal-dialog-centered vemodal-dialog-scrollable" role="document">
+			<div class="vemodal-content shadow-lg rounded" style="border-radius:10px;">
+				<div class="vemodal-header" style="background-color:#373737;color:#fff;">
+					<h3 class="vemodal-title" style="color:#fff;">Suggest Staff Edit: <span data-suggest-edit-employee></span></h3>
+					<button type="button" class="close" data-suggest-edit-close aria-label="Close" style="color:#fff;"><span aria-hidden="true">&times;</span></button>
+				</div>
+				<form id="veSuggestEditForm" class="ve-suggest-edit-form">
+					<div class="vemodal-body">
+						<input type="hidden" name="staff_post_id" value="">
+						<input type="hidden" name="employee_name" value="">
+						<input type="hidden" name="internal_listing" value="1">
+						<div class="ve-row">
+							<div class="ve-col-md-6 ve-pad-sm"><label>Employee Name<input type="text" name="employee_name_display" disabled></label></div>
+							<div class="ve-col-md-6 ve-pad-sm"><label>Your Name *<input type="text" name="requester_name" required></label></div>
+							<div class="ve-col-md-6 ve-pad-sm"><label>Your Email *<input type="email" name="requester_email" required></label></div>
+						</div>
+						<p>Enter only the fields that need to change.</p>
+						<?php foreach ($fields as $field_key => $field_label) : ?>
+							<div class="ve-suggest-edit-field ve-pad-sm">
+								<label><?php echo esc_html($field_label); ?></label>
+								<input type="hidden" name="current_<?php echo esc_attr($field_key); ?>" value="">
+								<input type="text" name="suggested_<?php echo esc_attr($field_key); ?>" placeholder="Suggested <?php echo esc_attr($field_label); ?>">
+							</div>
+						<?php endforeach; ?>
+						<div class="ve-suggest-edit-status" role="status"></div>
+					</div>
+					<div class="vemodal-footer"><button type="button" class="btn btn-secondary" data-suggest-edit-close>Close</button><button type="submit" class="btn btn-primary">Submit Suggested Edit</button></div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+
+function ve_staff_save_suggest_edit_settings($post_id) {
+	if ($post_id !== 'options' || !current_user_can('manage_options')) {
+		return;
+	}
+	if (isset($_POST['ve_staff_suggest_edit_recipient_email'])) {
+		update_option('ve_staff_suggest_edit_recipient_email', sanitize_email(wp_unslash($_POST['ve_staff_suggest_edit_recipient_email'])));
+	}
+}
+add_action('acf/save_post', 've_staff_save_suggest_edit_settings', 20);
