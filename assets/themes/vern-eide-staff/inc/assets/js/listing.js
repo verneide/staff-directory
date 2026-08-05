@@ -391,7 +391,19 @@ docReady(function() {
 		}
 	}
 
+	function getVeModalInstance() {
+		if (window.bootstrap && window.bootstrap.veModal) {
+			return window.bootstrap.veModal.getOrCreateInstance(modal, { backdrop: true });
+		}
+		return null;
+	}
+
 	function closeModal() {
+		var modalInstance = getVeModalInstance();
+		if (modalInstance) {
+			modalInstance.vehide();
+			return;
+		}
 		modal.classList.remove('veshow');
 		modal.setAttribute('aria-hidden', 'true');
 		modal.style.display = 'none';
@@ -409,6 +421,11 @@ docReady(function() {
 		var employeeHeading = modal.querySelector('[data-suggest-edit-employee]');
 		if (employeeHeading) {
 			employeeHeading.textContent = button.getAttribute('data-employee-name') || '';
+		}
+		var modalInstance = getVeModalInstance();
+		if (modalInstance) {
+			modalInstance.veshow(button);
+			return;
 		}
 		modal.classList.add('veshow');
 		modal.setAttribute('aria-hidden', 'false');

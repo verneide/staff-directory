@@ -5222,15 +5222,21 @@ body:not(.inventory-template-default) .di-stacks.di-stacks--bottom, body:not(.in
 
 
 .ve-suggest-edit-btn {
-	background: transparent;
-	border: 0;
-	color: #1281c7;
-	cursor: pointer;
+	border-width: 1px;
 	display: block;
-	font-size: 12px;
+	font-size: 11px;
+	letter-spacing: .06em;
+	line-height: 1;
 	margin: 8px auto 0;
-	padding: 0;
-	text-decoration: underline;
+	max-width: 120px;
+	min-height: 0;
+	padding: 5px 10px;
+	text-decoration: none !important;
+	width: auto;
+}
+
+.ve-suggest-edit-btn:hover {
+	text-decoration: none !important;
 }
 
 .ve-suggest-edit-form label {
