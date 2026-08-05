@@ -35,6 +35,9 @@ global $staffCardNum, $listid, $listingtype, $listingmodals;
 
 // LIST PAGE SECURITY TOKEN (USED IN VCARD LINKS)
 $listtoken = get_staff_list_page_token($listid);
+if ($internal && strpos($listingmodals, 'id="veSuggestEditModal"') === false) {
+	$listingmodals .= ve_staff_suggest_edit_modal_html();
+}
 
 /** EMPLOYEE LOOP **/
 foreach ($deptstaff as $k => $v) {
@@ -114,6 +117,7 @@ foreach ($deptstaff as $k => $v) {
 			$phoneprefix = $contactinfo["office_phone_prefix"];
 			$phoneext = $contactinfo["office_extension"];
 			$phoneother = $contactinfo["office_other_direct"];
+			$phonetracking = $contactinfo["office_phone_tracking"] ?? '';
 			$addphones = $contactinfo["additional_numbers"];
 
 			if($phoneext){
@@ -158,7 +162,7 @@ foreach ($deptstaff as $k => $v) {
 					
 				// INTERNAL CARD CODE 
 ?>
-				<div class="<?php echo $rowcolumnsclass ?> ve-margin-bottom-xl employee-tile ve-width-100 dept<?php echo $deptid ?>" data-card-num="<?php echo $staffCardNum;?>" data-loc="<?php echo htmlspecialchars(json_encode($emplocationslisted), ENT_QUOTES, 'UTF-8'); ?>" data-dept="<?php echo $deptname ?>" data-dept-id="<?php echo $deptid ?>" data-employee-name='<?php echo htmlspecialchars(strtoupper($name), ENT_QUOTES, "UTF-8"); ?>' <?php if(isset($dataext)){echo $dataext;} ?> data-tags="<?php echo htmlspecialchars(json_encode(array_column($stafftags, 'id')), ENT_QUOTES, 'UTF-8'); ?>">
+				<div class="<?php echo $rowcolumnsclass ?> ve-margin-bottom-xl employee-tile ve-width-100 dept<?php echo $deptid ?>" data-card-num="<?php echo $staffCardNum;?>" data-loc="<?php echo htmlspecialchars(json_encode($emplocationslisted), ENT_QUOTES, 'UTF-8'); ?>" data-dept="<?php echo $deptname ?>" data-dept-id="<?php echo $deptid ?>" data-employee-name='<?php echo htmlspecialchars(strtoupper($name), ENT_QUOTES, "UTF-8"); ?>' data-staff-post-id="<?php echo esc_attr($staffid); ?>" <?php if(isset($dataext)){echo $dataext;} ?> data-tags="<?php echo htmlspecialchars(json_encode(array_column($stafftags, 'id')), ENT_QUOTES, 'UTF-8'); ?>">
 					<?php 
 					if ($stafftags) {
 						// Filter tags where 'card_visible' equals 1
@@ -313,6 +317,7 @@ foreach ($deptstaff as $k => $v) {
 														<span class="ve-bolder">Email: </span><a target="_self" href="mailto:<?php echo $email ?>" class="" style="text-decoration: none !important;"><?php echo $email ?></a>
 													</span>
 												<?php } ?>
+												<button type="button" class="ve-suggest-edit-btn" data-staff-post-id="<?php echo esc_attr($staffid); ?>" data-employee-name="<?php echo esc_attr($name); ?>" data-current-email="<?php echo esc_attr($email); ?>" data-current-extension="<?php echo esc_attr($phoneext); ?>" data-current-tracking-number="<?php echo esc_attr($phonetracking); ?>" data-current-title="<?php echo esc_attr($title); ?>" data-current-cell-phone="<?php echo esc_attr($cellphone); ?>" data-current-direct-office="<?php echo esc_attr($phoneother); ?>" data-current-other="">Suggest Edit</button>
 												<?php
 													if (isset($yearsofservice)) {
 														if ($yearsofservice == 0) {
