@@ -375,3 +375,92 @@ function replaceSiteDomainInLinks() {
 // Run the replaceSiteDomainInLinks function after the window has loaded
 window.addEventListener('load', replaceSiteDomainInLinks);
 
+
+/* STAFF SUGGEST EDIT MODAL */
+docReady(function() {
+	var modal = document.getElementById('veSuggestEditModal');
+	var form = document.getElementById('veSuggestEditForm');
+	if (!modal || !form) {
+		return;
+	}
+
+	function setFieldValue(fieldName, value) {
+		var field = form.querySelector('[name="' + fieldName + '"]');
+		if (field) {
+			field.value = value || '';
+		}
+	}
+
+	function closeModal() {
+		modal.classList.remove('veshow');
+		modal.setAttribute('aria-hidden', 'true');
+		modal.style.display = 'none';
+	}
+
+	function openModal(button) {
+		var fieldNames = ['email', 'extension', 'tracking_number', 'title', 'cell_phone', 'direct_office', 'other'];
+		form.reset();
+		setFieldValue('staff_post_id', button.getAttribute('data-staff-post-id'));
+		setFieldValue('employee_name', button.getAttribute('data-employee-name'));
+		setFieldValue('employee_name_display', button.getAttribute('data-employee-name'));
+		fieldNames.forEach(function(fieldName) {
+			setFieldValue('current_' + fieldName, button.getAttribute('data-current-' + fieldName.replace(/_/g, '-')));
+		});
+		var employeeHeading = modal.querySelector('[data-suggest-edit-employee]');
+		if (employeeHeading) {
+			employeeHeading.textContent = button.getAttribute('data-employee-name') || '';
+		}
+		modal.classList.add('veshow');
+		modal.setAttribute('aria-hidden', 'false');
+		modal.style.display = 'block';
+	}
+
+	document.addEventListener('click', function(event) {
+		var openButton = event.target.closest('.ve-suggest-edit-btn');
+		if (openButton) {
+			event.preventDefault();
+			openModal(openButton);
+			return;
+		}
+		if (event.target.closest('[data-suggest-edit-close]')) {
+			event.preventDefault();
+			closeModal();
+		}
+	});
+
+	form.addEventListener('submit', function(event) {
+		event.preventDefault();
+		var status = form.querySelector('.ve-suggest-edit-status');
+		var submitButton = form.querySelector('[type="submit"]');
+		var data = new FormData(form);
+		data.append('action', 've_staff_suggest_edit');
+		data.append('nonce', window.veStaffSuggestEdit ? window.veStaffSuggestEdit.nonce : '');
+		if (status) {
+			status.textContent = 'Submitting...';
+		}
+		if (submitButton) {
+			submitButton.disabled = true;
+		}
+		fetch(window.veStaffSuggestEdit.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: data })
+			.then(function(response) { return response.json(); })
+			.then(function(response) {
+				if (!response.success) {
+					throw new Error(response.data && response.data.message ? response.data.message : 'Unable to submit suggested edit.');
+				}
+				if (status) {
+					status.textContent = response.data.message;
+				}
+				setTimeout(closeModal, 1200);
+			})
+			.catch(function(error) {
+				if (status) {
+					status.textContent = error.message;
+				}
+			})
+			.finally(function() {
+				if (submitButton) {
+					submitButton.disabled = false;
+				}
+			});
+	});
+});
