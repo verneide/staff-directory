@@ -643,26 +643,51 @@ function ve_staff_suggest_edit_table_name() {
 	return $wpdb->prefix . 've_staff_suggested_edits';
 }
 
-function ve_staff_register_suggest_edit_setting() {
-	register_setting('acf_options_ve-staff-settings', 've_staff_suggest_edit_recipient_email', array('sanitize_callback' => 'sanitize_email'));
-	add_settings_section('ve_staff_suggest_edit_settings', 'Suggested Edit Notifications', '__return_false', 've-staff-settings');
-	add_settings_field('ve_staff_suggest_edit_recipient_email', 'Suggested Edit Recipient Email', 've_staff_suggest_edit_recipient_email_field', 've-staff-settings', 've_staff_suggest_edit_settings');
-}
-add_action('admin_init', 've_staff_register_suggest_edit_setting');
-
-function ve_staff_suggest_edit_recipient_email_field() {
-	$value = get_option('ve_staff_suggest_edit_recipient_email', get_option('admin_email'));
-	echo '<input type="email" class="regular-text" name="ve_staff_suggest_edit_recipient_email" value="' . esc_attr($value) . '">';
-}
-
-function ve_staff_render_suggest_edit_settings() {
-	if (!current_user_can('manage_options')) {
+function ve_staff_register_suggest_edit_field_group() {
+	if (!function_exists('acf_add_local_field_group')) {
 		return;
 	}
-	settings_fields('acf_options_ve-staff-settings');
-	do_settings_sections('ve-staff-settings');
+
+	acf_add_local_field_group(array(
+		'key' => 'group_ve_staff_suggest_edit_notifications',
+		'title' => 'Suggested Edit Notifications',
+		'fields' => array(
+			array(
+				'key' => 'field_ve_staff_suggest_edit_recipient_email',
+				'label' => 'Recipient Email',
+				'name' => 've_staff_suggest_edit_recipient_email',
+				'type' => 'email',
+				'instructions' => 'Suggested staff edits will be sent to this address.',
+				'required' => 1,
+			),
+		),
+		'location' => array(
+			array(
+				array(
+					'param' => 'options_page',
+					'operator' => '==',
+					'value' => 've-staff-settings',
+				),
+			),
+		),
+		'position' => 'side',
+	));
 }
-add_action('acf/options_page/submitbox_major_actions', 've_staff_render_suggest_edit_settings');
+add_action('acf/init', 've_staff_register_suggest_edit_field_group');
+
+function ve_staff_load_suggest_edit_recipient_email($value) {
+	if ($value !== null && $value !== false && $value !== '') {
+		return $value;
+	}
+
+	return get_option('ve_staff_suggest_edit_recipient_email', get_option('admin_email'));
+}
+add_filter('acf/load_value/key=field_ve_staff_suggest_edit_recipient_email', 've_staff_load_suggest_edit_recipient_email');
+
+function ve_staff_get_suggest_edit_recipient_email() {
+	$value = get_field('ve_staff_suggest_edit_recipient_email', 'option');
+	return is_email($value) ? $value : get_option('admin_email');
+}
 
 function ve_staff_create_suggest_edit_table() {
 	global $wpdb;
@@ -743,7 +768,7 @@ function ve_staff_handle_suggest_edit_submission() {
 		'remote_addr' => $remote_addr,
 	), array('%d', '%s', '%s', '%s', '%s', '%s', '%s'));
 
-	$recipient = get_option('ve_staff_suggest_edit_recipient_email', get_option('admin_email'));
+	$recipient = ve_staff_get_suggest_edit_recipient_email();
 	$edit_link = admin_url('post.php?post=' . $staff_post_id . '&action=edit');
 	$rows = '';
 	foreach ($changes as $change) {
@@ -796,13 +821,3 @@ function ve_staff_suggest_edit_modal_html() {
 	<?php
 	return ob_get_clean();
 }
-
-function ve_staff_save_suggest_edit_settings($post_id) {
-	if ($post_id !== 'options' || !current_user_can('manage_options')) {
-		return;
-	}
-	if (isset($_POST['ve_staff_suggest_edit_recipient_email'])) {
-		update_option('ve_staff_suggest_edit_recipient_email', sanitize_email(wp_unslash($_POST['ve_staff_suggest_edit_recipient_email'])));
-	}
-}
-add_action('acf/save_post', 've_staff_save_suggest_edit_settings', 20);

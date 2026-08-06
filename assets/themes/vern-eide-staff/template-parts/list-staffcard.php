@@ -317,7 +317,7 @@ foreach ($deptstaff as $k => $v) {
 														<span class="ve-bolder">Email: </span><a target="_self" href="mailto:<?php echo $email ?>" class="" style="text-decoration: none !important;"><?php echo $email ?></a>
 													</span>
 												<?php } ?>
-												<button type="button" class="ve-primary-button-black ve-suggest-edit-btn" data-staff-post-id="<?php echo esc_attr($staffid); ?>" data-employee-name="<?php echo esc_attr($name); ?>" data-current-email="<?php echo esc_attr($email); ?>" data-current-extension="<?php echo esc_attr($phoneext); ?>" data-current-tracking-number="<?php echo esc_attr($phonetracking); ?>" data-current-title="<?php echo esc_attr($title); ?>" data-current-cell-phone="<?php echo esc_attr($cellphone); ?>" data-current-direct-office="<?php echo esc_attr($phoneother); ?>" data-current-other="">Suggest Edit</button>
+												<button type="button" class="ve-secondary-button-grey ve-contact-info-btn ve-suggest-edit-btn" data-bs-toggle="vemodal" data-bs-target="#veSuggestEditModal" aria-controls="veSuggestEditModal" data-staff-post-id="<?php echo esc_attr($staffid); ?>" data-employee-name="<?php echo esc_attr($name); ?>" data-current-email="<?php echo esc_attr($email); ?>" data-current-extension="<?php echo esc_attr($phoneext); ?>" data-current-tracking-number="<?php echo esc_attr($phonetracking); ?>" data-current-title="<?php echo esc_attr($title); ?>" data-current-cell-phone="<?php echo esc_attr($cellphone); ?>" data-current-direct-office="<?php echo esc_attr($phoneother); ?>" data-current-other="">Suggest Edit</button>
 												<?php
 													if (isset($yearsofservice)) {
 														if ($yearsofservice == 0) {

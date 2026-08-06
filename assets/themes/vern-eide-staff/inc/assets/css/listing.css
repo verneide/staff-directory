@@ -5222,20 +5222,19 @@ body:not(.inventory-template-default) .di-stacks.di-stacks--bottom, body:not(.in
 
 
 .ve-suggest-edit-btn {
+	background-color: #e6e7e8;
+	border-color: #d2d2d2;
 	border-width: 1px;
+	color: #373737;
 	display: block;
-	font-size: 11px;
-	letter-spacing: .06em;
-	line-height: 1;
-	margin: 8px auto 0;
-	max-width: 120px;
-	min-height: 0;
-	padding: 5px 10px;
+	margin: 10px auto 0;
+	padding-top: 5px !important;
 	text-decoration: none !important;
-	width: auto;
 }
 
 .ve-suggest-edit-btn:hover {
+	background-color: #d2d2d2;
+	color: #202020;
 	text-decoration: none !important;
 }
 
