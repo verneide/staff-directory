@@ -807,6 +807,10 @@ function ve_staff_suggest_edit_modal_html() {
 							<div class="ve-col-md-6 ve-pad-sm"><label>Your Email *<input type="email" name="requester_email" required></label></div>
 						</div>
 						<p>Enter only the fields that need to change.</p>
+						<div class="ve-suggest-edit-columns" aria-hidden="true">
+							<strong>Current Value</strong>
+							<strong>Suggested Edit</strong>
+						</div>
 						<?php foreach ($fields as $field_key => $field_label) : ?>
 							<div class="ve-suggest-edit-field ve-pad-sm">
 								<label class="ve-suggest-edit-label" for="suggested-<?php echo esc_attr($field_key); ?>"><?php echo esc_html($field_label); ?></label>
