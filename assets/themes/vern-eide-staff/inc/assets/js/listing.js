@@ -420,7 +420,7 @@ docReady(function() {
 			var currentValueDisplay = modal.querySelector('[data-current-value="' + fieldName + '"]');
 			setFieldValue('current_' + fieldName, currentValue);
 			if (currentValueDisplay) {
-				currentValueDisplay.textContent = currentValue || 'Not Set';
+				currentValueDisplay.value = currentValue || 'Not Set';
 			}
 		});
 		var employeeHeading = modal.querySelector('[data-suggest-edit-employee]');

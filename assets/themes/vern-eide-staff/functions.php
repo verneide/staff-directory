@@ -800,7 +800,9 @@ function ve_staff_suggest_edit_modal_html() {
 						<input type="hidden" name="employee_name" value="">
 						<input type="hidden" name="internal_listing" value="1">
 						<div class="ve-row">
-							<div class="ve-col-md-6 ve-pad-sm"><label>Employee Name<input type="text" name="employee_name_display" disabled></label></div>
+							<div class="ve-col-md-12 ve-pad-sm"><label>Employee Name<input type="text" name="employee_name_display" disabled></label></div>
+						</div>
+						<div class="ve-row">
 							<div class="ve-col-md-6 ve-pad-sm"><label>Your Name *<input type="text" name="requester_name" required></label></div>
 							<div class="ve-col-md-6 ve-pad-sm"><label>Your Email *<input type="email" name="requester_email" required></label></div>
 						</div>
@@ -811,12 +813,18 @@ function ve_staff_suggest_edit_modal_html() {
 						</div>
 						<?php foreach ($fields as $field_key => $field_label) : ?>
 							<div class="ve-suggest-edit-field ve-pad-sm">
-								<div class="ve-suggest-edit-current">
-									<span class="ve-suggest-edit-label"><?php echo esc_html($field_label); ?> (Current Value)</span>
-									<span data-current-value="<?php echo esc_attr($field_key); ?>">Not Set</span>
-									<input type="hidden" name="current_<?php echo esc_attr($field_key); ?>" value="">
+								<label class="ve-suggest-edit-label" for="suggested-<?php echo esc_attr($field_key); ?>"><?php echo esc_html($field_label); ?></label>
+								<div class="ve-suggest-edit-value-row">
+									<div class="input-group ve-suggest-edit-input-group">
+										<div class="input-group-prepend"><span class="input-group-text">Current</span></div>
+										<input type="text" class="form-control" data-current-value="<?php echo esc_attr($field_key); ?>" value="Not Set" aria-label="Current <?php echo esc_attr($field_label); ?>" readonly>
+										<input type="hidden" name="current_<?php echo esc_attr($field_key); ?>" value="">
+									</div>
+									<div class="input-group ve-suggest-edit-input-group">
+										<div class="input-group-prepend"><span class="input-group-text">New Value</span></div>
+										<input type="text" class="form-control" id="suggested-<?php echo esc_attr($field_key); ?>" name="suggested_<?php echo esc_attr($field_key); ?>" placeholder="Enter suggested <?php echo esc_attr(strtolower($field_label)); ?>">
+									</div>
 								</div>
-								<label><?php echo esc_html($field_label); ?> (Suggested Edit)<input type="text" name="suggested_<?php echo esc_attr($field_key); ?>" placeholder="Enter suggested <?php echo esc_attr(strtolower($field_label)); ?>"></label>
 							</div>
 						<?php endforeach; ?>
 						<div class="ve-suggest-edit-status" role="status"></div>
