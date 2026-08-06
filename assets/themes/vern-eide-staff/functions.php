@@ -788,27 +788,39 @@ function ve_staff_suggest_edit_modal_html() {
 	?>
 	<div class="vemodal vefade ve-suggest-edit-modal" id="veSuggestEditModal" tabindex="-1" role="dialog" aria-hidden="true" style="display:none;">
 		<div class="vemodal-dialog vemodal-lg vemodal-dialog-centered vemodal-dialog-scrollable" role="document">
-			<div class="vemodal-content shadow-lg rounded" style="border-radius:10px;">
+			<div class="vemodal-content shadow-lg">
 				<div class="vemodal-header" style="background-color:#373737;color:#fff;">
 					<h3 class="vemodal-title" style="color:#fff;">Suggest Staff Edit: <span data-suggest-edit-employee></span></h3>
-					<button type="button" class="close" data-suggest-edit-close aria-label="Close" style="color:#fff;"><span aria-hidden="true">&times;</span></button>
+					<button type="button" class="btn btn-secondary" data-suggest-edit-close aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				</div>
 				<form id="veSuggestEditForm" class="ve-suggest-edit-form">
 					<div class="vemodal-body">
+						<p class="ve-suggest-edit-instructions">If you believe this employee's contact information or other details are incorrect, enter the corrected value in the suggested edit field below. Your suggestion will notify an administrator, who will review it before updating the staff directory.</p>
 						<input type="hidden" name="staff_post_id" value="">
 						<input type="hidden" name="employee_name" value="">
 						<input type="hidden" name="internal_listing" value="1">
 						<div class="ve-row">
-							<div class="ve-col-md-6 ve-pad-sm"><label>Employee Name<input type="text" name="employee_name_display" disabled></label></div>
+							<div class="ve-col-md-12 ve-pad-sm"><label>Employee Name<input type="text" name="employee_name_display" disabled></label></div>
+						</div>
+						<div class="ve-row">
 							<div class="ve-col-md-6 ve-pad-sm"><label>Your Name *<input type="text" name="requester_name" required></label></div>
 							<div class="ve-col-md-6 ve-pad-sm"><label>Your Email *<input type="email" name="requester_email" required></label></div>
 						</div>
 						<p>Enter only the fields that need to change.</p>
 						<?php foreach ($fields as $field_key => $field_label) : ?>
 							<div class="ve-suggest-edit-field ve-pad-sm">
-								<label><?php echo esc_html($field_label); ?></label>
-								<input type="hidden" name="current_<?php echo esc_attr($field_key); ?>" value="">
-								<input type="text" name="suggested_<?php echo esc_attr($field_key); ?>" placeholder="Suggested <?php echo esc_attr($field_label); ?>">
+								<label class="ve-suggest-edit-label" for="suggested-<?php echo esc_attr($field_key); ?>"><?php echo esc_html($field_label); ?></label>
+								<div class="ve-suggest-edit-value-row">
+									<div class="input-group ve-suggest-edit-input-group">
+										<div class="input-group-prepend"><span class="input-group-text">Current</span></div>
+										<input type="text" class="form-control" data-current-value="<?php echo esc_attr($field_key); ?>" value="Not Set" aria-label="Current <?php echo esc_attr($field_label); ?>" readonly>
+										<input type="hidden" name="current_<?php echo esc_attr($field_key); ?>" value="">
+									</div>
+									<div class="input-group ve-suggest-edit-input-group">
+										<div class="input-group-prepend"><span class="input-group-text">New Value</span></div>
+										<input type="text" class="form-control" id="suggested-<?php echo esc_attr($field_key); ?>" name="suggested_<?php echo esc_attr($field_key); ?>" placeholder="Enter suggested <?php echo esc_attr(strtolower($field_label)); ?>">
+									</div>
+								</div>
 							</div>
 						<?php endforeach; ?>
 						<div class="ve-suggest-edit-status" role="status"></div>
