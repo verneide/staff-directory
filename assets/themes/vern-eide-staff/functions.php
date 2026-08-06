@@ -788,13 +788,14 @@ function ve_staff_suggest_edit_modal_html() {
 	?>
 	<div class="vemodal vefade ve-suggest-edit-modal" id="veSuggestEditModal" tabindex="-1" role="dialog" aria-hidden="true" style="display:none;">
 		<div class="vemodal-dialog vemodal-lg vemodal-dialog-centered vemodal-dialog-scrollable" role="document">
-			<div class="vemodal-content shadow-lg rounded" style="border-radius:10px;">
+			<div class="vemodal-content shadow-lg">
 				<div class="vemodal-header" style="background-color:#373737;color:#fff;">
 					<h3 class="vemodal-title" style="color:#fff;">Suggest Staff Edit: <span data-suggest-edit-employee></span></h3>
-					<button type="button" class="close" data-suggest-edit-close aria-label="Close" style="color:#fff;"><span aria-hidden="true">&times;</span></button>
+					<button type="button" class="btn btn-secondary" data-suggest-edit-close aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				</div>
 				<form id="veSuggestEditForm" class="ve-suggest-edit-form">
 					<div class="vemodal-body">
+						<p class="ve-suggest-edit-instructions">If you believe this employee's contact information or other details are incorrect, enter the corrected value in the suggested edit field below. Your suggestion will notify an administrator, who will review it before updating the staff directory.</p>
 						<input type="hidden" name="staff_post_id" value="">
 						<input type="hidden" name="employee_name" value="">
 						<input type="hidden" name="internal_listing" value="1">
@@ -804,11 +805,18 @@ function ve_staff_suggest_edit_modal_html() {
 							<div class="ve-col-md-6 ve-pad-sm"><label>Your Email *<input type="email" name="requester_email" required></label></div>
 						</div>
 						<p>Enter only the fields that need to change.</p>
+						<div class="ve-suggest-edit-columns" aria-hidden="true">
+							<strong>Current Value</strong>
+							<strong>Suggested Edit</strong>
+						</div>
 						<?php foreach ($fields as $field_key => $field_label) : ?>
 							<div class="ve-suggest-edit-field ve-pad-sm">
-								<label><?php echo esc_html($field_label); ?></label>
-								<input type="hidden" name="current_<?php echo esc_attr($field_key); ?>" value="">
-								<input type="text" name="suggested_<?php echo esc_attr($field_key); ?>" placeholder="Suggested <?php echo esc_attr($field_label); ?>">
+								<div class="ve-suggest-edit-current">
+									<span class="ve-suggest-edit-label"><?php echo esc_html($field_label); ?> (Current Value)</span>
+									<span data-current-value="<?php echo esc_attr($field_key); ?>">Not Set</span>
+									<input type="hidden" name="current_<?php echo esc_attr($field_key); ?>" value="">
+								</div>
+								<label><?php echo esc_html($field_label); ?> (Suggested Edit)<input type="text" name="suggested_<?php echo esc_attr($field_key); ?>" placeholder="Enter suggested <?php echo esc_attr(strtolower($field_label)); ?>"></label>
 							</div>
 						<?php endforeach; ?>
 						<div class="ve-suggest-edit-status" role="status"></div>

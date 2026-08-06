@@ -5244,6 +5244,33 @@ body:not(.inventory-template-default) .di-stacks.di-stacks--bottom, body:not(.in
 	width: 100%;
 }
 
+.ve-suggest-edit-instructions {
+	margin-bottom: 20px;
+}
+
+.ve-suggest-edit-columns,
+.ve-suggest-edit-field {
+	display: grid;
+	gap: 20px;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.ve-suggest-edit-columns {
+	border-bottom: 1px solid #d2d2d2;
+	padding: 0 10px 8px;
+}
+
+.ve-suggest-edit-current {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.ve-suggest-edit-label {
+	display: block;
+	font-weight: 700;
+	margin-bottom: 4px;
+}
+
 .ve-suggest-edit-form input[type="text"],
 .ve-suggest-edit-form input[type="email"] {
 	border: 1px solid #d2d2d2;
@@ -5258,4 +5285,14 @@ body:not(.inventory-template-default) .di-stacks.di-stacks--bottom, body:not(.in
 .ve-suggest-edit-status {
 	font-weight: 700;
 	margin-top: 10px;
+}
+
+@media (max-width: 575.98px) {
+	.ve-suggest-edit-columns {
+		display: none;
+	}
+
+	.ve-suggest-edit-field {
+		grid-template-columns: 1fr;
+	}
 }

@@ -416,7 +416,12 @@ docReady(function() {
 		setFieldValue('employee_name', button.getAttribute('data-employee-name'));
 		setFieldValue('employee_name_display', button.getAttribute('data-employee-name'));
 		fieldNames.forEach(function(fieldName) {
-			setFieldValue('current_' + fieldName, button.getAttribute('data-current-' + fieldName.replace(/_/g, '-')));
+			var currentValue = button.getAttribute('data-current-' + fieldName.replace(/_/g, '-')) || '';
+			var currentValueDisplay = modal.querySelector('[data-current-value="' + fieldName + '"]');
+			setFieldValue('current_' + fieldName, currentValue);
+			if (currentValueDisplay) {
+				currentValueDisplay.textContent = currentValue || 'Not Set';
+			}
 		});
 		var employeeHeading = modal.querySelector('[data-suggest-edit-employee]');
 		if (employeeHeading) {
