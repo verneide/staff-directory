@@ -799,18 +799,15 @@ function ve_staff_suggest_edit_modal_html() {
 						<input type="hidden" name="staff_post_id" value="">
 						<input type="hidden" name="employee_name" value="">
 						<input type="hidden" name="internal_listing" value="1">
-						<div class="ve-row">
-							<div class="ve-col-md-12 ve-pad-sm"><label>Employee Name<input type="text" name="employee_name_display" disabled></label></div>
+						<div class="ve-suggest-edit-employee ve-pad-sm">
+							<label for="suggest-edit-employee-name">Employee Name</label>
+							<input type="text" id="suggest-edit-employee-name" name="employee_name_display" readonly>
 						</div>
-						<div class="ve-row">
-							<div class="ve-col-md-6 ve-pad-sm"><label>Your Name *<input type="text" name="requester_name" required></label></div>
-							<div class="ve-col-md-6 ve-pad-sm"><label>Your Email *<input type="email" name="requester_email" required></label></div>
+						<div class="ve-suggest-edit-requester-row">
+							<div class="ve-pad-sm"><label for="suggest-edit-requester-name">Your Name *</label><input type="text" id="suggest-edit-requester-name" name="requester_name" required></div>
+							<div class="ve-pad-sm"><label for="suggest-edit-requester-email">Your Email *</label><input type="email" id="suggest-edit-requester-email" name="requester_email" required></div>
 						</div>
 						<p>Enter only the fields that need to change.</p>
-						<div class="ve-suggest-edit-columns" aria-hidden="true">
-							<strong>Current Value</strong>
-							<strong>Suggested Edit</strong>
-						</div>
 						<?php foreach ($fields as $field_key => $field_label) : ?>
 							<div class="ve-suggest-edit-field ve-pad-sm">
 								<label class="ve-suggest-edit-label" for="suggested-<?php echo esc_attr($field_key); ?>"><?php echo esc_html($field_label); ?></label>
