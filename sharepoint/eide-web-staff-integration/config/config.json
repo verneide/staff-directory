@@ -1,0 +1,6 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": { "eide-web-staff-integration-web-part": { "components": [{ "entrypoint": "./lib/webparts/eideWebStaffIntegration/EideWebStaffIntegrationWebPart.js", "manifest": "./src/webparts/eideWebStaffIntegration/EideWebStaffIntegrationWebPart.manifest.json" }] } },
+  "externals": {}, "localizedResources": {}
+}

@@ -311,9 +311,14 @@ class Ve_Staff_Admin {
 		$scripturl  = get_permalink($postid).'?type=script';
 		$scriptcode = '<h2 class="loading-section">Loading... Please Wait!</h2><script type="text/javascript" src="'.$scripturl.'"></script><noscript><div>This page could not be loaded properly. Please make sure scripts are enabled and reload this page. If using Internet Explorer please try a different browser</div></noscript>';
 		$scriptcode = htmlentities($scriptcode, ENT_QUOTES);
+		$v2loaderurl = VE_STAFF_PLUGIN_URL . 'public/v2/embed-loader.js';
+		$v2endpoint = add_query_arg(array('type' => 'embed', 'embed_version' => '2'), get_permalink($postid));
+		$v2code = '<div data-ve-staff-embed data-version="2" data-endpoint="'.esc_url($v2endpoint).'"></div><script async src="'.esc_url($v2loaderurl).'" data-version="2"></script><noscript><div>This staff directory requires JavaScript.</div></noscript>';
 
-		echo '<h4>Copy the code below and paste into the target website to embed this listing:</h4>';
+		echo '<h4>Current embed (v1)</h4>';
 		echo '<pre><code>' . $scriptcode . '</code></pre>';
+		echo '<h4>AJAX embed (v2, test alongside v1)</h4>';
+		echo '<pre><code>' . esc_html($v2code) . '</code></pre>';
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────────

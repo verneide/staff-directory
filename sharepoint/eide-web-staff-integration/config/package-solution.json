@@ -1,0 +1,14 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "eide-web-staff-integration-client-side-solution",
+    "id": "749a8674-74dd-40c4-88c7-98475ee5690d",
+    "version": "2.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": { "name": "Eide Web", "websiteUrl": "https://external-site.com", "privacyUrl": "https://external-site.com/privacy", "termsOfUseUrl": "https://external-site.com/terms", "mpnId": "Undefined-1.18.2" },
+    "webApiPermissionRequests": [{ "resource": "Eide Staff API", "scope": "Staff.Read" }]
+  },
+  "paths": { "zippedPackage": "solution/eide-web-staff-integration.sppkg" }
+}
