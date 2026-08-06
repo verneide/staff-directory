@@ -225,6 +225,10 @@ if ($is_script) {
 		'js'        => $js_urls,
 		'inlineCss' => $inline_css,
 		'jquery'    => $jquery_url,
+		'suggestEdit' => [
+			'ajaxUrl' => admin_url('admin-ajax.php'),
+			'nonce'   => wp_create_nonce('ve_staff_suggest_edit'),
+		],
 	];
 
 	echo "(function(){\n";
@@ -264,6 +268,7 @@ if ($is_script) {
 
 	// HTML
 	echo "  container.innerHTML = p.html || '';\n";
+	echo "  window.veStaffSuggestEdit = p.suggestEdit || {};\n";
 
 	// Helpers
 	echo "  function markImgState(img){\n";
