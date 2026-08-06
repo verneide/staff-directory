@@ -1,0 +1,7 @@
+.root { display: block; width: 100%; }
+.loading { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; color: #323130; }
+.loading span { grid-column: 1 / -1; }
+.loading i { min-height: 14rem; border-radius: .5rem; background: #edebe9; animation: pulse 1.2s ease-in-out infinite alternate; }
+.error { display: flex; flex-direction: column; gap: .5rem; padding: 1rem; border-left: .25rem solid #a4262c; background: #fde7e9; color: #a4262c; }
+@keyframes pulse { to { opacity: .45; } }
+@media (max-width: 640px) { .loading { grid-template-columns: 1fr; } }

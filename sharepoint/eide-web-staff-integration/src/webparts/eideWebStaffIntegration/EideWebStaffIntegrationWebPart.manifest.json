@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "6982ae63-96e8-4ee8-b036-b161000827bb",
+  "alias": "EideWebStaffIntegrationWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+  "supportsFullBleed": true,
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart"],
+  "preconfiguredEntries": [{ "groupId": "cf066440-0614-43d6-98ae-0b31cf14c7c3", "group": { "default": "Other" }, "title": { "default": "Eide Staff" }, "description": { "default": "Securely renders the Eide staff application." }, "officeFabricIconFontName": "People", "properties": { "apiEndpoint": "https://external-site.com/api/staff", "entraResource": "https://external-site.com" } }]
+}

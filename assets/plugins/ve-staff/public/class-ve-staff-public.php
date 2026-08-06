@@ -122,7 +122,8 @@ class Ve_Staff_Public {
 
 		$public_partials = array(
 			'/ve-staff-public-functions.php',
-			'/ve-staff-public-api.php'
+			'/ve-staff-public-api.php',
+			'/v2/ve-staff-v2.php'
 		);
 
 		foreach ( $public_partials as $file ) {
