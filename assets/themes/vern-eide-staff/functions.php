@@ -287,8 +287,10 @@ function load_admin_styles() {
  * Custom CSS for Staff Listings
  */
 function ve_staff_enqueue_styles() {
-	wp_register_style( 've-staff-listing', get_template_directory_uri()  . '/inc/assets/css/listing.css',false,'1.2','all');
-	wp_register_style( 've-staff-display', get_template_directory_uri()  . '/inc/assets/css/listing-display.css',false,'1.2','all');
+	$listing_css_path = get_template_directory() . '/inc/assets/css/listing.css';
+	$display_css_path = get_template_directory() . '/inc/assets/css/listing-display.css';
+	wp_register_style( 've-staff-listing', get_template_directory_uri() . '/inc/assets/css/listing.css', false, (string) filemtime( $listing_css_path ), 'all' );
+	wp_register_style( 've-staff-display', get_template_directory_uri() . '/inc/assets/css/listing-display.css', false, (string) filemtime( $display_css_path ), 'all' );
 }
 // Register style sheet.
 add_action( 'wp_enqueue_scripts', 've_staff_enqueue_styles' );
@@ -315,7 +317,8 @@ add_action( 'wp_enqueue_scripts', 've_staff_enqueue_scripts' );
 function get_staff_css_src_url( $handle ) {
 	$styles = wp_styles();
 	if ( isset( $styles->registered[ $handle ] ) ) {
-		return $styles->registered[ $handle ]->src;
+		$style = $styles->registered[ $handle ];
+		return add_query_arg( 'ver', $style->ver, $style->src );
 	}
 	return false;
 }
@@ -799,18 +802,15 @@ function ve_staff_suggest_edit_modal_html() {
 						<input type="hidden" name="staff_post_id" value="">
 						<input type="hidden" name="employee_name" value="">
 						<input type="hidden" name="internal_listing" value="1">
-						<div class="ve-row">
-							<div class="ve-col-md-12 ve-pad-sm"><label>Employee Name<input type="text" name="employee_name_display" disabled></label></div>
+						<div class="ve-suggest-edit-employee ve-pad-sm">
+							<label for="suggest-edit-employee-name">Employee Name</label>
+							<input type="text" id="suggest-edit-employee-name" name="employee_name_display" readonly>
 						</div>
-						<div class="ve-row">
-							<div class="ve-col-md-6 ve-pad-sm"><label>Your Name *<input type="text" name="requester_name" required></label></div>
-							<div class="ve-col-md-6 ve-pad-sm"><label>Your Email *<input type="email" name="requester_email" required></label></div>
+						<div class="ve-suggest-edit-requester-row">
+							<div class="ve-pad-sm"><label for="suggest-edit-requester-name">Your Name *</label><input type="text" id="suggest-edit-requester-name" name="requester_name" required></div>
+							<div class="ve-pad-sm"><label for="suggest-edit-requester-email">Your Email *</label><input type="email" id="suggest-edit-requester-email" name="requester_email" required></div>
 						</div>
 						<p>Enter only the fields that need to change.</p>
-						<div class="ve-suggest-edit-columns" aria-hidden="true">
-							<strong>Current Value</strong>
-							<strong>Suggested Edit</strong>
-						</div>
 						<?php foreach ($fields as $field_key => $field_label) : ?>
 							<div class="ve-suggest-edit-field ve-pad-sm">
 								<label class="ve-suggest-edit-label" for="suggested-<?php echo esc_attr($field_key); ?>"><?php echo esc_html($field_label); ?></label>
