@@ -8,16 +8,17 @@
   const loadStyles = function (root, source) {
     const urls = Array.from(source.querySelectorAll('link[rel="stylesheet"]')).map(function (link) { return link.href; });
     return Promise.all(urls.map(function (url) {
-      return fetch(url + (url.indexOf('?') === -1 ? '?' : '&') + 't=' + Date.now(), { cache: 'no-store', credentials: 'omit' })
-        .then(function (response) {
-          if (!response.ok) throw new Error('Stylesheet request failed (' + response.status + '): ' + url);
-          return response.text();
-        });
-    })).then(function (styles) {
-      const style = document.createElement('style');
-      style.textContent = styles.join('\n');
-      root.prepend(style);
-    });
+      return new Promise(function (resolve, reject) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = url;
+        link.onload = resolve;
+        link.onerror = function () {
+          reject(new Error('Stylesheet request failed: ' + url));
+        };
+        root.appendChild(link);
+      });
+    }));
   };
 
   const loadEmbed = function (host) {
