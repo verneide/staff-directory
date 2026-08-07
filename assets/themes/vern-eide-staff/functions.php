@@ -775,7 +775,8 @@ function ve_staff_handle_suggest_edit_submission() {
 	$edit_link = admin_url('post.php?post=' . $staff_post_id . '&action=edit');
 	$rows = '';
 	foreach ($changes as $change) {
-		$rows .= '<tr><th align="left">' . esc_html($change['label']) . '</th><td><del>' . esc_html($change['current']) . '</del> &rarr; <strong>' . esc_html($change['suggested']) . '</strong></td></tr>';
+		$current_value = $change['current'] === '' ? 'Not Set' : $change['current'];
+		$rows .= '<tr><th align="left">' . esc_html($change['label']) . '</th><td><del>' . esc_html($current_value) . '</del> &rarr; <strong>' . esc_html($change['suggested']) . '</strong></td></tr>';
 	}
 	$message = '<p>A suggested edit was submitted by ' . esc_html($requester_name) . ' on ' . esc_html(wp_date('F j, Y g:i a')) . ' for ' . esc_html($employee_name) . '.</p><table cellpadding="6" cellspacing="0" border="1">' . $rows . '</table><p><a href="' . esc_url($edit_link) . '">Edit this staff member</a></p>';
 	wp_mail($recipient, 'Suggested Staff Edit: ' . $employee_name, $message, array('Content-Type: text/html; charset=UTF-8', 'Reply-To: ' . $requester_name . ' <' . $requester_email . '>'));
@@ -822,7 +823,7 @@ function ve_staff_suggest_edit_modal_html() {
 									</div>
 									<div class="input-group ve-suggest-edit-input-group">
 										<div class="input-group-prepend"><span class="input-group-text">New Value</span></div>
-										<input type="text" class="form-control" id="suggested-<?php echo esc_attr($field_key); ?>" name="suggested_<?php echo esc_attr($field_key); ?>" placeholder="Enter suggested <?php echo esc_attr(strtolower($field_label)); ?>">
+										<input type="text" class="form-control" id="suggested-<?php echo esc_attr($field_key); ?>" name="suggested_<?php echo esc_attr($field_key); ?>" placeholder="Enter suggested <?php echo esc_attr(strtolower($field_label)); ?>" autocomplete="off">
 									</div>
 								</div>
 							</div>
