@@ -4,7 +4,7 @@ This repository contains the `ve-staff` WordPress plugin, its companion `vern-ei
 
 ## Embed versions
 
-Existing `?type=script` snippets continue to run v1. The post editor also presents a v2 snippet containing `data-version="2"`; it renders a skeleton immediately and AJAX-loads the listing into an isolated Shadow DOM. Configure permitted consumer origins through `ve_staff_v2_allowed_origins`.
+Existing `?type=script` snippets continue to run v1. The post editor also presents a v2 snippet containing `data-version="2"`; it renders a skeleton immediately and AJAX-loads the listing into an isolated Shadow DOM. Public v2 embed responses allow all consumer origins by default. Sites that need to restrict consumers can return an explicit origin list through `ve_staff_v2_allowed_origins`.
 
 ## SharePoint
 
