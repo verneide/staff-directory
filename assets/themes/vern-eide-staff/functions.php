@@ -287,8 +287,10 @@ function load_admin_styles() {
  * Custom CSS for Staff Listings
  */
 function ve_staff_enqueue_styles() {
-	wp_register_style( 've-staff-listing', get_template_directory_uri()  . '/inc/assets/css/listing.css',false,'1.2','all');
-	wp_register_style( 've-staff-display', get_template_directory_uri()  . '/inc/assets/css/listing-display.css',false,'1.2','all');
+	$listing_css_path = get_template_directory() . '/inc/assets/css/listing.css';
+	$display_css_path = get_template_directory() . '/inc/assets/css/listing-display.css';
+	wp_register_style( 've-staff-listing', get_template_directory_uri() . '/inc/assets/css/listing.css', false, (string) filemtime( $listing_css_path ), 'all' );
+	wp_register_style( 've-staff-display', get_template_directory_uri() . '/inc/assets/css/listing-display.css', false, (string) filemtime( $display_css_path ), 'all' );
 }
 // Register style sheet.
 add_action( 'wp_enqueue_scripts', 've_staff_enqueue_styles' );
@@ -315,7 +317,8 @@ add_action( 'wp_enqueue_scripts', 've_staff_enqueue_scripts' );
 function get_staff_css_src_url( $handle ) {
 	$styles = wp_styles();
 	if ( isset( $styles->registered[ $handle ] ) ) {
-		return $styles->registered[ $handle ]->src;
+		$style = $styles->registered[ $handle ];
+		return add_query_arg( 'ver', $style->ver, $style->src );
 	}
 	return false;
 }
