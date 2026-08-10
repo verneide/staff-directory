@@ -26,7 +26,7 @@ $staffCardNum = 1;
 	<?php } // END DEBUG INFO
 	
 ?>
-<div class="ve velist-<?php echo $listid ?>" data-list-type="<?php echo $listingtype ?>" data-list-id="<?php echo $listid ?>">
+<div id="veStaffList" class="ve velist-<?php echo $listid ?>" data-list-type="<?php echo $listingtype ?>" data-list-id="<?php echo $listid ?>">
     <div class="ve-container-fluid ve-pad-none ve-block ve-clear-fix" id="pageContainer">
         <div class="section-container ve-pad-none ve-pad-bottom-lg ve-clear-fix ve-text-left ve-col-sm-12" <?php echo $pgtypecssid ?> style="background-color: white;">
             <?php // List Filter
