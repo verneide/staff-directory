@@ -26,8 +26,7 @@
     if (!endpoint) throw new Error('The v2 embed requires a data-endpoint attribute.');
     const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
     root.innerHTML = '<style>:host{display:block}.ve-v2-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.ve-v2-heading,.ve-v2-grid i{display:block;background:#eee;border-radius:8px;animation:vepulse 1.2s infinite alternate}.ve-v2-heading{height:48px;margin-bottom:18px}.ve-v2-grid i{height:260px}@keyframes vepulse{to{opacity:.45}}.ve-v2-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}@media(max-width:700px){.ve-v2-grid{grid-template-columns:repeat(2,1fr)}}</style>' + skeleton;
-    const url = endpoint + (endpoint.indexOf('?') === -1 ? '?' : '&') + 't=' + Date.now();
-    fetch(url, { cache: 'no-store', credentials: 'omit', headers: { Accept: 'text/html' } })
+    fetch(endpoint, { cache: 'no-store', credentials: 'omit', headers: { Accept: 'text/html' } })
       .then(function (response) {
         if (!response.ok) throw new Error('Staff embed request failed with HTTP ' + response.status + '.');
         return response.text();
