@@ -6,19 +6,11 @@
   const skeleton = '<div class="ve-v2-skeleton" role="status" aria-live="polite"><span class="ve-v2-sr">Loading staff directory</span><div class="ve-v2-heading"></div><div class="ve-v2-grid"><i></i><i></i><i></i><i></i></div></div>';
 
   const loadStyles = function (root, source) {
-    const urls = Array.from(source.querySelectorAll('link[rel="stylesheet"]')).map(function (link) { return link.href; });
-    return Promise.all(urls.map(function (url) {
-      return new Promise(function (resolve, reject) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = url;
-        link.onload = resolve;
-        link.onerror = function () {
-          reject(new Error('Stylesheet request failed: ' + url));
-        };
-        root.appendChild(link);
-      });
-    }));
+    const sourceStyle = source.querySelector('style[data-ve-staff-v2]');
+    if (!sourceStyle) throw new Error('The staff response did not contain the v2 stylesheet.');
+    const style = document.createElement('style');
+    style.textContent = sourceStyle.textContent;
+    root.appendChild(style);
   };
 
   const loadEmbed = function (host) {
@@ -36,7 +28,8 @@
         const content = documentResult.querySelector('#veStaffList, #veStaffDisplay');
         if (!content) throw new Error('The staff response did not contain a supported staff container.');
         root.innerHTML = '';
-        return loadStyles(root, documentResult).then(function () { root.appendChild(content); });
+        loadStyles(root, documentResult);
+        root.appendChild(content);
       })
       .catch(function (error) {
         root.innerHTML = '<div role="alert">The staff directory could not be loaded. Please try again later.</div>';
