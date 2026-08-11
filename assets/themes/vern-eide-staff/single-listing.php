@@ -24,8 +24,9 @@ $is_v2_embed = ('2' === $embed_version);
  *  ----------------------------- */
 if ($is_script && !headers_sent()) {
 	header('Content-Type: application/javascript; charset=UTF-8');
-	header('Cache-Control: no-cache, must-revalidate, max-age=0');
+	header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 	header('Pragma: no-cache');
+	header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
 }
 
 /** -----------------------------
@@ -183,7 +184,7 @@ if ($is_script) {
 	if ($staff_css) {
 		$css_urls[] = $staff_css;
 	} else {
-		$css_urls[] = get_template_directory_uri() . '/inc/assets/css/listing.css';
+		$css_urls[] = ve_staff_get_versioned_theme_asset_url('/inc/assets/css/listing.css');
 	}
 
 	// --- JS (order matters) ---
@@ -192,10 +193,10 @@ if ($is_script) {
 	// We'll conditionally load it in the loader instead.
 	$jquery_url = 'https://code.jquery.com/jquery-3.6.0.min.js';
 
-	$bootstrap_js = get_template_directory_uri() . '/inc/assets/js/bootstrap.bundle.js';
-	$listing_js   = get_template_directory_uri() . '/inc/assets/js/listing.js';
-	$lazy_js      = get_template_directory_uri() . '/inc/assets/js/ve-lazy-load.js';
-	$ga_js        = get_template_directory_uri() . '/inc/assets/js/ga-events.js';
+	$bootstrap_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/bootstrap.bundle.js');
+	$listing_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/listing.js');
+	$lazy_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/ve-lazy-load.js');
+	$ga_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/ga-events.js');
 
 	if (function_exists('get_staff_js_src_url')) {
 		$tmp = get_staff_js_src_url('bootstrap-bundle'); if ($tmp) $bootstrap_js = $tmp;
@@ -212,7 +213,7 @@ if ($is_script) {
 
 	// OPTIONAL: avoid injecting security script into client sites unless required
 	// if (!is_user_logged_in()) {
-	// 	$js_urls[] = get_template_directory_uri() . '/inc/assets/js/ve-security.js';
+	// 	$js_urls[] = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/ve-security.js');
 	// }
 
 	// OPTIONAL: only include YouTube API if your html actually contains YT embeds

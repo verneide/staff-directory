@@ -13,6 +13,13 @@ $type  = $_GET['type'] ?? '';
 $group = $_GET['group'] ?? '';
 $debug = isset($_GET['debug']) && $_GET['debug'] == true;
 
+if ($type === 'script' && !headers_sent()) {
+	header('Content-Type: application/javascript; charset=UTF-8');
+	header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+	header('Pragma: no-cache');
+	header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
+}
+
 if ($debug) {
 	error_log('/////////// DEBUG INFORMATION /////////////');
 }
@@ -37,7 +44,7 @@ wp_enqueue_style('ve-staff-display');
 
 $jquerylink     = '<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>';
 $bootstrapscript = '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>';
-$htmlcss         = '<link rel="stylesheet" href="' . get_template_directory_uri() . '/inc/assets/css/ve-staff-display.min.css">';
+$htmlcss         = '<link rel="stylesheet" href="' . esc_url(ve_staff_get_versioned_theme_asset_url('/inc/assets/css/ve-staff-display.min.css')) . '">';
 $htmljs          = '';
 
 /* === GET POST DATA === */

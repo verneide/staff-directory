@@ -24,8 +24,9 @@ $is_json   = (strtolower($type) === 'json');
  *  ----------------------------- */
 if ($is_script && !headers_sent()) {
 	header('Content-Type: application/javascript; charset=UTF-8');
-	header('Cache-Control: no-cache, must-revalidate, max-age=0');
+	header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 	header('Pragma: no-cache');
+	header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
 }
 
 /** -----------------------------
@@ -365,16 +366,16 @@ if ($is_script) {
 		$css_urls[] = $staff_css;
 	} else {
 		// Simple list used listing-css.min.css previously; keep it
-		$css_urls[] = get_template_directory_uri() . '/inc/assets/css/listing-css.min.css';
+		$css_urls[] = ve_staff_get_versioned_theme_asset_url('/inc/assets/css/listing-css.min.css');
 	}
 
 	// --- JS (order matters) ---
 	$js_urls[] = 'https://code.jquery.com/jquery-3.6.0.min.js'; // full jQuery in embed to avoid slim/plugin issues
 
-	$bootstrap_js = get_template_directory_uri() . '/inc/assets/js/bootstrap.bundle.js';
-	$listing_js   = get_template_directory_uri() . '/inc/assets/js/listing.js';
-	$lazy_js      = get_template_directory_uri() . '/inc/assets/js/ve-lazy-load.js';
-	$ga_js        = get_template_directory_uri() . '/inc/assets/js/ga-events.js';
+	$bootstrap_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/bootstrap.bundle.js');
+	$listing_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/listing.js');
+	$lazy_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/ve-lazy-load.js');
+	$ga_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/ga-events.js');
 
 	if (function_exists('get_staff_js_src_url')) {
 		$tmp = get_staff_js_src_url('bootstrap-bundle'); if ($tmp) $bootstrap_js = $tmp;
@@ -389,7 +390,7 @@ if ($is_script) {
 	$js_urls[] = $ga_js;
 
 	if (!is_user_logged_in()) {
-		$js_urls[] = get_template_directory_uri() . '/inc/assets/js/ve-security.js';
+		$js_urls[] = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/ve-security.js');
 	}
 
 	$css_urls = array_values(array_unique(array_filter($css_urls)));
