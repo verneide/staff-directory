@@ -300,9 +300,12 @@ add_action( 'wp_enqueue_scripts', 've_staff_enqueue_styles' );
  * Custom JS for Staff Listings
  */
 function ve_staff_enqueue_scripts() {
-	wp_register_script( 'listing-js', get_template_directory_uri() . '/inc/assets/js/listing.js', array ( 'jquery' ), 1.1, false);
-	wp_register_script( 've-lazy-load', get_template_directory_uri() . '/inc/assets/js/ve-lazy-load.js', array ( 'jquery' ), 1.1, false);
-	wp_register_script( 've-ga-events', get_template_directory_uri() . '/inc/assets/js/ga-events.js', array ( 'jquery' ), 1.1, false);
+	$listing_js_path = get_template_directory() . '/inc/assets/js/listing.js';
+	$lazy_load_path = get_template_directory() . '/inc/assets/js/ve-lazy-load.js';
+	$ga_events_path = get_template_directory() . '/inc/assets/js/ga-events.js';
+	wp_register_script( 'listing-js', get_template_directory_uri() . '/inc/assets/js/listing.js', array ( 'jquery' ), (string) filemtime( $listing_js_path ), false);
+	wp_register_script( 've-lazy-load', get_template_directory_uri() . '/inc/assets/js/ve-lazy-load.js', array ( 'jquery' ), (string) filemtime( $lazy_load_path ), false);
+	wp_register_script( 've-ga-events', get_template_directory_uri() . '/inc/assets/js/ga-events.js', array ( 'jquery' ), (string) filemtime( $ga_events_path ), false);
 	wp_localize_script('listing-js', 'veStaffSuggestEdit', array(
 		'ajaxUrl' => admin_url('admin-ajax.php'),
 		'nonce' => wp_create_nonce('ve_staff_suggest_edit'),
@@ -339,9 +342,23 @@ function get_staff_js_src_url( $handle ) {
     $scripts = wp_scripts();
     if ( isset( $scripts->registered[ $handle ] ) ) {
         $data = $scripts->registered[ $handle ];
-        return $data->src;
+        return add_query_arg( 'ver', $data->ver, $data->src );
     }
     return false;
+}
+
+/**
+ * Adds a content modification version to a theme asset URL.
+ */
+function ve_staff_get_versioned_theme_asset_url( $relative_path ) {
+	$asset_path = get_template_directory() . $relative_path;
+	$asset_url = get_template_directory_uri() . $relative_path;
+
+	if ( ! is_file( $asset_path ) ) {
+		wp_die( esc_html( 'Staff asset does not exist: ' . $asset_path ), 'Staff asset error', array( 'response' => 500 ) );
+	}
+
+	return add_query_arg( 'ver', (string) filemtime( $asset_path ), $asset_url );
 }
 
 /**
