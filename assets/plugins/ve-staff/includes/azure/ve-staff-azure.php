@@ -9,16 +9,22 @@ function ve_staff_azure_settings(): array {
 		'enabled' => false, 'mock_mode' => true, 'tenant_id' => '', 'client_id' => '', 'client_secret' => '',
 		'webhook_client_state' => '', 'poll_minutes' => 15,
 		'mappings' => array(
-			'givenName' => array( 'target' => 'first_name', 'direction' => 'both', 'rules' => array( array( 'type' => 'trim' ) ) ),
-			'surname' => array( 'target' => 'last_name', 'direction' => 'both', 'rules' => array( array( 'type' => 'trim' ) ) ),
-			'mail' => array( 'target' => 'office_contact_info.office_email', 'direction' => 'both', 'rules' => array( array( 'type' => 'lowercase' ) ) ),
-			'mobilePhone' => array( 'target' => 'office_contact_info.office_cell_phone', 'direction' => 'both', 'rules' => array( array( 'type' => 'phone_digits' ) ) ),
+			'givenName' => array( 'target' => 'first_name', 'direction' => 'azure_to_wp', 'rules' => array( array( 'type' => 'trim' ) ) ),
+			'surname' => array( 'target' => 'last_name', 'direction' => 'azure_to_wp', 'rules' => array( array( 'type' => 'trim' ) ) ),
+			'mail' => array( 'target' => 'office_contact_info.office_email', 'direction' => 'azure_to_wp', 'rules' => array( array( 'type' => 'lowercase' ) ) ),
+			'mobilePhone' => array( 'target' => 'office_contact_info.office_cell_phone', 'direction' => 'wp_to_azure', 'rules' => array( array( 'type' => 'phone_digits' ) ) ),
 			'officeLocation' => array( 'target' => 'taxonomy:location', 'direction' => 'azure_to_wp', 'rules' => array() ),
-			'photo' => array( 'target' => 'photo', 'direction' => 'both', 'rules' => array() ),
+			'photo' => array( 'target' => 'photo', 'direction' => 'wp_to_azure', 'rules' => array() ),
 		),
 	);
 	$value = get_option( 've_staff_azure_settings', array() );
-	return array_replace_recursive( $defaults, is_array( $value ) ? $value : array() );
+	$settings = array_replace_recursive( $defaults, is_array( $value ) ? $value : array() );
+	foreach ( $settings['mappings'] as $field => $mapping ) {
+		if ( 'both' === ( $mapping['direction'] ?? '' ) ) {
+			$settings['mappings'][ $field ]['direction'] = in_array( $field, array( 'mobilePhone', 'photo' ), true ) ? 'wp_to_azure' : 'azure_to_wp';
+		}
+	}
+	return $settings;
 }
 
 function ve_staff_azure_activate(): void {
@@ -137,7 +143,8 @@ function ve_staff_azure_export_post( int $post_id, WP_Post $post, bool $update )
 	if ( ! $s['mock_mode'] ) {
 		$connector = ve_staff_azure_connector();
 		$connector->patch_json( 'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $azure_id ), $payload );
-		$photo     = get_field( 'photo', $post_id );
+		$photo_mapping = $s['mappings']['photo'] ?? array();
+		$photo         = 'wp_to_azure' === ( $photo_mapping['direction'] ?? '' ) ? get_field( 'photo', $post_id ) : null;
 		$photo_id  = is_array( $photo ) ? (int) ( $photo['ID'] ?? 0 ) : (int) $photo;
 		$path     = $photo_id > 0 ? get_attached_file( $photo_id ) : '';
 		if ( is_string( $path ) && is_readable( $path ) ) {
@@ -171,21 +178,143 @@ add_action( 'acf/save_post', 've_staff_azure_export_after_acf', 100 );
 
 function ve_staff_azure_admin_menu(): void { add_submenu_page( 'edit.php?post_type=staff', 'Azure sync', 'Azure sync', 'manage_options', 've-staff-azure', 've_staff_azure_settings_page' ); }
 function ve_staff_azure_register_settings(): void { register_setting( 've_staff_azure', 've_staff_azure_settings', array( 'type' => 'array', 'sanitize_callback' => 've_staff_azure_sanitize_settings' ) ); }
+
+/** @param mixed $rules @return array<int, array<string, mixed>> */
+function ve_staff_azure_sanitize_rules( $rules, string $azure_field ): array {
+	$decoded = is_string( $rules ) ? json_decode( $rules, true ) : $rules;
+	if ( ! is_array( $decoded ) || array_values( $decoded ) !== $decoded ) { throw new InvalidArgumentException( 'Rules for ' . $azure_field . ' must be a JSON array.' ); }
+	$allowed = array( 'trim', 'lowercase', 'uppercase', 'phone_digits', 'replace', 'regex', 'value_map' );
+	foreach ( $decoded as $rule ) {
+		if ( ! is_array( $rule ) || ! in_array( (string) ( $rule['type'] ?? '' ), $allowed, true ) ) { throw new InvalidArgumentException( 'Rules for ' . $azure_field . ' contain an unsupported rule type.' ); }
+		if ( 'regex' === $rule['type'] && false === @preg_match( (string) ( $rule['pattern'] ?? '' ), '' ) ) { throw new InvalidArgumentException( 'Rules for ' . $azure_field . ' contain an invalid regular expression.' ); }
+	}
+	return $decoded;
+}
+
 /** @param mixed $input @return array<string, mixed> */
 function ve_staff_azure_sanitize_settings( $input ): array {
 	if ( ! is_array( $input ) ) { throw new InvalidArgumentException( 'Azure settings must be an array.' ); }
-	$mappings = json_decode( (string) ( $input['mappings_json'] ?? '{}' ), true );
-	if ( ! is_array( $mappings ) ) { throw new InvalidArgumentException( 'Azure field mappings must be valid JSON.' ); }
-	$result = array( 'enabled' => ! empty( $input['enabled'] ), 'mock_mode' => ! empty( $input['mock_mode'] ), 'tenant_id' => sanitize_text_field( (string) ( $input['tenant_id'] ?? '' ) ), 'client_id' => sanitize_text_field( (string) ( $input['client_id'] ?? '' ) ), 'client_secret' => sanitize_text_field( (string) ( $input['client_secret'] ?? '' ) ), 'webhook_client_state' => sanitize_text_field( (string) ( $input['webhook_client_state'] ?? '' ) ), 'poll_minutes' => max( 5, (int) ( $input['poll_minutes'] ?? 15 ) ), 'mappings' => $mappings );
-	delete_transient( 've_staff_azure_access_token' ); return $result;
+	$existing = ve_staff_azure_settings();
+	$submitted = $input['mappings'] ?? array();
+	if ( ! is_array( $submitted ) ) { throw new InvalidArgumentException( 'Azure field mappings must be an array.' ); }
+	$mappings = array();
+	foreach ( $submitted as $mapping ) {
+		if ( ! is_array( $mapping ) ) { throw new InvalidArgumentException( 'Every Azure mapping must be an object.' ); }
+		$field = sanitize_text_field( (string) ( $mapping['azure_field'] ?? '' ) );
+		$target = sanitize_text_field( (string) ( $mapping['target'] ?? '' ) );
+		$direction = sanitize_key( (string) ( $mapping['direction'] ?? '' ) );
+		if ( '' === $field || '' === $target ) { throw new InvalidArgumentException( 'Every mapping requires an Azure field and a WordPress target.' ); }
+		if ( ! in_array( $direction, array( 'azure_to_wp', 'wp_to_azure', 'disabled' ), true ) ) { throw new InvalidArgumentException( 'Mapping for ' . $field . ' has an invalid source of truth.' ); }
+		if ( isset( $mappings[ $field ] ) ) { throw new InvalidArgumentException( 'Azure field ' . $field . ' is mapped more than once.' ); }
+		$mappings[ $field ] = array( 'target' => $target, 'direction' => $direction, 'rules' => ve_staff_azure_sanitize_rules( $mapping['rules'] ?? '[]', $field ) );
+	}
+	$secret = sanitize_text_field( (string) ( $input['client_secret'] ?? '' ) );
+	$result = array(
+		'enabled' => ! empty( $input['enabled'] ), 'mock_mode' => ! empty( $input['mock_mode'] ),
+		'tenant_id' => sanitize_text_field( (string) ( $input['tenant_id'] ?? '' ) ), 'client_id' => sanitize_text_field( (string) ( $input['client_id'] ?? '' ) ),
+		'client_secret' => '' === $secret ? (string) $existing['client_secret'] : $secret,
+		'webhook_client_state' => sanitize_text_field( (string) ( $input['webhook_client_state'] ?? '' ) ),
+		'poll_minutes' => max( 5, (int) ( $input['poll_minutes'] ?? 15 ) ), 'mappings' => $mappings,
+	);
+	delete_transient( 've_staff_azure_access_token' );
+	return $result;
 }
+
+/** @return array<string, string> */
+function ve_staff_azure_field_help(): array {
+	return array(
+		'tenant_id' => 'Directory (tenant) ID from Microsoft Entra ID → Overview.',
+		'client_id' => 'Application (client) ID from the app registration Overview page.',
+		'client_secret' => 'Secret value (not its ID) from Certificates & secrets. Leave blank to keep the saved secret.',
+		'webhook_client_state' => 'A random private value used to verify Graph change notifications. It must match the subscription clientState.',
+		'poll_minutes' => 'How often the delta poll runs. Five minutes is the minimum.',
+	);
+}
+
+function ve_staff_azure_ajax_connection_test(): void {
+	check_ajax_referer( 've_staff_azure_admin', 'nonce' );
+	if ( ! current_user_can( 'manage_options' ) ) { wp_send_json_error( array( 'message' => 'You cannot test Azure sync.' ), 403 ); }
+	$settings = ve_staff_azure_settings();
+	$tenant = sanitize_text_field( (string) ( $_POST['tenant_id'] ?? '' ) );
+	$client = sanitize_text_field( (string) ( $_POST['client_id'] ?? '' ) );
+	$secret = sanitize_text_field( (string) ( $_POST['client_secret'] ?? '' ) );
+	if ( '' === $secret ) { $secret = (string) $settings['client_secret']; }
+	try {
+		delete_transient( 've_staff_azure_access_token' );
+		$connector = new Ve_Staff_Azure_Graph_Connector( $tenant, $client, $secret );
+		$permissions = $connector->test_connection();
+		wp_send_json_success( array( 'message' => 'Authentication succeeded, Graph users are readable, and admin consent is present for: ' . implode( ', ', $permissions ) . '.' ) );
+	} catch ( Throwable $error ) { wp_send_json_error( array( 'message' => $error->getMessage() ), 400 ); }
+}
+
+/** @return array<string, mixed> */
+function ve_staff_azure_load_test_user( int $post_id, array $mappings ): array {
+	$azure_id = (string) get_post_meta( $post_id, '_ve_staff_azure_id', true );
+	$fields = array_values( array_filter( array_keys( $mappings ), static fn( string $field ): bool => 'photo' !== $field ) );
+	$select = implode( ',', array_unique( array_merge( array( 'id', 'mail' ), $fields ) ) );
+	if ( '' !== $azure_id ) { return ve_staff_azure_connector()->get_json( 'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $azure_id ) . '?$select=' . rawurlencode( $select ) ); }
+	$email = (string) ve_staff_azure_read_target( $post_id, 'office_contact_info.office_email' );
+	if ( '' === $email ) { throw new RuntimeException( 'The selected staff post has neither an Azure ID nor an office email address.' ); }
+	$filter = rawurlencode( "mail eq '" . str_replace( "'", "''", $email ) . "'" );
+	$result = ve_staff_azure_connector()->get_json( 'https://graph.microsoft.com/v1.0/users?$filter=' . $filter . '&$select=' . rawurlencode( $select ) );
+	$users = $result['value'] ?? array();
+	if ( ! is_array( $users ) || 1 !== count( $users ) || ! is_array( $users[0] ) ) { throw new RuntimeException( 'Expected exactly one Azure user matching staff email ' . $email . '.' ); }
+	return $users[0];
+}
+
+function ve_staff_azure_ajax_sync_preview(): void {
+	check_ajax_referer( 've_staff_azure_admin', 'nonce' );
+	if ( ! current_user_can( 'manage_options' ) ) { wp_send_json_error( array( 'message' => 'You cannot preview Azure sync.' ), 403 ); }
+	$post_id = absint( $_POST['post_id'] ?? 0 );
+	$post = get_post( $post_id );
+	if ( ! $post instanceof WP_Post || 'staff' !== $post->post_type ) { wp_send_json_error( array( 'message' => 'Choose a valid staff post.' ), 400 ); }
+	try {
+		$settings = ve_staff_azure_settings();
+		$user = ve_staff_azure_load_test_user( $post_id, $settings['mappings'] );
+		$rows = array();
+		foreach ( $settings['mappings'] as $field => $mapping ) {
+			if ( 'disabled' === $mapping['direction'] || 'photo' === $field ) { continue; }
+			$azure = ve_staff_azure_apply_rules( $user[ $field ] ?? '', (array) $mapping['rules'] );
+			$wordpress = ve_staff_azure_apply_rules( ve_staff_azure_read_target( $post_id, (string) $mapping['target'] ), (array) $mapping['rules'] );
+			$from = 'azure_to_wp' === $mapping['direction'] ? $azure : $wordpress;
+			$to = 'azure_to_wp' === $mapping['direction'] ? $wordpress : $azure;
+			$rows[] = array( 'field' => $field, 'target' => $mapping['target'], 'source' => 'azure_to_wp' === $mapping['direction'] ? 'Azure' : 'WordPress', 'source_value' => $from, 'destination_value' => $to, 'action' => $from === $to ? 'No change' : 'Would update' );
+		}
+		wp_send_json_success( array( 'message' => 'Preview only: no data was changed.', 'rows' => $rows ) );
+	} catch ( Throwable $error ) { wp_send_json_error( array( 'message' => $error->getMessage() ), 400 ); }
+}
+
 function ve_staff_azure_settings_page(): void {
 	if ( ! current_user_can( 'manage_options' ) ) { wp_die( esc_html__( 'You cannot manage Azure sync.', 've-staff' ) ); }
-	$s = ve_staff_azure_settings(); $fields = array( 'tenant_id' => 'Tenant ID', 'client_id' => 'Client ID', 'client_secret' => 'Client secret', 'webhook_client_state' => 'Webhook client state', 'poll_minutes' => 'Polling interval (minutes)' );
-	echo '<div class="wrap"><h1>Microsoft Azure staff sync</h1><p>Use webhook URL <code>' . esc_html( rest_url( 've-staff/v1/azure/webhook' ) ) . '</code>. Microsoft Graph application permissions require <code>User.Read.All</code>, <code>User.ReadWrite.All</code>, and <code>ProfilePhoto.ReadWrite.All</code>.</p><form method="post" action="options.php">'; settings_fields( 've_staff_azure' ); echo '<table class="form-table">';
-	foreach ( $fields as $key => $label ) { $type = 'client_secret' === $key ? 'password' : ( 'poll_minutes' === $key ? 'number' : 'text' ); echo '<tr><th><label for="azure-' . esc_attr( $key ) . '">' . esc_html( $label ) . '</label></th><td><input class="regular-text" id="azure-' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" name="ve_staff_azure_settings[' . esc_attr( $key ) . ']" value="' . esc_attr( (string) $s[ $key ] ) . '"></td></tr>'; }
-	echo '<tr><th>Operation</th><td><label><input type="checkbox" name="ve_staff_azure_settings[enabled]" value="1" ' . checked( true, (bool) $s['enabled'], false ) . '> Enable synchronization</label><br><label><input type="checkbox" name="ve_staff_azure_settings[mock_mode]" value="1" ' . checked( true, (bool) $s['mock_mode'], false ) . '> Mock mode (log only; do not mutate either system)</label></td></tr><tr><th><label for="azure-mappings">Mappings and rules (JSON)</label></th><td><textarea class="large-text code" rows="20" id="azure-mappings" name="ve_staff_azure_settings[mappings_json]">' . esc_textarea( (string) wp_json_encode( $s['mappings'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ) . '</textarea><p class="description">Targets may be ACF fields, group.subfield, or taxonomy:name. Rules run in order and support trim, lowercase, uppercase, phone_digits, replace, regex, and value_map. Use value_map for unique scenarios such as mapping “Vern Eide Honda” to a WordPress location slug.</p></td></tr></table>'; submit_button(); echo '</form></div>';
+	$s = ve_staff_azure_settings(); $help = ve_staff_azure_field_help();
+	$posts = get_posts( array( 'post_type' => 'staff', 'post_status' => array( 'publish', 'draft', 'private' ), 'numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC' ) );
+	wp_enqueue_style( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/css/ve-staff-azure-admin.css', array(), VE_STAFF_VERSION );
+	wp_enqueue_script( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/js/ve-staff-azure-admin.js', array(), VE_STAFF_VERSION, true );
+	wp_localize_script( 've-staff-azure-admin', 'veStaffAzure', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 've_staff_azure_admin' ) ) );
+	echo '<div class="wrap ve-azure"><h1>Microsoft Azure staff sync</h1><div class="notice notice-info inline"><h2>Microsoft Entra app registration</h2><ol><li>Create a single-tenant app registration in <strong>Microsoft Entra ID → App registrations</strong>.</li><li>No Redirect URI is required. This integration uses the server-to-server OAuth client credentials flow and never signs in a browser user.</li><li>Under <strong>API permissions</strong>, add Microsoft Graph <strong>Application</strong> permissions <code>User.Read.All</code>, <code>User.ReadWrite.All</code>, and <code>ProfilePhoto.ReadWrite.All</code>, then grant tenant admin consent.</li><li>Create a client secret under <strong>Certificates &amp; secrets</strong> and copy its value before leaving the page.</li><li>Optional webhooks use notification URL <code>' . esc_html( rest_url( 've-staff/v1/azure/webhook' ) ) . '</code> and the client state below. Polling works without a webhook subscription.</li></ol></div><form id="ve-azure-settings" method="post" action="options.php">';
+	settings_fields( 've_staff_azure' ); echo '<table class="form-table">';
+	foreach ( array( 'tenant_id' => 'Tenant ID', 'client_id' => 'Client ID', 'client_secret' => 'Client secret', 'webhook_client_state' => 'Webhook client state', 'poll_minutes' => 'Polling interval (minutes)' ) as $key => $label ) {
+		$type = 'client_secret' === $key ? 'password' : ( 'poll_minutes' === $key ? 'number' : 'text' );
+		$value = 'client_secret' === $key ? '' : (string) $s[ $key ];
+		echo '<tr><th><label for="azure-' . esc_attr( $key ) . '">' . esc_html( $label ) . ' <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="' . esc_attr( $help[ $key ] ) . '" aria-label="' . esc_attr( $help[ $key ] ) . '"></span></label></th><td><input class="regular-text" id="azure-' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" name="ve_staff_azure_settings[' . esc_attr( $key ) . ']" value="' . esc_attr( $value ) . '"' . ( 'poll_minutes' === $key ? ' min="5"' : '' ) . '><p class="description">' . esc_html( $help[ $key ] ) . '</p></td></tr>';
+	}
+	echo '<tr><th>Operation <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="Mock mode is the safe default and records activity without changing either system."></span></th><td><label><input type="checkbox" name="ve_staff_azure_settings[enabled]" value="1" ' . checked( true, (bool) $s['enabled'], false ) . '> Enable synchronization</label><br><label><input type="checkbox" name="ve_staff_azure_settings[mock_mode]" value="1" ' . checked( true, (bool) $s['mock_mode'], false ) . '> Mock mode (log only; do not mutate either system)</label><p><button type="button" class="button" id="ve-azure-test-connection">Test connection &amp; permissions</button> <span id="ve-azure-connection-result" role="status"></span></p></td></tr></table>';
+	echo '<h2>Field mappings and source of truth</h2><p>Each row has exactly one source of truth. <strong>Azure → WordPress</strong> can change the site; <strong>WordPress → Azure</strong> can change Azure. Disabled rows never sync. Rules transform both values before comparison.</p><table class="widefat striped" id="ve-azure-mappings"><thead><tr><th>Azure field</th><th>WordPress target</th><th>Source of truth</th><th>Rules (JSON array)</th><th></th></tr></thead><tbody>';
+	$index = 0; foreach ( $s['mappings'] as $field => $mapping ) { echo ve_staff_azure_mapping_row( $index, (string) $field, $mapping ); $index++; }
+	echo '</tbody></table><p><button type="button" class="button" id="ve-azure-add-mapping">Add mapping</button></p><details><summary>Rules reference and examples</summary><p>Available types: <code>trim</code>, <code>lowercase</code>, <code>uppercase</code>, <code>phone_digits</code>, <code>replace</code>, <code>regex</code>, and <code>value_map</code>.</p><pre>[{"type":"phone_digits"}]\n[{"type":"value_map","map":{"Vern Eide Honda":"vern-eide-honda"}}]</pre></details>';
+	submit_button(); echo '</form><hr><h2>Dry-run a staff member</h2><p>This fetches the matching Azure user, applies the <em>saved</em> mappings and rules, and shows the destination changes. It never writes data.</p><select id="ve-azure-test-post"><option value="">Choose staff…</option>'; foreach ( $posts as $post ) { echo '<option value="' . (int) $post->ID . '">' . esc_html( $post->post_title ) . '</option>'; } echo '</select> <button type="button" class="button button-secondary" id="ve-azure-run-preview">Run dry-run</button><div id="ve-azure-preview" aria-live="polite"></div></div>';
 }
+
+/** @param array<string, mixed> $mapping */
+function ve_staff_azure_mapping_row( int $index, string $field, array $mapping ): string {
+	$name = 've_staff_azure_settings[mappings][' . $index . ']'; $rules = wp_json_encode( $mapping['rules'] ?? array(), JSON_UNESCAPED_SLASHES );
+	$options = array( 'azure_to_wp' => 'Azure → WordPress', 'wp_to_azure' => 'WordPress → Azure', 'disabled' => 'Disabled' ); $select = '';
+	foreach ( $options as $value => $label ) { $select .= '<option value="' . esc_attr( $value ) . '" ' . selected( $value, (string) ( $mapping['direction'] ?? 'disabled' ), false ) . '>' . esc_html( $label ) . '</option>'; }
+	return '<tr><td><input required name="' . esc_attr( $name ) . '[azure_field]" value="' . esc_attr( $field ) . '" placeholder="mobilePhone"></td><td><input required name="' . esc_attr( $name ) . '[target]" value="' . esc_attr( (string) ( $mapping['target'] ?? '' ) ) . '" placeholder="group.field"></td><td><select name="' . esc_attr( $name ) . '[direction]">' . $select . '</select></td><td><textarea required class="large-text code ve-azure-rules" rows="2" name="' . esc_attr( $name ) . '[rules]">' . esc_textarea( (string) $rules ) . '</textarea><span class="ve-azure-json-status"></span></td><td><button type="button" class="button-link-delete ve-azure-remove">Remove</button></td></tr>';
+}
+
 add_action( 'admin_menu', 've_staff_azure_admin_menu' );
 add_action( 'admin_init', 've_staff_azure_register_settings' );
+add_action( 'wp_ajax_ve_staff_azure_connection_test', 've_staff_azure_ajax_connection_test' );
+add_action( 'wp_ajax_ve_staff_azure_sync_preview', 've_staff_azure_ajax_sync_preview' );
 add_action( 'update_option_ve_staff_azure_settings', static function (): void { ve_staff_azure_reschedule(); } );
