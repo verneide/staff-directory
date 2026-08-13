@@ -5315,8 +5315,7 @@ body:not(.inventory-template-default) .di-stacks.di-stacks--bottom, body:not(.in
 }
 
 @media (max-width: 575.98px) {
-	.ve-suggest-edit-requester-row,
-	.ve-suggest-edit-value-row {
+	.ve-suggest-edit-requester-row {
 		grid-template-columns: 1fr;
 	}
 }
