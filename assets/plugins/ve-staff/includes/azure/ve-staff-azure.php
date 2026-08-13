@@ -6,7 +6,7 @@ const VE_STAFF_AZURE_LOG_TABLE = 've_staff_azure_log';
 /** @return array<string, mixed> */
 function ve_staff_azure_settings(): array {
 	$defaults = array(
-		'enabled' => false, 'mock_mode' => true, 'tenant_id' => '', 'client_id' => '', 'client_secret' => '',
+		'enabled' => false, 'mock_mode' => true, 'tenant_id' => '', 'client_id' => '', 'client_secret' => '', 'client_secret_expires' => '',
 		'webhook_client_state' => '', 'poll_minutes' => 15,
 		'mappings' => array(
 			'givenName' => array( 'target' => 'first_name', 'direction' => 'azure_to_wp', 'rules' => array( array( 'type' => 'trim' ) ) ),
@@ -192,7 +192,7 @@ function ve_staff_azure_sanitize_rules( $rules, string $azure_field ): array {
 }
 
 /** @param mixed $input @return array<string, mixed> */
-function ve_staff_azure_sanitize_settings( $input ): array {
+function ve_staff_azure_validate_settings( $input ): array {
 	if ( ! is_array( $input ) ) { throw new InvalidArgumentException( 'Azure settings must be an array.' ); }
 	$existing = ve_staff_azure_settings();
 	$submitted = $input['mappings'] ?? array();
@@ -208,11 +208,20 @@ function ve_staff_azure_sanitize_settings( $input ): array {
 		if ( isset( $mappings[ $field ] ) ) { throw new InvalidArgumentException( 'Azure field ' . $field . ' is mapped more than once.' ); }
 		$mappings[ $field ] = array( 'target' => $target, 'direction' => $direction, 'rules' => ve_staff_azure_sanitize_rules( $mapping['rules'] ?? '[]', $field ) );
 	}
+	$secret_action = sanitize_key( (string) ( $input['client_secret_action'] ?? 'keep' ) );
 	$secret = sanitize_text_field( (string) ( $input['client_secret'] ?? '' ) );
+	if ( ! in_array( $secret_action, array( 'keep', 'replace', 'remove' ), true ) ) { throw new InvalidArgumentException( 'Choose a valid client secret action.' ); }
+	if ( 'replace' === $secret_action && '' === $secret ) { throw new InvalidArgumentException( 'Enter the new client secret value before saving.' ); }
+	$stored_secret = 'replace' === $secret_action ? $secret : (string) $existing['client_secret'];
+	if ( 'remove' === $secret_action ) { $stored_secret = ''; }
+	$secret_expires = sanitize_text_field( (string) ( $input['client_secret_expires'] ?? '' ) );
+	$expiration_parts = explode( '-', $secret_expires );
+	if ( '' !== $secret_expires && ( 3 !== count( $expiration_parts ) || ! checkdate( (int) $expiration_parts[1], (int) $expiration_parts[2], (int) $expiration_parts[0] ) ) ) { throw new InvalidArgumentException( 'Client secret expiration must be a valid date.' ); }
 	$result = array(
 		'enabled' => ! empty( $input['enabled'] ), 'mock_mode' => ! empty( $input['mock_mode'] ),
 		'tenant_id' => sanitize_text_field( (string) ( $input['tenant_id'] ?? '' ) ), 'client_id' => sanitize_text_field( (string) ( $input['client_id'] ?? '' ) ),
-		'client_secret' => '' === $secret ? (string) $existing['client_secret'] : $secret,
+		'client_secret' => $stored_secret,
+		'client_secret_expires' => 'remove' === $secret_action ? '' : $secret_expires,
 		'webhook_client_state' => sanitize_text_field( (string) ( $input['webhook_client_state'] ?? '' ) ),
 		'poll_minutes' => max( 5, (int) ( $input['poll_minutes'] ?? 15 ) ), 'mappings' => $mappings,
 	);
@@ -220,12 +229,23 @@ function ve_staff_azure_sanitize_settings( $input ): array {
 	return $result;
 }
 
+/** @param mixed $input @return array<string, mixed> */
+function ve_staff_azure_sanitize_settings( $input ): array {
+	try {
+		return ve_staff_azure_validate_settings( $input );
+	} catch ( InvalidArgumentException $error ) {
+		add_settings_error( 've_staff_azure_settings', 've_staff_azure_settings_invalid', $error->getMessage(), 'error' );
+		return ve_staff_azure_settings();
+	}
+}
+
 /** @return array<string, string> */
 function ve_staff_azure_field_help(): array {
 	return array(
 		'tenant_id' => 'Directory (tenant) ID from Microsoft Entra ID → Overview.',
 		'client_id' => 'Application (client) ID from the app registration Overview page.',
-		'client_secret' => 'Secret value (not its ID) from Certificates & secrets. Leave blank to keep the saved secret.',
+		'client_secret' => 'Secret value (not its ID) from Certificates & secrets. Choose Replace saved secret before entering a new value.',
+		'client_secret_expires' => 'Expiration date shown for the secret in Microsoft Entra. This date is stored for renewal reminders; Azure does not expose the secret value or its expiration through this connection.',
 		'webhook_client_state' => 'A random private value used to verify Graph change notifications. It must match the subscription clientState.',
 		'poll_minutes' => 'How often the delta poll runs. Five minutes is the minimum.',
 	);
@@ -291,11 +311,30 @@ function ve_staff_azure_settings_page(): void {
 	wp_enqueue_style( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/css/ve-staff-azure-admin.css', array(), VE_STAFF_VERSION );
 	wp_enqueue_script( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/js/ve-staff-azure-admin.js', array(), VE_STAFF_VERSION, true );
 	wp_localize_script( 've-staff-azure-admin', 'veStaffAzure', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 've_staff_azure_admin' ) ) );
-	echo '<div class="wrap ve-azure"><h1>Microsoft Azure staff sync</h1><div class="notice notice-info inline"><h2>Microsoft Entra app registration</h2><ol><li>Create a single-tenant app registration in <strong>Microsoft Entra ID → App registrations</strong>.</li><li>No Redirect URI is required. This integration uses the server-to-server OAuth client credentials flow and never signs in a browser user.</li><li>Under <strong>API permissions</strong>, add Microsoft Graph <strong>Application</strong> permissions <code>User.Read.All</code>, <code>User.ReadWrite.All</code>, and <code>ProfilePhoto.ReadWrite.All</code>, then grant tenant admin consent.</li><li>Create a client secret under <strong>Certificates &amp; secrets</strong> and copy its value before leaving the page.</li><li>Optional webhooks use notification URL <code>' . esc_html( rest_url( 've-staff/v1/azure/webhook' ) ) . '</code> and the client state below. Polling works without a webhook subscription.</li></ol></div><form id="ve-azure-settings" method="post" action="options.php">';
+	echo '<div class="wrap ve-azure"><h1>Microsoft Azure staff sync</h1>';
+	settings_errors( 've_staff_azure_settings' );
+	echo '<div class="notice notice-info inline"><h2>Microsoft Entra app registration</h2><ol><li>Create a single-tenant app registration in <strong>Microsoft Entra ID → App registrations</strong>.</li><li>No Redirect URI is required. This integration uses the server-to-server OAuth client credentials flow and never signs in a browser user.</li><li>Under <strong>API permissions</strong>, add Microsoft Graph <strong>Application</strong> permissions <code>User.Read.All</code>, <code>User.ReadWrite.All</code>, and <code>ProfilePhoto.ReadWrite.All</code>, then grant tenant admin consent.</li><li>Create a client secret under <strong>Certificates &amp; secrets</strong>, copy its value before leaving the page, and record its expiration date below.</li><li>Optional webhooks use notification URL <code>' . esc_html( rest_url( 've-staff/v1/azure/webhook' ) ) . '</code> and the client state below. Polling works without a webhook subscription.</li></ol></div><form id="ve-azure-settings" method="post" action="options.php">';
 	settings_fields( 've_staff_azure' ); echo '<table class="form-table">';
-	foreach ( array( 'tenant_id' => 'Tenant ID', 'client_id' => 'Client ID', 'client_secret' => 'Client secret', 'webhook_client_state' => 'Webhook client state', 'poll_minutes' => 'Polling interval (minutes)' ) as $key => $label ) {
-		$type = 'client_secret' === $key ? 'password' : ( 'poll_minutes' === $key ? 'number' : 'text' );
-		$value = 'client_secret' === $key ? '' : (string) $s[ $key ];
+	foreach ( array( 'tenant_id' => 'Tenant ID', 'client_id' => 'Client ID' ) as $key => $label ) {
+		$type = 'text'; $value = (string) $s[ $key ];
+		echo '<tr><th><label for="azure-' . esc_attr( $key ) . '">' . esc_html( $label ) . ' <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="' . esc_attr( $help[ $key ] ) . '" aria-label="' . esc_attr( $help[ $key ] ) . '"></span></label></th><td><input class="regular-text" id="azure-' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" name="ve_staff_azure_settings[' . esc_attr( $key ) . ']" value="' . esc_attr( $value ) . '"' . ( 'poll_minutes' === $key ? ' min="5"' : '' ) . '><p class="description">' . esc_html( $help[ $key ] ) . '</p></td></tr>';
+	}
+	$has_secret = '' !== (string) $s['client_secret'];
+	echo '<tr><th><label for="azure-client_secret_action">Client secret</label></th><td><p><strong>' . ( $has_secret ? '<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span> A client secret is saved.' : '<span class="dashicons dashicons-warning" aria-hidden="true"></span> No client secret is saved.' ) . '</strong></p><select id="azure-client_secret_action" name="ve_staff_azure_settings[client_secret_action]">';
+	if ( $has_secret ) { echo '<option value="keep">Keep saved secret</option>'; }
+	echo '<option value="replace">' . ( $has_secret ? 'Replace saved secret' : 'Save a new secret' ) . '</option>';
+	if ( $has_secret ) { echo '<option value="remove">Remove saved secret</option>'; }
+	echo '</select><p id="ve-azure-secret-entry"' . ( $has_secret ? ' hidden' : '' ) . '><label for="azure-client_secret">New client secret value</label><br><input class="regular-text" id="azure-client_secret" type="password" autocomplete="new-password" name="ve_staff_azure_settings[client_secret]" value=""></p><p class="description">' . esc_html( $help['client_secret'] ) . '</p></td></tr>';
+	$expiration = (string) $s['client_secret_expires']; $expiration_note = '';
+	if ( '' !== $expiration ) {
+		$days_until_expiration = (int) floor( ( strtotime( $expiration . ' 23:59:59 UTC' ) - time() ) / DAY_IN_SECONDS );
+		if ( $days_until_expiration < 0 ) { $expiration_note = ' This saved secret has expired and must be replaced.'; }
+		elseif ( $days_until_expiration <= 30 ) { $expiration_note = ' This saved secret expires in ' . $days_until_expiration . ' days; replace it soon.'; }
+		else { $expiration_note = ' Saved expiration: ' . $expiration . '.'; }
+	}
+	echo '<tr><th><label for="azure-client_secret_expires">Client secret expiration</label></th><td><input id="azure-client_secret_expires" type="date" name="ve_staff_azure_settings[client_secret_expires]" value="' . esc_attr( $expiration ) . '"><p class="description">' . esc_html( $help['client_secret_expires'] . $expiration_note ) . '</p></td></tr>';
+	foreach ( array( 'webhook_client_state' => 'Webhook client state', 'poll_minutes' => 'Polling interval (minutes)' ) as $key => $label ) {
+		$type = 'poll_minutes' === $key ? 'number' : 'text'; $value = (string) $s[ $key ];
 		echo '<tr><th><label for="azure-' . esc_attr( $key ) . '">' . esc_html( $label ) . ' <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="' . esc_attr( $help[ $key ] ) . '" aria-label="' . esc_attr( $help[ $key ] ) . '"></span></label></th><td><input class="regular-text" id="azure-' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" name="ve_staff_azure_settings[' . esc_attr( $key ) . ']" value="' . esc_attr( $value ) . '"' . ( 'poll_minutes' === $key ? ' min="5"' : '' ) . '><p class="description">' . esc_html( $help[ $key ] ) . '</p></td></tr>';
 	}
 	echo '<tr><th>Operation <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="Mock mode is the safe default and records activity without changing either system."></span></th><td><label><input type="checkbox" name="ve_staff_azure_settings[enabled]" value="1" ' . checked( true, (bool) $s['enabled'], false ) . '> Enable synchronization</label><br><label><input type="checkbox" name="ve_staff_azure_settings[mock_mode]" value="1" ' . checked( true, (bool) $s['mock_mode'], false ) . '> Mock mode (log only; do not mutate either system)</label><p><button type="button" class="button" id="ve-azure-test-connection">Test connection &amp; permissions</button> <span id="ve-azure-connection-result" role="status"></span></p></td></tr></table>';

@@ -16,6 +16,12 @@
 	};
 	form.addEventListener('input', (event) => { if (event.target.matches('.ve-azure-rules')) validateRules(event.target); });
 	document.querySelectorAll('.ve-azure-rules').forEach(validateRules);
+	const secretAction = document.getElementById('azure-client_secret_action');
+	const secretEntry = document.getElementById('ve-azure-secret-entry');
+	const secretInput = document.getElementById('azure-client_secret');
+	const updateSecretEntry = () => { const replacing = secretAction.value === 'replace'; secretEntry.hidden = !replacing; secretInput.required = replacing; if (!replacing) secretInput.value = ''; };
+	secretAction.addEventListener('change', updateSecretEntry);
+	updateSecretEntry();
 	let mappingIndex = document.querySelector('#ve-azure-mappings tbody').children.length;
 	document.getElementById('ve-azure-add-mapping').addEventListener('click', () => {
 		const tbody = document.querySelector('#ve-azure-mappings tbody'); const index = mappingIndex; mappingIndex += 1; const row = document.createElement('tr');
