@@ -4,6 +4,10 @@ on:
   push:
     branches: ["main"]
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -31,21 +35,48 @@ jobs:
 
       - name: Setup SSH
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SG_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p ${{ secrets.SG_PORT }} ${{ secrets.SG_HOST }} >> ~/.ssh/known_hosts
+          setup_ssh() {
+            mkdir -p ~/.ssh
+            printf '%s\n' "${{ secrets.SG_SSH_KEY }}" > ~/.ssh/id_ed25519
+            chmod 600 ~/.ssh/id_ed25519
+            ssh-keyscan -T 30 -p "${{ secrets.SG_PORT }}" "${{ secrets.SG_HOST }}" > ~/.ssh/known_hosts
+          }
+          for attempt in 1 2 3; do
+            setup_ssh && exit 0
+            if [ "$attempt" -lt 3 ]; then
+              echo "::warning::SSH setup failed on attempt $attempt; retrying in 180 seconds."
+              sleep 180
+            fi
+          done
+          echo "::error::SSH setup failed after three attempts."
+          exit 1
 
-      - name: Deploy ve-staff plugin
+      - name: Deploy plugin and theme
         run: |
-          rsync -avz --delete \
-            -e "ssh -p ${{ secrets.SG_PORT }}" \
-            assets/plugins/ve-staff/ \
-            ${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/staff.eideweb.com/public_html/assets/plugins/ve-staff/
+          deploy() {
+            rsync -avz --delete -e "ssh -p ${{ secrets.SG_PORT }}" assets/plugins/ve-staff/ "${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/staff.eideweb.com/public_html/assets/plugins/ve-staff/" &&
+            rsync -avz --delete -e "ssh -p ${{ secrets.SG_PORT }}" assets/themes/vern-eide-staff/ "${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/staff.eideweb.com/public_html/assets/themes/vern-eide-staff/"
+          }
+          for attempt in 1 2 3; do
+            deploy && exit 0
+            if [ "$attempt" -lt 3 ]; then
+              echo "::warning::Deployment failed on attempt $attempt; retrying in 180 seconds."
+              sleep 180
+            fi
+          done
+          echo "::error::Deployment failed after three attempts."
+          exit 1
 
-      - name: Deploy vern-eide-staff theme
-        run: |
-          rsync -avz --delete \
-            -e "ssh -p ${{ secrets.SG_PORT }}" \
-            assets/themes/vern-eide-staff/ \
-            ${{ secrets.SG_USER }}@${{ secrets.SG_HOST }}:/home/customer/www/staff.eideweb.com/public_html/assets/themes/vern-eide-staff/
+      - name: Notify complete deployment failure
+        if: ${{ failure() }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const title = `Deployment failed: run #${context.runNumber}`;
+            const body = [
+              'The SiteGround deployment failed after all automatic retries.',
+              '',
+              `Workflow run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              `Commit: ${context.sha}`,
+            ].join('\n');
+            await github.rest.issues.create({ ...context.repo, title, body });

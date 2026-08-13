@@ -214,16 +214,16 @@ function ve_staff_azure_validate_settings( $input ): array {
 	if ( 'replace' === $secret_action && '' === $secret ) { throw new InvalidArgumentException( 'Enter the new client secret value before saving.' ); }
 	$stored_secret = 'replace' === $secret_action ? $secret : (string) $existing['client_secret'];
 	if ( 'remove' === $secret_action ) { $stored_secret = ''; }
-	$secret_expires = sanitize_text_field( (string) ( $input['client_secret_expires'] ?? '' ) );
+	$secret_expires = sanitize_text_field( (string) ( $input['client_secret_expires'] ?? $existing['client_secret_expires'] ) );
 	$expiration_parts = explode( '-', $secret_expires );
 	if ( '' !== $secret_expires && ( 3 !== count( $expiration_parts ) || ! checkdate( (int) $expiration_parts[1], (int) $expiration_parts[2], (int) $expiration_parts[0] ) ) ) { throw new InvalidArgumentException( 'Client secret expiration must be a valid date.' ); }
 	$result = array(
 		'enabled' => ! empty( $input['enabled'] ), 'mock_mode' => ! empty( $input['mock_mode'] ),
-		'tenant_id' => sanitize_text_field( (string) ( $input['tenant_id'] ?? '' ) ), 'client_id' => sanitize_text_field( (string) ( $input['client_id'] ?? '' ) ),
+		'tenant_id' => sanitize_text_field( (string) ( $input['tenant_id'] ?? $existing['tenant_id'] ) ), 'client_id' => sanitize_text_field( (string) ( $input['client_id'] ?? $existing['client_id'] ) ),
 		'client_secret' => $stored_secret,
 		'client_secret_expires' => 'remove' === $secret_action ? '' : $secret_expires,
-		'webhook_client_state' => sanitize_text_field( (string) ( $input['webhook_client_state'] ?? '' ) ),
-		'poll_minutes' => max( 5, (int) ( $input['poll_minutes'] ?? 15 ) ), 'mappings' => $mappings,
+		'webhook_client_state' => sanitize_text_field( (string) ( $input['webhook_client_state'] ?? $existing['webhook_client_state'] ) ),
+		'poll_minutes' => max( 5, (int) ( $input['poll_minutes'] ?? $existing['poll_minutes'] ) ), 'mappings' => $mappings,
 	);
 	delete_transient( 've_staff_azure_access_token' );
 	return $result;
@@ -265,6 +265,32 @@ function ve_staff_azure_ajax_connection_test(): void {
 		$permissions = $connector->test_connection();
 		wp_send_json_success( array( 'message' => 'Authentication succeeded, Graph users are readable, and admin consent is present for: ' . implode( ', ', $permissions ) . '.' ) );
 	} catch ( Throwable $error ) { wp_send_json_error( array( 'message' => $error->getMessage() ), 400 ); }
+}
+
+function ve_staff_azure_ajax_save_field(): void {
+	check_ajax_referer( 've_staff_azure_admin', 'nonce' );
+	if ( ! current_user_can( 'manage_options' ) ) { wp_send_json_error( array( 'message' => 'You cannot update Azure sync settings.' ), 403 ); }
+	$field = sanitize_key( (string) ( $_POST['field'] ?? '' ) );
+	$value = sanitize_text_field( wp_unslash( (string) ( $_POST['value'] ?? '' ) ) );
+	$allowed_fields = array( 'tenant_id', 'client_id', 'client_secret', 'client_secret_expires', 'webhook_client_state', 'poll_minutes' );
+	if ( ! in_array( $field, $allowed_fields, true ) ) { wp_send_json_error( array( 'message' => 'This Azure setting cannot be saved individually.' ), 400 ); }
+	if ( 'client_secret' === $field && '' === $value ) { wp_send_json_error( array( 'message' => 'Enter a client secret value before saving.' ), 400 ); }
+	if ( 'poll_minutes' === $field ) {
+		if ( ! ctype_digit( $value ) || (int) $value < 5 ) { wp_send_json_error( array( 'message' => 'Polling interval must be at least five minutes.' ), 400 ); }
+		$value = (string) (int) $value;
+	}
+	if ( 'client_secret_expires' === $field && '' !== $value ) {
+		$parts = explode( '-', $value );
+		if ( 3 !== count( $parts ) || ! checkdate( (int) $parts[1], (int) $parts[2], (int) $parts[0] ) ) { wp_send_json_error( array( 'message' => 'Client secret expiration must be a valid date.' ), 400 ); }
+	}
+	$stored = get_option( 've_staff_azure_settings', array() );
+	$stored = is_array( $stored ) ? $stored : array();
+	$stored[ $field ] = 'poll_minutes' === $field ? (int) $value : $value;
+	if ( ! update_option( 've_staff_azure_settings', $stored ) && get_option( 've_staff_azure_settings' ) !== $stored ) {
+		wp_send_json_error( array( 'message' => 'WordPress could not save this Azure setting.' ), 500 );
+	}
+	if ( in_array( $field, array( 'tenant_id', 'client_id', 'client_secret' ), true ) ) { delete_transient( 've_staff_azure_access_token' ); }
+	wp_send_json_success( array( 'message' => 'Saved.' ) );
 }
 
 /** @return array<string, mixed> */
@@ -317,14 +343,14 @@ function ve_staff_azure_settings_page(): void {
 	settings_fields( 've_staff_azure' ); echo '<table class="form-table">';
 	foreach ( array( 'tenant_id' => 'Tenant ID', 'client_id' => 'Client ID' ) as $key => $label ) {
 		$type = 'text'; $value = (string) $s[ $key ];
-		echo '<tr><th><label for="azure-' . esc_attr( $key ) . '">' . esc_html( $label ) . ' <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="' . esc_attr( $help[ $key ] ) . '" aria-label="' . esc_attr( $help[ $key ] ) . '"></span></label></th><td><input class="regular-text" id="azure-' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" name="ve_staff_azure_settings[' . esc_attr( $key ) . ']" value="' . esc_attr( $value ) . '"' . ( 'poll_minutes' === $key ? ' min="5"' : '' ) . '><p class="description">' . esc_html( $help[ $key ] ) . '</p></td></tr>';
+		echo '<tr><th><label for="azure-' . esc_attr( $key ) . '">' . esc_html( $label ) . ' <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="' . esc_attr( $help[ $key ] ) . '" aria-label="' . esc_attr( $help[ $key ] ) . '"></span></label></th><td><input class="regular-text ve-azure-autosave" data-setting="' . esc_attr( $key ) . '" id="azure-' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" name="ve_staff_azure_settings[' . esc_attr( $key ) . ']" value="' . esc_attr( $value ) . '"><span class="ve-azure-save-status" role="status"></span><p class="description">' . esc_html( $help[ $key ] ) . '</p></td></tr>';
 	}
 	$has_secret = '' !== (string) $s['client_secret'];
 	echo '<tr><th><label for="azure-client_secret_action">Client secret</label></th><td><p><strong>' . ( $has_secret ? '<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span> A client secret is saved.' : '<span class="dashicons dashicons-warning" aria-hidden="true"></span> No client secret is saved.' ) . '</strong></p><select id="azure-client_secret_action" name="ve_staff_azure_settings[client_secret_action]">';
 	if ( $has_secret ) { echo '<option value="keep">Keep saved secret</option>'; }
 	echo '<option value="replace">' . ( $has_secret ? 'Replace saved secret' : 'Save a new secret' ) . '</option>';
 	if ( $has_secret ) { echo '<option value="remove">Remove saved secret</option>'; }
-	echo '</select><p id="ve-azure-secret-entry"' . ( $has_secret ? ' hidden' : '' ) . '><label for="azure-client_secret">New client secret value</label><br><input class="regular-text" id="azure-client_secret" type="password" autocomplete="new-password" name="ve_staff_azure_settings[client_secret]" value=""></p><p class="description">' . esc_html( $help['client_secret'] ) . '</p></td></tr>';
+	echo '</select><p id="ve-azure-secret-entry"' . ( $has_secret ? ' hidden' : '' ) . '><label for="azure-client_secret">New client secret value</label><br><input class="regular-text ve-azure-autosave" data-setting="client_secret" id="azure-client_secret" type="password" autocomplete="new-password" name="ve_staff_azure_settings[client_secret]" value=""><span class="ve-azure-save-status" role="status"></span></p><p class="description">' . esc_html( $help['client_secret'] ) . '</p></td></tr>';
 	$expiration = (string) $s['client_secret_expires']; $expiration_note = '';
 	if ( '' !== $expiration ) {
 		$days_until_expiration = (int) floor( ( strtotime( $expiration . ' 23:59:59 UTC' ) - time() ) / DAY_IN_SECONDS );
@@ -332,10 +358,10 @@ function ve_staff_azure_settings_page(): void {
 		elseif ( $days_until_expiration <= 30 ) { $expiration_note = ' This saved secret expires in ' . $days_until_expiration . ' days; replace it soon.'; }
 		else { $expiration_note = ' Saved expiration: ' . $expiration . '.'; }
 	}
-	echo '<tr><th><label for="azure-client_secret_expires">Client secret expiration</label></th><td><input id="azure-client_secret_expires" type="date" name="ve_staff_azure_settings[client_secret_expires]" value="' . esc_attr( $expiration ) . '"><p class="description">' . esc_html( $help['client_secret_expires'] . $expiration_note ) . '</p></td></tr>';
+	echo '<tr><th><label for="azure-client_secret_expires">Client secret expiration</label></th><td><input class="ve-azure-autosave" data-setting="client_secret_expires" id="azure-client_secret_expires" type="date" name="ve_staff_azure_settings[client_secret_expires]" value="' . esc_attr( $expiration ) . '"><span class="ve-azure-save-status" role="status"></span><p class="description">' . esc_html( $help['client_secret_expires'] . $expiration_note ) . '</p></td></tr>';
 	foreach ( array( 'webhook_client_state' => 'Webhook client state', 'poll_minutes' => 'Polling interval (minutes)' ) as $key => $label ) {
 		$type = 'poll_minutes' === $key ? 'number' : 'text'; $value = (string) $s[ $key ];
-		echo '<tr><th><label for="azure-' . esc_attr( $key ) . '">' . esc_html( $label ) . ' <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="' . esc_attr( $help[ $key ] ) . '" aria-label="' . esc_attr( $help[ $key ] ) . '"></span></label></th><td><input class="regular-text" id="azure-' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" name="ve_staff_azure_settings[' . esc_attr( $key ) . ']" value="' . esc_attr( $value ) . '"' . ( 'poll_minutes' === $key ? ' min="5"' : '' ) . '><p class="description">' . esc_html( $help[ $key ] ) . '</p></td></tr>';
+		echo '<tr><th><label for="azure-' . esc_attr( $key ) . '">' . esc_html( $label ) . ' <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="' . esc_attr( $help[ $key ] ) . '" aria-label="' . esc_attr( $help[ $key ] ) . '"></span></label></th><td><input class="regular-text ve-azure-autosave" data-setting="' . esc_attr( $key ) . '" id="azure-' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" name="ve_staff_azure_settings[' . esc_attr( $key ) . ']" value="' . esc_attr( $value ) . '"' . ( 'poll_minutes' === $key ? ' min="5"' : '' ) . '><span class="ve-azure-save-status" role="status"></span><p class="description">' . esc_html( $help[ $key ] ) . '</p></td></tr>';
 	}
 	echo '<tr><th>Operation <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="Mock mode is the safe default and records activity without changing either system."></span></th><td><label><input type="checkbox" name="ve_staff_azure_settings[enabled]" value="1" ' . checked( true, (bool) $s['enabled'], false ) . '> Enable synchronization</label><br><label><input type="checkbox" name="ve_staff_azure_settings[mock_mode]" value="1" ' . checked( true, (bool) $s['mock_mode'], false ) . '> Mock mode (log only; do not mutate either system)</label><p><button type="button" class="button" id="ve-azure-test-connection">Test connection &amp; permissions</button> <span id="ve-azure-connection-result" role="status"></span></p></td></tr></table>';
 	echo '<h2>Field mappings and source of truth</h2><p>Each row has exactly one source of truth. <strong>Azure → WordPress</strong> can change the site; <strong>WordPress → Azure</strong> can change Azure. Disabled rows never sync. Rules transform both values before comparison.</p><table class="widefat striped" id="ve-azure-mappings"><thead><tr><th>Azure field</th><th>WordPress target</th><th>Source of truth</th><th>Rules (JSON array)</th><th></th></tr></thead><tbody>';
@@ -355,5 +381,6 @@ function ve_staff_azure_mapping_row( int $index, string $field, array $mapping )
 add_action( 'admin_menu', 've_staff_azure_admin_menu' );
 add_action( 'admin_init', 've_staff_azure_register_settings' );
 add_action( 'wp_ajax_ve_staff_azure_connection_test', 've_staff_azure_ajax_connection_test' );
+add_action( 'wp_ajax_ve_staff_azure_save_field', 've_staff_azure_ajax_save_field' );
 add_action( 'wp_ajax_ve_staff_azure_sync_preview', 've_staff_azure_ajax_sync_preview' );
 add_action( 'update_option_ve_staff_azure_settings', static function (): void { ve_staff_azure_reschedule(); } );

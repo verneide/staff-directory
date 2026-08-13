@@ -6,5 +6,7 @@
 .ve-azure-json-status { display: block; font-size: 12px; }
 .ve-azure-json-status.valid, .ve-azure .success { color: #008a20; }
 .ve-azure-json-status.invalid, .ve-azure .error, .ve-azure .change { color: #b32d2e; font-weight: 600; }
+.ve-azure-save-status { display: inline-block; margin-left: 8px; }
+.ve-azure-save-status.saving { color: #646970; }
 #ve-azure-preview { margin-top: 16px; max-width: 1200px; }
 #ve-azure-preview code { word-break: break-word; }
