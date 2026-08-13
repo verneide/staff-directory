@@ -14,11 +14,11 @@ V1 and v2 embeds use the script access rules, while an external referrer remains
 
 The production-oriented SPFx 1.18 sample is under `sharepoint/eide-web-staff-integration`. Set its `apiEndpoint` and optional `entraResource` web-part properties, update the tenant URL in `config/package-solution.json`, then run `npm install`, `gulp bundle --ship`, and `gulp package-solution --ship`. See that directory's README for Entra ID permission setup.
 
-## CSS asset maintenance
+## Generated asset maintenance
 
-Application stylesheets have tracked minified counterparts because production serves those files through SiteGround Optimizer. Whenever a source stylesheet changes, minify the complete source and commit the updated minified file in the same change. The required source-to-output mappings are maintained in [`AGENTS.md`](AGENTS.md). Vendor CSS is excluded unless the vendor asset itself is intentionally upgraded.
+Application stylesheets and JavaScript files have tracked minified counterparts because production serves those files through SiteGround Optimizer. Make changes to the source assets without manually updating the generated files. The deployment workflow minifies every complete application source into its mapped output immediately before uploading the plugin and theme. The required source-to-output mappings are maintained in [`AGENTS.md`](AGENTS.md). Vendor assets are excluded unless the vendor source itself is intentionally upgraded.
 
-The theme registers `listing-css.min.css` as the public staff-listing stylesheet and versions its URL with that file's modification time. Update it from the complete `listing.css` source before deployment so the frontend receives current listing styles without relying on an optimizer-generated copy.
+The theme registers `listing-css.min.css` as the public staff-listing stylesheet and versions its URL with that file's modification time. Deployment regenerates it from the complete `listing.css` source so the frontend receives current listing styles without relying on an optimizer-generated copy.
 
 ## Microsoft Azure staff synchronization
 
