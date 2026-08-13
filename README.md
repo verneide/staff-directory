@@ -20,9 +20,13 @@ Application stylesheets and JavaScript files have tracked minified counterparts 
 
 The theme registers `listing-css.min.css` as the public staff-listing stylesheet and versions its URL with that file's modification time. Deployment regenerates it from the complete `listing.css` source so the frontend receives current listing styles without relying on an optimizer-generated copy.
 
+SiteGround SSH setup and the combined plugin/theme upload are retried up to three times with three-minute delays. If every attempt fails, the workflow creates a repository issue linking to the failed run so the failure is visible and actionable.
+
 ## Microsoft Azure staff synchronization
 
 The plugin includes an optional Microsoft Graph integration under **Staff → Azure sync**. It polls the Graph users delta endpoint from the last saved delta link, accepts Graph change notifications at `/wp-json/ve-staff/v1/azure/webhook`, and sends mapped staff changes (including profile photos) back to Graph. ACF, grouped ACF, and taxonomy targets can be configured in a row-based editor with ordered transformation rules and an explicit source of truth for every field. For example, setting mobile phone to **WordPress → Azure** ensures an Azure phone value can never overwrite the site value.
+
+Connection fields on the Azure sync screen save individually through authenticated AJAX when their value changes and the field loses focus. The main save button remains responsible for operation toggles, mappings, and transformation rules.
 
 Keep mock mode enabled while validating mappings. The settings screen also provides a connection and permission test plus a staff dry-run that fetches current Graph data and displays exactly which destination values would change without writing to either system. Production and mock activity appears on each staff post, and the full log is automatically retained for 90 days.
 

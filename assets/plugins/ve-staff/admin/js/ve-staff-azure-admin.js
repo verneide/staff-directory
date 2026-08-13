@@ -14,6 +14,22 @@
 		try { const parsed = JSON.parse(textarea.value); if (!Array.isArray(parsed)) throw new Error('Rules must be an array'); status.textContent = 'Valid JSON'; status.className = 've-azure-json-status valid'; textarea.setCustomValidity(''); }
 		catch (error) { status.textContent = error.message; status.className = 've-azure-json-status invalid'; textarea.setCustomValidity(error.message); }
 	};
+	const saveField = async (input) => {
+		const status = input.parentElement.querySelector('.ve-azure-save-status');
+		if (!input.reportValidity() || (input.dataset.setting === 'client_secret' && !input.value)) return;
+		status.textContent = 'Saving…'; status.className = 've-azure-save-status saving';
+		try {
+			const data = await request('ve_staff_azure_save_field', { field: input.dataset.setting, value: input.value });
+			status.textContent = data.message; status.className = 've-azure-save-status success';
+			if (input.dataset.setting === 'client_secret') {
+				input.value = '';
+				if (!secretAction.querySelector('option[value="keep"]')) secretAction.add(new Option('Keep saved secret', 'keep'), 0);
+				secretAction.value = 'keep'; updateSecretEntry();
+			}
+		} catch (error) { status.textContent = error.message; status.className = 've-azure-save-status error'; }
+	};
+	form.addEventListener('change', (event) => { if (event.target.matches('.ve-azure-autosave')) saveField(event.target); });
+	form.addEventListener('submit', () => { form.querySelectorAll('.ve-azure-autosave').forEach((input) => { input.disabled = true; }); });
 	form.addEventListener('input', (event) => { if (event.target.matches('.ve-azure-rules')) validateRules(event.target); });
 	document.querySelectorAll('.ve-azure-rules').forEach(validateRules);
 	const secretAction = document.getElementById('azure-client_secret_action');
