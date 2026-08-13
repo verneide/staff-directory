@@ -43,6 +43,9 @@ define( 'VE_STAFF_VERSION', '1.0.0' );
 define( 'VE_STAFF_PLUGIN_URL', plugin_dir_url(__FILE__) );
 define( 'VE_STAFF_PLUGIN_DIR', plugin_dir_path(__FILE__) );
 
+require_once VE_STAFF_PLUGIN_DIR . 'includes/azure/class-ve-staff-azure-graph-connector.php';
+require_once VE_STAFF_PLUGIN_DIR . 'includes/azure/ve-staff-azure.php';
+
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-ve-staff-activator.php
@@ -50,6 +53,7 @@ define( 'VE_STAFF_PLUGIN_DIR', plugin_dir_path(__FILE__) );
 function activate_ve_staff() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ve-staff-activator.php';
 	Ve_Staff_Activator::activate();
+	ve_staff_azure_activate();
 }
 
 /**
@@ -57,6 +61,7 @@ function activate_ve_staff() {
  * This action is documented in includes/class-ve-staff-deactivator.php
  */
 function deactivate_ve_staff() {
+	ve_staff_azure_deactivate();
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ve-staff-deactivator.php';
 	Ve_Staff_Deactivator::deactivate();
 }

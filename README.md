@@ -15,3 +15,9 @@ The production-oriented SPFx 1.18 sample is under `sharepoint/eide-web-staff-int
 ## CSS asset maintenance
 
 Application stylesheets have tracked minified counterparts because production serves those files through SiteGround Optimizer. Whenever a source stylesheet changes, minify the complete source and commit the updated minified file in the same change. The required source-to-output mappings are maintained in [`AGENTS.md`](AGENTS.md). Vendor CSS is excluded unless the vendor asset itself is intentionally upgraded.
+
+## Microsoft Azure staff synchronization
+
+The plugin includes an optional two-way Microsoft Graph integration under **Staff → Azure sync**. It polls the Graph users delta endpoint from the last saved delta link, accepts Graph change notifications at `/wp-json/ve-staff/v1/azure/webhook`, and sends mapped staff changes (including profile photos) back to Graph. ACF, grouped ACF, and taxonomy targets can be configured with ordered transformation rules and per-field directions.
+
+Keep mock mode enabled while validating mappings: imports and exports are written to the structured Azure log without changing WordPress or Microsoft 365. Production and mock activity appears on each staff post, and the full log is automatically retained for 90 days. Configure a random webhook client-state secret and grant the Azure application `User.Read.All`, `User.ReadWrite.All`, and `ProfilePhoto.ReadWrite.All` application permissions before enabling live synchronization.
