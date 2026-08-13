@@ -287,9 +287,9 @@ function load_admin_styles() {
  * Custom CSS for Staff Listings
  */
 function ve_staff_enqueue_styles() {
-	$listing_css_path = get_template_directory() . '/inc/assets/css/listing.css';
+	$listing_css_path = get_template_directory() . '/inc/assets/css/listing-css.min.css';
 	$display_css_path = get_template_directory() . '/inc/assets/css/listing-display.css';
-	wp_register_style( 've-staff-listing', get_template_directory_uri() . '/inc/assets/css/listing.css', false, (string) filemtime( $listing_css_path ), 'all' );
+	wp_register_style( 've-staff-listing', get_template_directory_uri() . '/inc/assets/css/listing-css.min.css', false, (string) filemtime( $listing_css_path ), 'all' );
 	wp_register_style( 've-staff-display', get_template_directory_uri() . '/inc/assets/css/listing-display.css', false, (string) filemtime( $display_css_path ), 'all' );
 }
 // Register style sheet.

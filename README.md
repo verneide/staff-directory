@@ -18,6 +18,8 @@ The production-oriented SPFx 1.18 sample is under `sharepoint/eide-web-staff-int
 
 Application stylesheets have tracked minified counterparts because production serves those files through SiteGround Optimizer. Whenever a source stylesheet changes, minify the complete source and commit the updated minified file in the same change. The required source-to-output mappings are maintained in [`AGENTS.md`](AGENTS.md). Vendor CSS is excluded unless the vendor asset itself is intentionally upgraded.
 
+The theme registers `listing-css.min.css` as the public staff-listing stylesheet and versions its URL with that file's modification time. Update it from the complete `listing.css` source before deployment so the frontend receives current listing styles without relying on an optimizer-generated copy.
+
 ## Microsoft Azure staff synchronization
 
 The plugin includes an optional Microsoft Graph integration under **Staff → Azure sync**. It polls the Graph users delta endpoint from the last saved delta link, accepts Graph change notifications at `/wp-json/ve-staff/v1/azure/webhook`, and sends mapped staff changes (including profile photos) back to Graph. ACF, grouped ACF, and taxonomy targets can be configured in a row-based editor with ordered transformation rules and an explicit source of truth for every field. For example, setting mobile phone to **WordPress → Azure** ensures an Azure phone value can never overwrite the site value.
