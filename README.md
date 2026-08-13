@@ -8,7 +8,7 @@ Existing `?type=script` snippets continue to run v1. The post editor also presen
 
 V1 script responses are explicitly non-cacheable and all locally hosted listing scripts and styles carry their file modification time in a `ver` query parameter. Deploying a changed asset therefore produces a new URL, so SharePoint and the browser retrieve it without an end user clearing browser history. The generated v2 loader snippet uses the same versioning strategy; copy the refreshed snippet into SharePoint after changing the loader itself.
 
-V1 embeds retain the original access-check behavior: requests made from another website are evaluated as external referrer (`iframe`) traffic, while referrer-less `?type=script` requests are evaluated as script traffic. V2 AJAX requests continue to use the script access rules, with an external referrer still available for allow-list validation.
+V1 and v2 embeds use the script access rules, while an external referrer remains available for URL allow-list validation. Listing behavior is initialized on DOM readiness rather than the host page's `load` event, so legacy scripts still initialize when an external site defers their execution until after the page has loaded.
 
 ## SharePoint
 
