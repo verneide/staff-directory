@@ -7,23 +7,24 @@ function ve_staff_check_page_access() {
 	}
     $host = ve_staff_clean_url($_SERVER['HTTP_HOST'] ?? '');
     $referrer = $_SERVER['HTTP_REFERER'] ?? '';
-    $requested_url = $_SERVER['REQUEST_URI'] ?? '';
+    $referrer_host = !empty($referrer) ? ve_staff_clean_url($referrer) : '';
+    $request_type = isset($_GET['type']) ? sanitize_text_field(wp_unslash($_GET['type'])) : '';
     $embed_version = isset($_GET['embed_version']) ? sanitize_text_field(wp_unslash($_GET['embed_version'])) : '';
-    $is_script_embed = strpos($requested_url, 'type=script') !== false;
+    $is_script_embed = 'script' === strtolower($request_type);
     $is_v2_embed = '2' === $embed_version;
     $source = '';
 
     // Determine the source of the request
-    if ($is_script_embed || $is_v2_embed) {
+    if ($is_v2_embed) {
         $source = 'script';
     } elseif (!empty($referrer)) {
-        $referrer_host = ve_staff_clean_url($referrer);
-
         if ($referrer_host == $host) {
             $source = 'direct';
         } else {
             $source = 'iframe';
         }
+    } elseif ($is_script_embed) {
+        $source = 'script';
     } else {
         $source = 'direct';
     }

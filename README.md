@@ -8,6 +8,8 @@ Existing `?type=script` snippets continue to run v1. The post editor also presen
 
 V1 script responses are explicitly non-cacheable and all locally hosted listing scripts and styles carry their file modification time in a `ver` query parameter. Deploying a changed asset therefore produces a new URL, so SharePoint and the browser retrieve it without an end user clearing browser history. The generated v2 loader snippet uses the same versioning strategy; copy the refreshed snippet into SharePoint after changing the loader itself.
 
+V1 embeds retain the original access-check behavior: requests made from another website are evaluated as external referrer (`iframe`) traffic, while referrer-less `?type=script` requests are evaluated as script traffic. V2 AJAX requests continue to use the script access rules, with an external referrer still available for allow-list validation.
+
 ## SharePoint
 
 The production-oriented SPFx 1.18 sample is under `sharepoint/eide-web-staff-integration`. Set its `apiEndpoint` and optional `entraResource` web-part properties, update the tenant URL in `config/package-solution.json`, then run `npm install`, `gulp bundle --ship`, and `gulp package-solution --ship`. See that directory's README for Entra ID permission setup.
