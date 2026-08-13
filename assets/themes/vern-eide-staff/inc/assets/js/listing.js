@@ -89,11 +89,11 @@ var deptheaders;
 var staffcards;
 
 /* PAGE READY */
-$j(window).on("load", function() {
+$j(function() {
 	$j('.loading-section').remove();
 });
 	
-$j( window ).on("load", function() {
+$j(function() {
   /* FILTERS AVAILABLE */
 	if($j('#departmentfilterselect').length){deptfilterenabled = true;}
 	if($j('#locationfilterselect').length){locfilterenabled = true;}
