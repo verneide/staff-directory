@@ -15,7 +15,7 @@ function ve_staff_check_page_access() {
     $source = '';
 
     // Determine the source of the request
-    if ($is_script_embed || $is_v2_embed) {
+    if ($is_v2_embed) {
         $source = 'script';
     } elseif (!empty($referrer)) {
         if ($referrer_host == $host) {
@@ -23,6 +23,8 @@ function ve_staff_check_page_access() {
         } else {
             $source = 'iframe';
         }
+    } elseif ($is_script_embed) {
+        $source = 'script';
     } else {
         $source = 'direct';
     }
