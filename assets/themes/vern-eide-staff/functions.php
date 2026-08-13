@@ -824,9 +824,9 @@ function ve_staff_suggest_edit_modal_html() {
 							<label class="form-label" for="suggest-edit-employee-name">Employee Name</label>
 							<input type="text" class="form-control" id="suggest-edit-employee-name" name="employee_name_display" readonly>
 						</div>
-						<div class="ve-suggest-edit-requester-row row g-2">
-							<div class="col-sm-6 mb-3"><label class="form-label" for="suggest-edit-requester-name">Your Name *</label><input type="text" class="form-control" id="suggest-edit-requester-name" name="requester_name" required></div>
-							<div class="col-sm-6 mb-3"><label class="form-label" for="suggest-edit-requester-email">Your Email *</label><input type="email" class="form-control" id="suggest-edit-requester-email" name="requester_email" required></div>
+						<div class="ve-suggest-edit-requester-row ve-row g-2">
+							<div class="ve-col-sm-6 mb-3"><label class="form-label" for="suggest-edit-requester-name">Your Name *</label><input type="text" class="form-control" id="suggest-edit-requester-name" name="requester_name" required></div>
+							<div class="ve-col-sm-6 mb-3"><label class="form-label" for="suggest-edit-requester-email">Your Email *</label><input type="email" class="form-control" id="suggest-edit-requester-email" name="requester_email" required></div>
 						</div>
 						<p>Enter only the fields that need to change.</p>
 						<?php foreach ($fields as $field_key => $field_label) : ?>

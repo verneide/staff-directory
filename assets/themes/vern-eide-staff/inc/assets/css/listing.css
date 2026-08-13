@@ -5264,6 +5264,7 @@ body:not(.inventory-template-default) .di-stacks.di-stacks--bottom, body:not(.in
 	display: flex;
 	flex: 1 1 0;
 	min-width: 0;
+	flex-wrap: nowrap;
 }
 
 .ve-suggest-edit-input-group .input-group-prepend {

@@ -12,6 +12,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Generate minified application assets
+        run: |
+          npx --yes --package clean-css-cli@5.6.3 cleancss -o assets/themes/vern-eide-staff/inc/assets/css/listing-css.min.css assets/themes/vern-eide-staff/inc/assets/css/listing.css
+          npx --yes --package clean-css-cli@5.6.3 cleancss -o assets/themes/vern-eide-staff/inc/assets/css/ve-staff-display.min.css assets/themes/vern-eide-staff/inc/assets/css/listing-display.css
+          npx --yes --package clean-css-cli@5.6.3 cleancss -o assets/themes/vern-eide-staff/wp-bootstrap-starter-style.min.css assets/themes/vern-eide-staff/style.css
+          npx --yes --package clean-css-cli@5.6.3 cleancss -o assets/plugins/ve-staff/public/css/ve-staff.min.css assets/plugins/ve-staff/public/css/ve-staff-public.css
+          npx --yes --package terser@5.43.1 terser assets/themes/vern-eide-staff/inc/assets/js/theme-script.js --compress --mangle --output assets/themes/vern-eide-staff/inc/assets/js/theme-script.min.js
+          npx --yes --package terser@5.43.1 terser assets/themes/vern-eide-staff/inc/assets/js/skip-link-focus-fix.js --compress --mangle --output assets/themes/vern-eide-staff/inc/assets/js/skip-link-focus-fix.min.js
+
       - name: Install rsync
         run: sudo apt-get update && sudo apt-get install -y rsync
 
