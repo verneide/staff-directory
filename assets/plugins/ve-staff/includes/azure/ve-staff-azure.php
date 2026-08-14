@@ -5,6 +5,57 @@ const VE_STAFF_AZURE_LOG_TABLE = 've_staff_azure_log';
 const VE_STAFF_AZURE_PERMISSIONS_OPTION = 've_staff_azure_permissions';
 const VE_STAFF_AZURE_PERMISSION_MAX_AGE = DAY_IN_SECONDS;
 
+/** @return array<int, string> */
+function ve_staff_azure_common_user_fields(): array {
+	return array( 'displayName', 'givenName', 'surname', 'mail', 'userPrincipalName', 'jobTitle', 'department', 'companyName', 'employeeId', 'employeeType', 'mobilePhone', 'businessPhones', 'officeLocation', 'city', 'state', 'postalCode', 'streetAddress', 'country', 'preferredLanguage', 'onPremisesSamAccountName', 'onPremisesDistinguishedName', 'onPremisesExtensionAttributes' );
+}
+
+/** @param array<string, mixed> $user @return array<string, mixed> */
+function ve_staff_azure_add_derived_fields( array $user ): array {
+	$distinguished_name = (string) ( $user['onPremisesDistinguishedName'] ?? '' );
+	if ( '' !== $distinguished_name && preg_match_all( '/(?:^|,)OU=((?:\\\\.|[^,])*)/i', $distinguished_name, $matches ) ) {
+		$user['organizationalUnit'] = implode( ' / ', array_map( static fn( string $value ): string => str_replace( '\\,', ',', $value ), $matches[1] ) );
+	}
+	return $user;
+}
+
+/** @param array<string, mixed> $values @return mixed */
+function ve_staff_azure_read_source( array $values, string $path ) {
+	$value = $values;
+	foreach ( explode( '.', $path ) as $part ) {
+		if ( ! is_array( $value ) || ! array_key_exists( $part, $value ) ) { return null; }
+		$value = $value[ $part ];
+	}
+	return $value;
+}
+
+/** @param array<string, mixed> $values @return array<string, string> */
+function ve_staff_azure_discovered_fields( array $values ): array {
+	$fields = array();
+	foreach ( $values as $name => $value ) {
+		if ( 'id' === $name || 0 === strpos( (string) $name, '@' ) ) { continue; }
+		if ( is_array( $value ) && array_keys( $value ) !== range( 0, count( $value ) - 1 ) ) {
+			foreach ( $value as $child_name => $child_value ) {
+				if ( null !== $child_value && '' !== $child_value ) { $fields[ $name . '.' . $child_name ] = is_scalar( $child_value ) ? (string) $child_value : (string) wp_json_encode( $child_value ); }
+			}
+		} elseif ( null !== $value && '' !== $value ) {
+			$fields[ (string) $name ] = is_scalar( $value ) ? (string) $value : (string) wp_json_encode( $value );
+		}
+	}
+	ksort( $fields );
+	return $fields;
+}
+
+/** @param array<string, mixed> $mappings */
+function ve_staff_azure_user_select( array $mappings ): string {
+	$fields = array( 'id', 'mail', 'onPremisesDistinguishedName' );
+	foreach ( array_keys( $mappings ) as $field ) {
+		$root = explode( '.', (string) $field )[0];
+		if ( ! in_array( $root, array( 'photo', 'organizationalUnit' ), true ) ) { $fields[] = $root; }
+	}
+	return implode( ',', array_unique( $fields ) );
+}
+
 /** @return array<string, mixed> */
 function ve_staff_azure_settings(): array {
 	$defaults = array(
@@ -129,6 +180,7 @@ function ve_staff_azure_recheck_permissions(): array {
 
 /** @param array<string, mixed> $user */
 function ve_staff_azure_import_user( array $user, string $source ): void {
+	$user = ve_staff_azure_add_derived_fields( $user );
 	$azure_id = sanitize_text_field( (string) ( $user['id'] ?? '' ) );
 	if ( '' === $azure_id ) { throw new InvalidArgumentException( 'Azure user event is missing id.' ); }
 	$posts = get_posts( array( 'post_type' => 'staff', 'post_status' => 'any', 'numberposts' => 1, 'meta_key' => '_ve_staff_azure_id', 'meta_value' => $azure_id ) );
@@ -141,8 +193,10 @@ function ve_staff_azure_import_user( array $user, string $source ): void {
 	$settings = ve_staff_azure_settings();
 	$changes  = array();
 	foreach ( $settings['mappings'] as $azure_field => $mapping ) {
-		if ( ! array_key_exists( $azure_field, $user ) || ! in_array( $mapping['direction'], array( 'both', 'azure_to_wp' ), true ) ) { continue; }
-		$value = ve_staff_azure_apply_rules( $user[ $azure_field ], is_array( $mapping['rules'] ?? null ) ? $mapping['rules'] : array() );
+		if ( ! in_array( $mapping['direction'], array( 'both', 'azure_to_wp' ), true ) ) { continue; }
+		$value = ve_staff_azure_read_source( $user, (string) $azure_field );
+		if ( null === $value ) { continue; }
+		$value = ve_staff_azure_apply_rules( $value, is_array( $mapping['rules'] ?? null ) ? $mapping['rules'] : array() );
 		$changes[] = array( 'azure_field' => $azure_field, 'target' => $mapping['target'], 'value' => $value );
 		if ( ! $settings['mock_mode'] ) { ve_staff_azure_write_target( $post_id, (string) $mapping['target'], $value ); }
 	}
@@ -168,7 +222,7 @@ function ve_staff_azure_poll(): void {
 	$permission_state = ve_staff_azure_permission_state();
 	if ( time() - (int) $permission_state['checked_at'] >= VE_STAFF_AZURE_PERMISSION_MAX_AGE ) { $permission_state = ve_staff_azure_recheck_permissions(); }
 	if ( empty( $permission_state['capabilities']['read_users'] ) ) { ve_staff_azure_log( 'warning', 'poll_skipped_missing_permission', array( 'required_permission' => 'User.Read.All' ) ); return; }
-	$url = (string) get_option( 've_staff_azure_delta_link', 'https://graph.microsoft.com/v1.0/users/delta?$select=id,givenName,surname,mail,mobilePhone,officeLocation' );
+	$url = (string) get_option( 've_staff_azure_delta_link', 'https://graph.microsoft.com/v1.0/users/delta?$select=' . rawurlencode( ve_staff_azure_user_select( $s['mappings'] ) ) );
 	do { $page = ve_staff_azure_connector()->get_json( $url ); foreach ( (array) ( $page['value'] ?? array() ) as $user ) { if ( is_array( $user ) && empty( $user['@removed'] ) ) { ve_staff_azure_import_user( $user, 'poll' ); } } $url = (string) ( $page['@odata.nextLink'] ?? '' ); } while ( '' !== $url );
 	if ( ! empty( $page['@odata.deltaLink'] ) ) { update_option( 've_staff_azure_delta_link', esc_url_raw( (string) $page['@odata.deltaLink'] ), false ); }
 }
@@ -179,7 +233,7 @@ function ve_staff_azure_webhook( WP_REST_Request $request ): WP_REST_Response {
 	foreach ( (array) ( $body['value'] ?? array() ) as $event ) {
 		if ( ! hash_equals( (string) $s['webhook_client_state'], (string) ( $event['clientState'] ?? '' ) ) ) { throw new RuntimeException( 'Azure webhook clientState validation failed.' ); }
 		if ( empty( ve_staff_azure_permission_state()['capabilities']['read_users'] ) ) { ve_staff_azure_log( 'warning', 'webhook_skipped_missing_permission', array( 'required_permission' => 'User.Read.All' ) ); continue; }
-		$id = basename( (string) ( $event['resourceData']['id'] ?? $event['resource'] ?? '' ) ); $user = ve_staff_azure_connector()->get_json( 'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $id ) . '?$select=id,givenName,surname,mail,mobilePhone,officeLocation' ); ve_staff_azure_import_user( $user, 'webhook' );
+		$id = basename( (string) ( $event['resourceData']['id'] ?? $event['resource'] ?? '' ) ); $user = ve_staff_azure_connector()->get_json( 'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $id ) . '?$select=' . rawurlencode( ve_staff_azure_user_select( $s['mappings'] ) ) ); ve_staff_azure_import_user( $user, 'webhook' );
 	}
 	return new WP_REST_Response( null, 202 );
 }
@@ -329,7 +383,13 @@ function ve_staff_azure_ajax_connection_test(): void {
 		$connector = new Ve_Staff_Azure_Graph_Connector( $tenant, $client, $secret );
 		$permissions = $connector->test_connection();
 		$state = ve_staff_azure_store_permissions( $permissions, $tenant, $client, $secret );
-		wp_send_json_success( array( 'message' => ve_staff_azure_permission_summary( $state ), 'capabilities' => $state['capabilities'] ) );
+		$discovered_fields = array();
+		if ( ! empty( $state['capabilities']['read_users'] ) ) {
+			$sample = $connector->get_json( 'https://graph.microsoft.com/v1.0/users?$top=1&$select=' . rawurlencode( implode( ',', array_merge( array( 'id' ), ve_staff_azure_common_user_fields() ) ) ) );
+			$users = is_array( $sample['value'] ?? null ) ? $sample['value'] : array();
+			if ( isset( $users[0] ) && is_array( $users[0] ) ) { $discovered_fields = ve_staff_azure_discovered_fields( ve_staff_azure_add_derived_fields( $users[0] ) ); }
+		}
+		wp_send_json_success( array( 'message' => ve_staff_azure_permission_summary( $state ), 'capabilities' => $state['capabilities'], 'discovered_fields' => $discovered_fields ) );
 	} catch ( Throwable $error ) { wp_send_json_error( array( 'message' => $error->getMessage() ), 400 ); }
 }
 
@@ -362,16 +422,15 @@ function ve_staff_azure_ajax_save_field(): void {
 /** @return array<string, mixed> */
 function ve_staff_azure_load_test_user( int $post_id, array $mappings ): array {
 	$azure_id = (string) get_post_meta( $post_id, '_ve_staff_azure_id', true );
-	$fields = array_values( array_filter( array_keys( $mappings ), static fn( string $field ): bool => 'photo' !== $field ) );
-	$select = implode( ',', array_unique( array_merge( array( 'id', 'mail' ), $fields ) ) );
-	if ( '' !== $azure_id ) { return ve_staff_azure_connector()->get_json( 'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $azure_id ) . '?$select=' . rawurlencode( $select ) ); }
+	$select = ve_staff_azure_user_select( $mappings );
+	if ( '' !== $azure_id ) { return ve_staff_azure_add_derived_fields( ve_staff_azure_connector()->get_json( 'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $azure_id ) . '?$select=' . rawurlencode( $select ) ) ); }
 	$email = (string) ve_staff_azure_read_target( $post_id, 'office_contact_info.office_email' );
 	if ( '' === $email ) { throw new RuntimeException( 'The selected staff post has neither an Azure ID nor an office email address.' ); }
 	$filter = rawurlencode( "mail eq '" . str_replace( "'", "''", $email ) . "'" );
 	$result = ve_staff_azure_connector()->get_json( 'https://graph.microsoft.com/v1.0/users?$filter=' . $filter . '&$select=' . rawurlencode( $select ) );
 	$users = $result['value'] ?? array();
 	if ( ! is_array( $users ) || 1 !== count( $users ) || ! is_array( $users[0] ) ) { throw new RuntimeException( 'Expected exactly one Azure user matching staff email ' . $email . '.' ); }
-	return $users[0];
+	return ve_staff_azure_add_derived_fields( $users[0] );
 }
 
 function ve_staff_azure_ajax_sync_preview(): void {
@@ -386,7 +445,7 @@ function ve_staff_azure_ajax_sync_preview(): void {
 		$rows = array();
 		foreach ( $settings['mappings'] as $field => $mapping ) {
 			if ( 'disabled' === $mapping['direction'] || 'photo' === $field ) { continue; }
-			$azure = ve_staff_azure_apply_rules( $user[ $field ] ?? '', (array) $mapping['rules'] );
+			$azure = ve_staff_azure_apply_rules( ve_staff_azure_read_source( $user, (string) $field ), (array) $mapping['rules'] );
 			$wordpress = ve_staff_azure_apply_rules( ve_staff_azure_read_target( $post_id, (string) $mapping['target'] ), (array) $mapping['rules'] );
 			$from = 'azure_to_wp' === $mapping['direction'] ? $azure : $wordpress;
 			$to = 'azure_to_wp' === $mapping['direction'] ? $wordpress : $azure;
@@ -430,7 +489,10 @@ function ve_staff_azure_settings_page(): void {
 		echo '<tr><th><label for="azure-' . esc_attr( $key ) . '">' . esc_html( $label ) . ' <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="' . esc_attr( $help[ $key ] ) . '" aria-label="' . esc_attr( $help[ $key ] ) . '"></span></label></th><td><input class="regular-text ve-azure-autosave" data-setting="' . esc_attr( $key ) . '" id="azure-' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" name="ve_staff_azure_settings[' . esc_attr( $key ) . ']" value="' . esc_attr( $value ) . '"' . ( 'poll_minutes' === $key ? ' min="5"' : '' ) . '><span class="ve-azure-save-status" role="status"></span><p class="description">' . esc_html( $help[ $key ] ) . '</p></td></tr>';
 	}
 	echo '<tr><th>Operation <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="Mock mode is the safe default and records activity without changing either system."></span></th><td><label><input type="checkbox" name="ve_staff_azure_settings[enabled]" value="1" ' . checked( true, (bool) $s['enabled'], false ) . '> Enable synchronization</label><br><label><input type="checkbox" name="ve_staff_azure_settings[mock_mode]" value="1" ' . checked( true, (bool) $s['mock_mode'], false ) . '> Mock mode (log only; do not mutate either system)</label><p><button type="button" class="button" id="ve-azure-test-connection">Test connection &amp; permissions</button></p><p id="ve-azure-connection-result" role="status">' . esc_html( ve_staff_azure_permission_summary( $permission_state ) ) . '</p><p class="description">Granted permissions are stored after each test and rechecked automatically at least once per day while synchronization is enabled.</p></td></tr></table>';
-	echo '<h2>Field mappings and source of truth</h2><p>Each row has exactly one source of truth. <strong>Azure → WordPress</strong> can change the site; <strong>WordPress → Azure</strong> can change Azure. Disabled rows never sync. Rules transform both values before comparison.</p><table class="widefat striped" id="ve-azure-mappings"><thead><tr><th>Azure field</th><th>WordPress target</th><th>Source of truth</th><th>Rules (JSON array)</th><th></th></tr></thead><tbody>';
+	echo '<h2>Field mappings and source of truth</h2><p>Each row has exactly one source of truth. <strong>Azure → WordPress</strong> can change the site; <strong>WordPress → Azure</strong> can change Azure. Disabled rows never sync. Rules transform both values before comparison.</p><p>Common Azure fields include <code>displayName</code>, <code>jobTitle</code>, <code>department</code>, <code>companyName</code>, <code>employeeId</code>, <code>businessPhones</code>, and <code>officeLocation</code>. Synced directories can also expose <code>organizationalUnit</code> (derived from <code>onPremisesDistinguishedName</code>) and <code>onPremisesExtensionAttributes.extensionAttribute1</code> through <code>extensionAttribute15</code>. Run the connection test to inspect fields populated on one directory user.</p><div id="ve-azure-discovered-fields" aria-live="polite"></div><datalist id="ve-azure-field-options">';
+	foreach ( ve_staff_azure_common_user_fields() as $field ) { echo '<option value="' . esc_attr( $field ) . '"></option>'; }
+	for ( $attribute = 1; $attribute <= 15; $attribute++ ) { echo '<option value="onPremisesExtensionAttributes.extensionAttribute' . $attribute . '"></option>'; }
+	echo '<option value="organizationalUnit"></option></datalist><table class="widefat striped" id="ve-azure-mappings"><thead><tr><th>Azure field</th><th>WordPress target</th><th>Source of truth</th><th>Rules (JSON array)</th><th></th></tr></thead><tbody>';
 	$index = 0; foreach ( $s['mappings'] as $field => $mapping ) { echo ve_staff_azure_mapping_row( $index, (string) $field, $mapping ); $index++; }
 	echo '</tbody></table><p><button type="button" class="button" id="ve-azure-add-mapping">Add mapping</button></p><details><summary>Rules reference and examples</summary><p>Available types: <code>trim</code>, <code>lowercase</code>, <code>uppercase</code>, <code>phone_digits</code>, <code>replace</code>, <code>regex</code>, and <code>value_map</code>.</p><pre>[{"type":"phone_digits"}]\n[{"type":"value_map","map":{"Vern Eide Honda":"vern-eide-honda"}}]</pre></details>';
 	submit_button(); echo '</form><hr><h2>Dry-run a staff member</h2><p>This fetches the matching Azure user, applies the <em>saved</em> mappings and rules, and shows the destination changes. It never writes data.</p><select id="ve-azure-test-post"><option value="">Choose staff…</option>'; foreach ( $posts as $post ) { echo '<option value="' . (int) $post->ID . '">' . esc_html( $post->post_title ) . '</option>'; } echo '</select> <button type="button" class="button button-secondary" id="ve-azure-run-preview">Run dry-run</button><div id="ve-azure-preview" aria-live="polite"></div></div>';
@@ -441,7 +503,7 @@ function ve_staff_azure_mapping_row( int $index, string $field, array $mapping )
 	$name = 've_staff_azure_settings[mappings][' . $index . ']'; $rules = wp_json_encode( $mapping['rules'] ?? array(), JSON_UNESCAPED_SLASHES );
 	$options = array( 'azure_to_wp' => 'Azure → WordPress', 'wp_to_azure' => 'WordPress → Azure', 'disabled' => 'Disabled' ); $select = '';
 	foreach ( $options as $value => $label ) { $select .= '<option value="' . esc_attr( $value ) . '" ' . selected( $value, (string) ( $mapping['direction'] ?? 'disabled' ), false ) . '>' . esc_html( $label ) . '</option>'; }
-	return '<tr><td><input required name="' . esc_attr( $name ) . '[azure_field]" value="' . esc_attr( $field ) . '" placeholder="mobilePhone"></td><td><input required name="' . esc_attr( $name ) . '[target]" value="' . esc_attr( (string) ( $mapping['target'] ?? '' ) ) . '" placeholder="group.field"></td><td><select name="' . esc_attr( $name ) . '[direction]">' . $select . '</select></td><td><textarea required class="large-text code ve-azure-rules" rows="2" name="' . esc_attr( $name ) . '[rules]">' . esc_textarea( (string) $rules ) . '</textarea><span class="ve-azure-json-status"></span></td><td><button type="button" class="button-link-delete ve-azure-remove">Remove</button></td></tr>';
+	return '<tr><td><input required list="ve-azure-field-options" name="' . esc_attr( $name ) . '[azure_field]" value="' . esc_attr( $field ) . '" placeholder="mobilePhone"></td><td><input required name="' . esc_attr( $name ) . '[target]" value="' . esc_attr( (string) ( $mapping['target'] ?? '' ) ) . '" placeholder="group.field"></td><td><select name="' . esc_attr( $name ) . '[direction]">' . $select . '</select></td><td><textarea required class="large-text code ve-azure-rules" rows="2" name="' . esc_attr( $name ) . '[rules]">' . esc_textarea( (string) $rules ) . '</textarea><span class="ve-azure-json-status"></span></td><td><button type="button" class="button-link-delete ve-azure-remove">Remove</button></td></tr>';
 }
 
 add_action( 'admin_menu', 've_staff_azure_admin_menu' );
