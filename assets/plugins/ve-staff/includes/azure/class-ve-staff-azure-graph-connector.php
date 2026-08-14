@@ -37,7 +37,6 @@ final class Ve_Staff_Azure_Graph_Connector {
 	/** @return array<int, string> */
 	public function test_connection(): array {
 		$token = $this->access_token();
-		$this->get_json( 'https://graph.microsoft.com/v1.0/users?$top=1&$select=id' );
 		$parts = explode( '.', $token );
 		if ( 3 !== count( $parts ) ) {
 			throw new RuntimeException( 'Microsoft returned an access token in an unexpected format.' );
@@ -45,13 +44,12 @@ final class Ve_Staff_Azure_Graph_Connector {
 		$payload = strtr( $parts[1], '-_', '+/' );
 		$payload .= str_repeat( '=', ( 4 - strlen( $payload ) % 4 ) % 4 );
 		$decoded = json_decode( (string) base64_decode( $payload, true ), true, 512, JSON_THROW_ON_ERROR );
-		$roles = is_array( $decoded ) && is_array( $decoded['roles'] ?? null ) ? array_map( 'strval', $decoded['roles'] ) : array();
-		$required = array( 'User.Read.All', 'User.ReadWrite.All', 'ProfilePhoto.ReadWrite.All' );
-		$missing = array_values( array_diff( $required, $roles ) );
-		if ( array() !== $missing ) {
-			throw new RuntimeException( 'Authentication succeeded, but admin consent is missing for application permission(s): ' . implode( ', ', $missing ) . '.' );
+		$roles      = is_array( $decoded ) && is_array( $decoded['roles'] ?? null ) ? array_map( 'strval', $decoded['roles'] ) : array();
+		$recognized = array_values( array_intersect( array( 'User.Read.All', 'User.ReadWrite.All', 'ProfilePhoto.ReadWrite.All' ), $roles ) );
+		if ( in_array( 'User.Read.All', $recognized, true ) || in_array( 'User.ReadWrite.All', $recognized, true ) ) {
+			$this->get_json( 'https://graph.microsoft.com/v1.0/users?$top=1&$select=id' );
 		}
-		return $required;
+		return $recognized;
 	}
 
 	/** @return array<string, mixed> */
