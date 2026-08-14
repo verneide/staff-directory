@@ -2,6 +2,8 @@
 
 const VE_STAFF_AZURE_CRON_HOOK = 've_staff_azure_directory_poll';
 const VE_STAFF_AZURE_LOG_TABLE = 've_staff_azure_log';
+const VE_STAFF_AZURE_PERMISSIONS_OPTION = 've_staff_azure_permissions';
+const VE_STAFF_AZURE_PERMISSION_MAX_AGE = DAY_IN_SECONDS;
 
 /** @return array<string, mixed> */
 function ve_staff_azure_settings(): array {
@@ -81,6 +83,50 @@ function ve_staff_azure_connector(): Ve_Staff_Azure_Graph_Connector {
 	return new Ve_Staff_Azure_Graph_Connector( (string) $s['tenant_id'], (string) $s['client_id'], (string) $s['client_secret'] );
 }
 
+/** @return array<string, bool> */
+function ve_staff_azure_permission_capabilities( array $permissions ): array {
+	$can_write_users = in_array( 'User.ReadWrite.All', $permissions, true );
+	return array(
+		'read_users'   => $can_write_users || in_array( 'User.Read.All', $permissions, true ),
+		'write_users'  => $can_write_users,
+		'write_photos' => in_array( 'ProfilePhoto.ReadWrite.All', $permissions, true ),
+	);
+}
+
+function ve_staff_azure_credentials_fingerprint( string $tenant_id, string $client_id, string $client_secret ): string {
+	return hash( 'sha256', $tenant_id . "\0" . $client_id . "\0" . $client_secret );
+}
+
+/** @return array<string, mixed> */
+function ve_staff_azure_store_permissions( array $permissions, string $tenant_id, string $client_id, string $client_secret ): array {
+	$state = array(
+		'permissions' => array_values( array_map( 'strval', $permissions ) ),
+		'capabilities' => ve_staff_azure_permission_capabilities( $permissions ),
+		'checked_at' => time(),
+		'credentials_fingerprint' => ve_staff_azure_credentials_fingerprint( $tenant_id, $client_id, $client_secret ),
+	);
+	update_option( VE_STAFF_AZURE_PERMISSIONS_OPTION, $state, false );
+	return $state;
+}
+
+/** @return array<string, mixed> */
+function ve_staff_azure_permission_state(): array {
+	$settings = ve_staff_azure_settings();
+	$state = get_option( VE_STAFF_AZURE_PERMISSIONS_OPTION, array() );
+	$fingerprint = ve_staff_azure_credentials_fingerprint( (string) $settings['tenant_id'], (string) $settings['client_id'], (string) $settings['client_secret'] );
+	if ( ! is_array( $state ) || ! hash_equals( $fingerprint, (string) ( $state['credentials_fingerprint'] ?? '' ) ) ) {
+		return array( 'permissions' => array(), 'capabilities' => ve_staff_azure_permission_capabilities( array() ), 'checked_at' => 0 );
+	}
+	return $state;
+}
+
+/** @return array<string, mixed> */
+function ve_staff_azure_recheck_permissions(): array {
+	$settings = ve_staff_azure_settings();
+	$permissions = ve_staff_azure_connector()->test_connection();
+	return ve_staff_azure_store_permissions( $permissions, (string) $settings['tenant_id'], (string) $settings['client_id'], (string) $settings['client_secret'] );
+}
+
 /** @param array<string, mixed> $user */
 function ve_staff_azure_import_user( array $user, string $source ): void {
 	$azure_id = sanitize_text_field( (string) ( $user['id'] ?? '' ) );
@@ -119,6 +165,9 @@ function ve_staff_azure_write_target( int $post_id, string $target, $value ): vo
 
 function ve_staff_azure_poll(): void {
 	$s = ve_staff_azure_settings(); if ( ! $s['enabled'] ) { return; }
+	$permission_state = ve_staff_azure_permission_state();
+	if ( time() - (int) $permission_state['checked_at'] >= VE_STAFF_AZURE_PERMISSION_MAX_AGE ) { $permission_state = ve_staff_azure_recheck_permissions(); }
+	if ( empty( $permission_state['capabilities']['read_users'] ) ) { ve_staff_azure_log( 'warning', 'poll_skipped_missing_permission', array( 'required_permission' => 'User.Read.All' ) ); return; }
 	$url = (string) get_option( 've_staff_azure_delta_link', 'https://graph.microsoft.com/v1.0/users/delta?$select=id,givenName,surname,mail,mobilePhone,officeLocation' );
 	do { $page = ve_staff_azure_connector()->get_json( $url ); foreach ( (array) ( $page['value'] ?? array() ) as $user ) { if ( is_array( $user ) && empty( $user['@removed'] ) ) { ve_staff_azure_import_user( $user, 'poll' ); } } $url = (string) ( $page['@odata.nextLink'] ?? '' ); } while ( '' !== $url );
 	if ( ! empty( $page['@odata.deltaLink'] ) ) { update_option( 've_staff_azure_delta_link', esc_url_raw( (string) $page['@odata.deltaLink'] ), false ); }
@@ -129,6 +178,7 @@ function ve_staff_azure_webhook( WP_REST_Request $request ): WP_REST_Response {
 	$body = $request->get_json_params(); $s = ve_staff_azure_settings();
 	foreach ( (array) ( $body['value'] ?? array() ) as $event ) {
 		if ( ! hash_equals( (string) $s['webhook_client_state'], (string) ( $event['clientState'] ?? '' ) ) ) { throw new RuntimeException( 'Azure webhook clientState validation failed.' ); }
+		if ( empty( ve_staff_azure_permission_state()['capabilities']['read_users'] ) ) { ve_staff_azure_log( 'warning', 'webhook_skipped_missing_permission', array( 'required_permission' => 'User.Read.All' ) ); continue; }
 		$id = basename( (string) ( $event['resourceData']['id'] ?? $event['resource'] ?? '' ) ); $user = ve_staff_azure_connector()->get_json( 'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $id ) . '?$select=id,givenName,surname,mail,mobilePhone,officeLocation' ); ve_staff_azure_import_user( $user, 'webhook' );
 	}
 	return new WP_REST_Response( null, 202 );
@@ -142,15 +192,18 @@ function ve_staff_azure_export_post( int $post_id, WP_Post $post, bool $update )
 	foreach ( $s['mappings'] as $azure_field => $mapping ) { if ( in_array( $mapping['direction'], array( 'both', 'wp_to_azure' ), true ) && 'photo' !== $azure_field ) { $payload[ $azure_field ] = ve_staff_azure_apply_rules( ve_staff_azure_read_target( $post_id, (string) $mapping['target'] ), (array) ( $mapping['rules'] ?? array() ) ); } }
 	if ( ! $s['mock_mode'] ) {
 		$connector = ve_staff_azure_connector();
-		$connector->patch_json( 'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $azure_id ), $payload );
+		$capabilities = ve_staff_azure_permission_state()['capabilities'];
+		if ( array() !== $payload && ! empty( $capabilities['write_users'] ) ) { $connector->patch_json( 'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $azure_id ), $payload ); }
+		elseif ( array() !== $payload ) { ve_staff_azure_log( 'warning', 'user_export_skipped_missing_permission', array( 'post_id' => $post_id, 'azure_id' => $azure_id, 'required_permission' => 'User.ReadWrite.All' ) ); }
 		$photo_mapping = $s['mappings']['photo'] ?? array();
 		$photo         = 'wp_to_azure' === ( $photo_mapping['direction'] ?? '' ) ? get_field( 'photo', $post_id ) : null;
 		$photo_id  = is_array( $photo ) ? (int) ( $photo['ID'] ?? 0 ) : (int) $photo;
 		$path     = $photo_id > 0 ? get_attached_file( $photo_id ) : '';
-		if ( is_string( $path ) && is_readable( $path ) ) {
+		if ( is_string( $path ) && is_readable( $path ) && ! empty( $capabilities['write_photos'] ) ) {
 			$mime = (string) get_post_mime_type( $photo_id );
 			$connector->put_binary( 'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $azure_id ) . '/photo/$value', $mime, (string) file_get_contents( $path ) );
 		}
+		elseif ( is_string( $path ) && is_readable( $path ) ) { ve_staff_azure_log( 'warning', 'photo_export_skipped_missing_permission', array( 'post_id' => $post_id, 'azure_id' => $azure_id, 'required_permission' => 'ProfilePhoto.ReadWrite.All' ) ); }
 	}
 	ve_staff_azure_log( 'info', $s['mock_mode'] ? 'mock_export' : 'export', array( 'post_id' => $post_id, 'azure_id' => $azure_id, 'payload' => $payload ) );
 }
@@ -251,6 +304,18 @@ function ve_staff_azure_field_help(): array {
 	);
 }
 
+/** @param array<string, mixed> $state */
+function ve_staff_azure_permission_summary( array $state ): string {
+	$capabilities = is_array( $state['capabilities'] ?? null ) ? $state['capabilities'] : array();
+	$parts = array(
+		! empty( $capabilities['read_users'] ) ? 'Azure-to-WordPress user sync is available' : 'Azure-to-WordPress user sync is unavailable (grant User.Read.All)',
+		! empty( $capabilities['write_users'] ) ? 'WordPress-to-Azure user fields are available' : 'WordPress-to-Azure user fields are unavailable (grant User.ReadWrite.All)',
+		! empty( $capabilities['write_photos'] ) ? 'WordPress-to-Azure profile photos are available' : 'WordPress-to-Azure profile photos are unavailable (grant ProfilePhoto.ReadWrite.All)',
+	);
+	$checked_at = (int) ( $state['checked_at'] ?? 0 );
+	return implode( '; ', $parts ) . ( $checked_at > 0 ? '. Last checked ' . gmdate( 'Y-m-d H:i:s', $checked_at ) . ' UTC.' : '. Run the connection test to check granted permissions.' );
+}
+
 function ve_staff_azure_ajax_connection_test(): void {
 	check_ajax_referer( 've_staff_azure_admin', 'nonce' );
 	if ( ! current_user_can( 'manage_options' ) ) { wp_send_json_error( array( 'message' => 'You cannot test Azure sync.' ), 403 ); }
@@ -263,7 +328,8 @@ function ve_staff_azure_ajax_connection_test(): void {
 		delete_transient( 've_staff_azure_access_token' );
 		$connector = new Ve_Staff_Azure_Graph_Connector( $tenant, $client, $secret );
 		$permissions = $connector->test_connection();
-		wp_send_json_success( array( 'message' => 'Authentication succeeded, Graph users are readable, and admin consent is present for: ' . implode( ', ', $permissions ) . '.' ) );
+		$state = ve_staff_azure_store_permissions( $permissions, $tenant, $client, $secret );
+		wp_send_json_success( array( 'message' => ve_staff_azure_permission_summary( $state ), 'capabilities' => $state['capabilities'] ) );
 	} catch ( Throwable $error ) { wp_send_json_error( array( 'message' => $error->getMessage() ), 400 ); }
 }
 
@@ -289,7 +355,7 @@ function ve_staff_azure_ajax_save_field(): void {
 	if ( ! update_option( 've_staff_azure_settings', $stored ) && get_option( 've_staff_azure_settings' ) !== $stored ) {
 		wp_send_json_error( array( 'message' => 'WordPress could not save this Azure setting.' ), 500 );
 	}
-	if ( in_array( $field, array( 'tenant_id', 'client_id', 'client_secret' ), true ) ) { delete_transient( 've_staff_azure_access_token' ); }
+	if ( in_array( $field, array( 'tenant_id', 'client_id', 'client_secret' ), true ) ) { delete_transient( 've_staff_azure_access_token' ); delete_option( VE_STAFF_AZURE_PERMISSIONS_OPTION ); }
 	wp_send_json_success( array( 'message' => 'Saved.' ) );
 }
 
@@ -332,14 +398,14 @@ function ve_staff_azure_ajax_sync_preview(): void {
 
 function ve_staff_azure_settings_page(): void {
 	if ( ! current_user_can( 'manage_options' ) ) { wp_die( esc_html__( 'You cannot manage Azure sync.', 've-staff' ) ); }
-	$s = ve_staff_azure_settings(); $help = ve_staff_azure_field_help();
+	$s = ve_staff_azure_settings(); $help = ve_staff_azure_field_help(); $permission_state = ve_staff_azure_permission_state();
 	$posts = get_posts( array( 'post_type' => 'staff', 'post_status' => array( 'publish', 'draft', 'private' ), 'numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC' ) );
 	wp_enqueue_style( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/css/ve-staff-azure-admin.css', array(), VE_STAFF_VERSION );
 	wp_enqueue_script( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/js/ve-staff-azure-admin.js', array(), VE_STAFF_VERSION, true );
 	wp_localize_script( 've-staff-azure-admin', 'veStaffAzure', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 've_staff_azure_admin' ) ) );
 	echo '<div class="wrap ve-azure"><h1>Microsoft Azure staff sync</h1>';
 	settings_errors( 've_staff_azure_settings' );
-	echo '<div class="notice notice-info inline"><h2>Microsoft Entra app registration</h2><ol><li>Create a single-tenant app registration in <strong>Microsoft Entra ID → App registrations</strong>.</li><li>No Redirect URI is required. This integration uses the server-to-server OAuth client credentials flow and never signs in a browser user.</li><li>Under <strong>API permissions</strong>, add Microsoft Graph <strong>Application</strong> permissions <code>User.Read.All</code>, <code>User.ReadWrite.All</code>, and <code>ProfilePhoto.ReadWrite.All</code>, then grant tenant admin consent.</li><li>Create a client secret under <strong>Certificates &amp; secrets</strong>, copy its value before leaving the page, and record its expiration date below.</li><li>Optional webhooks use notification URL <code>' . esc_html( rest_url( 've-staff/v1/azure/webhook' ) ) . '</code> and the client state below. Polling works without a webhook subscription.</li></ol></div><form id="ve-azure-settings" method="post" action="options.php">';
+	echo '<div class="notice notice-info inline"><h2>Microsoft Entra app registration</h2><ol><li>Create a single-tenant app registration in <strong>Microsoft Entra ID → App registrations</strong>.</li><li>No Redirect URI is required. This integration uses the server-to-server OAuth client credentials flow and never signs in a browser user.</li><li>Under <strong>API permissions</strong>, grant only the Microsoft Graph <strong>Application</strong> permissions needed: <code>User.Read.All</code> for Azure-to-WordPress user sync, <code>User.ReadWrite.All</code> for WordPress-to-Azure user fields, and <code>ProfilePhoto.ReadWrite.All</code> for WordPress-to-Azure photos.</li><li>Create a client secret under <strong>Certificates &amp; secrets</strong>, copy its value before leaving the page, and record its expiration date below.</li><li>Optional webhooks use notification URL <code>' . esc_html( rest_url( 've-staff/v1/azure/webhook' ) ) . '</code> and the client state below. Polling works without a webhook subscription.</li></ol></div><form id="ve-azure-settings" method="post" action="options.php">';
 	settings_fields( 've_staff_azure' ); echo '<table class="form-table">';
 	foreach ( array( 'tenant_id' => 'Tenant ID', 'client_id' => 'Client ID' ) as $key => $label ) {
 		$type = 'text'; $value = (string) $s[ $key ];
@@ -363,7 +429,7 @@ function ve_staff_azure_settings_page(): void {
 		$type = 'poll_minutes' === $key ? 'number' : 'text'; $value = (string) $s[ $key ];
 		echo '<tr><th><label for="azure-' . esc_attr( $key ) . '">' . esc_html( $label ) . ' <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="' . esc_attr( $help[ $key ] ) . '" aria-label="' . esc_attr( $help[ $key ] ) . '"></span></label></th><td><input class="regular-text ve-azure-autosave" data-setting="' . esc_attr( $key ) . '" id="azure-' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" name="ve_staff_azure_settings[' . esc_attr( $key ) . ']" value="' . esc_attr( $value ) . '"' . ( 'poll_minutes' === $key ? ' min="5"' : '' ) . '><span class="ve-azure-save-status" role="status"></span><p class="description">' . esc_html( $help[ $key ] ) . '</p></td></tr>';
 	}
-	echo '<tr><th>Operation <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="Mock mode is the safe default and records activity without changing either system."></span></th><td><label><input type="checkbox" name="ve_staff_azure_settings[enabled]" value="1" ' . checked( true, (bool) $s['enabled'], false ) . '> Enable synchronization</label><br><label><input type="checkbox" name="ve_staff_azure_settings[mock_mode]" value="1" ' . checked( true, (bool) $s['mock_mode'], false ) . '> Mock mode (log only; do not mutate either system)</label><p><button type="button" class="button" id="ve-azure-test-connection">Test connection &amp; permissions</button> <span id="ve-azure-connection-result" role="status"></span></p></td></tr></table>';
+	echo '<tr><th>Operation <span class="dashicons dashicons-editor-help ve-azure-tip" tabindex="0" data-tip="Mock mode is the safe default and records activity without changing either system."></span></th><td><label><input type="checkbox" name="ve_staff_azure_settings[enabled]" value="1" ' . checked( true, (bool) $s['enabled'], false ) . '> Enable synchronization</label><br><label><input type="checkbox" name="ve_staff_azure_settings[mock_mode]" value="1" ' . checked( true, (bool) $s['mock_mode'], false ) . '> Mock mode (log only; do not mutate either system)</label><p><button type="button" class="button" id="ve-azure-test-connection">Test connection &amp; permissions</button></p><p id="ve-azure-connection-result" role="status">' . esc_html( ve_staff_azure_permission_summary( $permission_state ) ) . '</p><p class="description">Granted permissions are stored after each test and rechecked automatically at least once per day while synchronization is enabled.</p></td></tr></table>';
 	echo '<h2>Field mappings and source of truth</h2><p>Each row has exactly one source of truth. <strong>Azure → WordPress</strong> can change the site; <strong>WordPress → Azure</strong> can change Azure. Disabled rows never sync. Rules transform both values before comparison.</p><table class="widefat striped" id="ve-azure-mappings"><thead><tr><th>Azure field</th><th>WordPress target</th><th>Source of truth</th><th>Rules (JSON array)</th><th></th></tr></thead><tbody>';
 	$index = 0; foreach ( $s['mappings'] as $field => $mapping ) { echo ve_staff_azure_mapping_row( $index, (string) $field, $mapping ); $index++; }
 	echo '</tbody></table><p><button type="button" class="button" id="ve-azure-add-mapping">Add mapping</button></p><details><summary>Rules reference and examples</summary><p>Available types: <code>trim</code>, <code>lowercase</code>, <code>uppercase</code>, <code>phone_digits</code>, <code>replace</code>, <code>regex</code>, and <code>value_map</code>.</p><pre>[{"type":"phone_digits"}]\n[{"type":"value_map","map":{"Vern Eide Honda":"vern-eide-honda"}}]</pre></details>';
