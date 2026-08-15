@@ -2,7 +2,11 @@
 .ve-azure-tip { color: #646970; cursor: help; position: relative; }
 .ve-azure-tip:hover::after, .ve-azure-tip:focus::after { background: #1d2327; border-radius: 3px; color: #fff; content: attr(data-tip); font-family: sans-serif; font-size: 12px; font-weight: 400; left: 24px; padding: 8px; position: absolute; top: -8px; width: 260px; z-index: 10; }
 #ve-azure-mappings input, #ve-azure-mappings select { width: 100%; }
+#ve-azure-mappings th:nth-child(1) { width: 18%; }
+#ve-azure-mappings th:nth-child(2) { width: 22%; }
+#ve-azure-mappings th:nth-child(3) { width: 18%; }
 #ve-azure-mappings th:nth-child(4) { width: 38%; }
+.ve-azure-mappings-scroll { max-width: 100%; overflow-x: auto; }
 .ve-azure-json-status { display: block; font-size: 12px; }
 .ve-azure-json-status.valid, .ve-azure .success, .ve-azure .match { color: #008a20; }
 .ve-azure-json-status.invalid, .ve-azure .error, .ve-azure .change { color: #b32d2e; font-weight: 600; }
@@ -15,10 +19,6 @@
 .ve-azure-table-scroll { max-width: 100%; overflow-x: auto; }
 .ve-azure-table-scroll code { white-space: normal; word-break: break-word; }
 @media screen and (max-width: 782px) {
-	#ve-azure-mappings, #ve-azure-mappings tbody, #ve-azure-mappings tr, #ve-azure-mappings td { display: block; width: 100%; }
-	#ve-azure-mappings thead { display: none; }
-	#ve-azure-mappings tr { box-sizing: border-box; margin-bottom: 16px; padding: 12px; }
-	#ve-azure-mappings td { border: 0; box-sizing: border-box; padding: 6px 0; }
-	#ve-azure-mappings td::before { content: attr(data-label); display: block; font-weight: 600; margin-bottom: 4px; }
-	#ve-azure-mappings .ve-azure-mapping-actions::before { content: none; }
+	#ve-azure-mappings { min-width: 960px; table-layout: fixed; }
+	.ve-azure-mappings-scroll { border: 1px solid #c3c4c7; }
 }
