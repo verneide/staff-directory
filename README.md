@@ -24,7 +24,7 @@ SiteGround SSH setup and the combined plugin/theme upload are retried up to thre
 
 ## Microsoft Azure staff synchronization
 
-The plugin includes an optional Microsoft Graph integration under **Staff → Azure sync**. It polls the Graph users delta endpoint from the last saved delta link, accepts Graph change notifications at `/wp-json/ve-staff/v1/azure/webhook`, and sends mapped staff changes (including profile photos) back to Graph. ACF, grouped ACF, and taxonomy targets can be configured in a row-based editor with ordered transformation rules and an explicit source of truth for every field. For example, setting mobile phone to **WordPress → Azure** ensures an Azure phone value can never overwrite the site value.
+The plugin includes an optional Microsoft Graph integration under **Staff → Azure sync**. It polls the Graph users delta endpoint from the last saved delta link, accepts Graph change notifications at `/wp-json/ve-staff/v1/azure/webhook`, and sends mapped staff changes (including profile photos) back to Graph. Staff post fields, ACF fields, grouped ACF fields, and taxonomies can be selected in a responsive row-based mapping editor with ordered transformation rules and an explicit source of truth for every field. For example, setting mobile phone to **WordPress → Azure** ensures an Azure phone value can never overwrite the site value.
 
 Connection fields on the Azure sync screen save individually through authenticated AJAX when their value changes and the field loses focus. The main save button remains responsible for operation toggles, mappings, and transformation rules.
 
