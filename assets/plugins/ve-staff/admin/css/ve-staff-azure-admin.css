@@ -4,12 +4,16 @@
 #ve-azure-mappings input, #ve-azure-mappings select { width: 100%; }
 #ve-azure-mappings th:nth-child(4) { width: 38%; }
 .ve-azure-json-status { display: block; font-size: 12px; }
-.ve-azure-json-status.valid, .ve-azure .success { color: #008a20; }
+.ve-azure-json-status.valid, .ve-azure .success, .ve-azure .match { color: #008a20; }
 .ve-azure-json-status.invalid, .ve-azure .error, .ve-azure .change { color: #b32d2e; font-weight: 600; }
 .ve-azure-save-status { display: inline-block; margin-left: 8px; }
 .ve-azure-save-status.saving { color: #646970; }
 #ve-azure-preview { margin-top: 16px; max-width: 1200px; }
 #ve-azure-preview code { word-break: break-word; }
+#ve-azure-compare-posts { min-width: 280px; vertical-align: top; }
+#ve-azure-comparison { margin-top: 16px; max-width: 1400px; }
+.ve-azure-table-scroll { max-width: 100%; overflow-x: auto; }
+.ve-azure-table-scroll code { white-space: normal; word-break: break-word; }
 @media screen and (max-width: 782px) {
 	#ve-azure-mappings, #ve-azure-mappings tbody, #ve-azure-mappings tr, #ve-azure-mappings td { display: block; width: 100%; }
 	#ve-azure-mappings thead { display: none; }

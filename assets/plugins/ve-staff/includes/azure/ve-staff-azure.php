@@ -4,6 +4,7 @@ const VE_STAFF_AZURE_CRON_HOOK = 've_staff_azure_directory_poll';
 const VE_STAFF_AZURE_LOG_TABLE = 've_staff_azure_log';
 const VE_STAFF_AZURE_PERMISSIONS_OPTION = 've_staff_azure_permissions';
 const VE_STAFF_AZURE_PERMISSION_MAX_AGE = DAY_IN_SECONDS;
+const VE_STAFF_AZURE_TERM_VALUE_META = '_ve_staff_azure_value';
 
 /** @return array<int, string> */
 function ve_staff_azure_common_user_fields(): array {
@@ -178,6 +179,12 @@ function ve_staff_azure_apply_rules( $value, array $rules ) {
 	return $result;
 }
 
+/** @return mixed */
+function ve_staff_azure_term_value( WP_Term $term ) {
+	$azure_value = (string) get_term_meta( $term->term_id, VE_STAFF_AZURE_TERM_VALUE_META, true );
+	return '' === $azure_value ? $term->name : $azure_value;
+}
+
 function ve_staff_azure_connector(): Ve_Staff_Azure_Graph_Connector {
 	$s = ve_staff_azure_settings();
 	if ( '' === $s['tenant_id'] || '' === $s['client_id'] || '' === $s['client_secret'] ) { throw new RuntimeException( 'Azure tenant ID, client ID, and client secret are required.' ); }
@@ -263,10 +270,17 @@ function ve_staff_azure_write_target( int $post_id, string $target, $value ): vo
 		return;
 	}
 	if ( 0 === strpos( $target, 'taxonomy:' ) ) {
-		$taxonomy = substr( $target, 9 ); $term = get_term_by( 'slug', sanitize_title( (string) $value ), $taxonomy );
+		$taxonomy = substr( $target, 9 );
+		$terms = get_terms( array( 'taxonomy' => $taxonomy, 'hide_empty' => false, 'meta_key' => VE_STAFF_AZURE_TERM_VALUE_META, 'meta_value' => (string) $value, 'number' => 1 ) );
+		if ( is_wp_error( $terms ) ) { throw new RuntimeException( 'Unable to find the Azure taxonomy value: ' . $terms->get_error_message() ); }
+		$term = $terms ? $terms[0] : get_term_by( 'slug', sanitize_title( (string) $value ), $taxonomy );
 		if ( ! $term ) { $term = get_term_by( 'name', (string) $value, $taxonomy ); }
 		if ( ! $term ) { throw new RuntimeException( sprintf( 'Mapped taxonomy term not found: taxonomy=%s value=%s', $taxonomy, (string) $value ) ); }
-		wp_set_object_terms( $post_id, array( (int) $term->term_id ), $taxonomy, false ); update_field( 'primary_location', (int) $term->term_id, $post_id ); return;
+		$result = wp_set_object_terms( $post_id, array( (int) $term->term_id ), $taxonomy, false );
+		if ( is_wp_error( $result ) ) { throw new RuntimeException( 'Unable to update staff taxonomy ' . $taxonomy . ': ' . $result->get_error_message() ); }
+		if ( 'location' === $taxonomy ) { update_field( 'primary_location', (int) $term->term_id, $post_id ); }
+		elseif ( 'department' === $taxonomy ) { update_field( 'department', (int) $term->term_id, $post_id ); }
+		return;
 	}
 	$parts = explode( '.', $target );
 	if ( 2 === count( $parts ) ) { $group = get_field( $parts[0], $post_id ); $group = is_array( $group ) ? $group : array(); $group[ $parts[1] ] = $value; update_field( $parts[0], $group, $post_id ); return; }
@@ -319,7 +333,7 @@ function ve_staff_azure_export_post( int $post_id, WP_Post $post, bool $update )
 }
 
 /** @return mixed */
-function ve_staff_azure_read_target( int $post_id, string $target ) { if ( 0 === strpos( $target, 'post:' ) ) { $post = get_post( $post_id ); $field = substr( $target, 5 ); return $post instanceof WP_Post && isset( $post->{$field} ) ? $post->{$field} : ''; } if ( 0 === strpos( $target, 'taxonomy:' ) ) { $terms = wp_get_object_terms( $post_id, substr( $target, 9 ), array( 'fields' => 'names' ) ); if ( is_wp_error( $terms ) ) { throw new RuntimeException( 'Unable to read staff taxonomy ' . substr( $target, 9 ) . ': ' . $terms->get_error_message() ); } return 1 === count( $terms ) ? $terms[0] : $terms; } $parts = explode( '.', $target ); if ( 2 === count( $parts ) ) { $group = get_field( $parts[0], $post_id ); return is_array( $group ) ? ( $group[ $parts[1] ] ?? '' ) : ''; } return get_field( $target, $post_id ); }
+function ve_staff_azure_read_target( int $post_id, string $target ) { if ( 0 === strpos( $target, 'post:' ) ) { $post = get_post( $post_id ); $field = substr( $target, 5 ); return $post instanceof WP_Post && isset( $post->{$field} ) ? $post->{$field} : ''; } if ( 0 === strpos( $target, 'taxonomy:' ) ) { $taxonomy = substr( $target, 9 ); $terms = wp_get_object_terms( $post_id, $taxonomy ); if ( is_wp_error( $terms ) ) { throw new RuntimeException( 'Unable to read staff taxonomy ' . $taxonomy . ': ' . $terms->get_error_message() ); } $values = array_map( 've_staff_azure_term_value', $terms ); return 1 === count( $values ) ? $values[0] : $values; } $parts = explode( '.', $target ); if ( 2 === count( $parts ) ) { $group = get_field( $parts[0], $post_id ); return is_array( $group ) ? ( $group[ $parts[1] ] ?? '' ) : ''; } return get_field( $target, $post_id ); }
 
 function ve_staff_azure_prune_logs(): void { global $wpdb; $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $wpdb->prefix . VE_STAFF_AZURE_LOG_TABLE . ' WHERE created_at < %s', gmdate( 'Y-m-d H:i:s', time() - 90 * DAY_IN_SECONDS ) ) ); }
 
@@ -511,6 +525,43 @@ function ve_staff_azure_ajax_sync_preview(): void {
 	} catch ( Throwable $error ) { wp_send_json_error( array( 'message' => $error->getMessage() ), 400 ); }
 }
 
+/** @return array<int, array<string, mixed>> */
+function ve_staff_azure_comparison_rows( int $post_id, array $user, array $mappings ): array {
+	$rows = array();
+	foreach ( $mappings as $field => $mapping ) {
+		if ( 'disabled' === $mapping['direction'] || 'photo' === $field ) { continue; }
+		$rows[] = array(
+			'employee' => get_the_title( $post_id ),
+			'field' => (string) $field,
+			'target' => (string) $mapping['target'],
+			'wordpress_value' => ve_staff_azure_apply_rules( ve_staff_azure_read_target( $post_id, (string) $mapping['target'] ), (array) $mapping['rules'] ),
+			'azure_value' => ve_staff_azure_apply_rules( ve_staff_azure_read_source( $user, (string) $field ), (array) $mapping['rules'] ),
+		);
+	}
+	return array_map( static function ( array $row ): array { $row['matches'] = $row['wordpress_value'] === $row['azure_value']; return $row; }, $rows );
+}
+
+function ve_staff_azure_ajax_view_user(): void {
+	check_ajax_referer( 've_staff_azure_admin', 'nonce' );
+	if ( ! current_user_can( 'manage_options' ) ) { wp_send_json_error( array( 'message' => 'You cannot view Azure staff data.' ), 403 ); }
+	$post_id = absint( $_POST['post_id'] ?? 0 ); $post = get_post( $post_id );
+	if ( ! $post instanceof WP_Post || 'staff' !== $post->post_type ) { wp_send_json_error( array( 'message' => 'Choose a valid staff post.' ), 400 ); }
+	try { $settings = ve_staff_azure_settings(); $user = ve_staff_azure_load_test_user( $post_id, $settings['mappings'] ); wp_send_json_success( array( 'employee' => $post->post_title, 'fields' => ve_staff_azure_discovered_fields( $user ) ) ); }
+	catch ( Throwable $error ) { wp_send_json_error( array( 'message' => $error->getMessage() ), 400 ); }
+}
+
+function ve_staff_azure_ajax_compare_staff(): void {
+	check_ajax_referer( 've_staff_azure_admin', 'nonce' );
+	if ( ! current_user_can( 'manage_options' ) ) { wp_send_json_error( array( 'message' => 'You cannot compare Azure staff data.' ), 403 ); }
+	$post_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) ( $_POST['post_ids'] ?? array() ) ) ) ) );
+	if ( ! $post_ids ) { wp_send_json_error( array( 'message' => 'Choose at least one staff post.' ), 400 ); }
+	try {
+		$settings = ve_staff_azure_settings(); $rows = array();
+		foreach ( $post_ids as $post_id ) { $post = get_post( $post_id ); if ( ! $post instanceof WP_Post || 'staff' !== $post->post_type ) { throw new InvalidArgumentException( 'The comparison contains an invalid staff post.' ); } $rows = array_merge( $rows, ve_staff_azure_comparison_rows( $post_id, ve_staff_azure_load_test_user( $post_id, $settings['mappings'] ), $settings['mappings'] ) ); }
+		wp_send_json_success( array( 'rows' => $rows ) );
+	} catch ( Throwable $error ) { wp_send_json_error( array( 'message' => $error->getMessage() ), 400 ); }
+}
+
 function ve_staff_azure_settings_page(): void {
 	if ( ! current_user_can( 'manage_options' ) ) { wp_die( esc_html__( 'You cannot manage Azure sync.', 've-staff' ) ); }
 	$s = ve_staff_azure_settings(); $help = ve_staff_azure_field_help(); $permission_state = ve_staff_azure_permission_state(); $wordpress_targets = ve_staff_azure_wordpress_targets();
@@ -551,7 +602,7 @@ function ve_staff_azure_settings_page(): void {
 	echo '<option value="organizationalUnit"></option></datalist><table class="widefat striped" id="ve-azure-mappings"><thead><tr><th>Azure field</th><th>WordPress target</th><th>Source of truth</th><th>Rules (JSON array)</th><th></th></tr></thead><tbody>';
 	$index = 0; foreach ( $s['mappings'] as $field => $mapping ) { echo ve_staff_azure_mapping_row( $index, (string) $field, $mapping, $wordpress_targets ); $index++; }
 	echo '</tbody></table><p><button type="button" class="button" id="ve-azure-add-mapping">Add mapping</button></p><details><summary>Rules reference and examples</summary><p>Available types: <code>trim</code>, <code>lowercase</code>, <code>uppercase</code>, <code>phone_digits</code>, <code>replace</code>, <code>regex</code>, and <code>value_map</code>.</p><pre>[{"type":"phone_digits"}]\n[{"type":"value_map","map":{"Vern Eide Honda":"vern-eide-honda"}}]</pre></details>';
-	submit_button(); echo '</form><hr><h2>Dry-run a staff member</h2><p>This fetches the matching Azure user, applies the <em>saved</em> mappings and rules, and shows the destination changes. It never writes data.</p><select id="ve-azure-test-post"><option value="">Choose staff…</option>'; foreach ( $posts as $post ) { echo '<option value="' . (int) $post->ID . '">' . esc_html( $post->post_title ) . '</option>'; } echo '</select> <button type="button" class="button button-secondary" id="ve-azure-run-preview">Run dry-run</button><div id="ve-azure-preview" aria-live="polite"></div></div>';
+	submit_button(); echo '</form><hr><h2>Inspect a staff member</h2><p>Fetch the selected employee from Azure, or apply the <em>saved</em> mappings and rules in a dry-run. Neither action writes data.</p><select id="ve-azure-test-post"><option value="">Choose staff…</option>'; foreach ( $posts as $post ) { echo '<option value="' . (int) $post->ID . '">' . esc_html( $post->post_title ) . '</option>'; } echo '</select> <button type="button" class="button button-secondary" id="ve-azure-run-preview">Run dry-run</button> <button type="button" class="button" id="ve-azure-view-user">View Azure data</button><div id="ve-azure-preview" aria-live="polite"></div><hr><h2>Compare multiple staff members</h2><p>Select staff posts to compare every saved WordPress mapping with its Azure equivalent. Taxonomy values use the Azure value configured on each location or department term.</p><select id="ve-azure-compare-posts" multiple size="10">'; foreach ( $posts as $post ) { echo '<option value="' . (int) $post->ID . '">' . esc_html( $post->post_title ) . '</option>'; } echo '</select> <button type="button" class="button button-secondary" id="ve-azure-run-comparison">Compare selected staff</button><div id="ve-azure-comparison" aria-live="polite"></div></div>';
 }
 
 /** @param array<string, mixed> $mapping @param array<string, array<string, string>> $wordpress_targets */
@@ -563,9 +614,48 @@ function ve_staff_azure_mapping_row( int $index, string $field, array $mapping, 
 	return '<tr><td data-label="Azure field"><input required list="ve-azure-field-options" name="' . esc_attr( $name ) . '[azure_field]" value="' . esc_attr( $field ) . '" placeholder="mobilePhone"></td><td data-label="WordPress target"><select required name="' . esc_attr( $name ) . '[target]"><option value="">Choose a field…</option>' . ve_staff_azure_target_options_html( $wordpress_targets, $target ) . '</select></td><td data-label="Source of truth"><select name="' . esc_attr( $name ) . '[direction]">' . $select . '</select></td><td data-label="Rules (JSON array)"><textarea required class="large-text code ve-azure-rules" rows="2" name="' . esc_attr( $name ) . '[rules]">' . esc_textarea( (string) $rules ) . '</textarea><span class="ve-azure-json-status"></span></td><td class="ve-azure-mapping-actions"><button type="button" class="button-link-delete ve-azure-remove">Remove</button></td></tr>';
 }
 
+function ve_staff_azure_add_term_field(): void {
+	echo '<div class="form-field"><label for="ve-staff-azure-value">Azure value</label><input id="ve-staff-azure-value" name="ve_staff_azure_value" type="text"><p>The exact value Azure uses for this term. Leave blank to use the WordPress term name.</p></div>';
+}
+
+function ve_staff_azure_edit_term_field( WP_Term $term ): void {
+	$value = (string) get_term_meta( $term->term_id, VE_STAFF_AZURE_TERM_VALUE_META, true );
+	echo '<tr class="form-field"><th scope="row"><label for="ve-staff-azure-value">Azure value</label></th><td><input id="ve-staff-azure-value" name="ve_staff_azure_value" type="text" value="' . esc_attr( $value ) . '"><p class="description">The exact value Azure uses for this term. Leave blank to use the WordPress term name. For example, Vern Eide Honda can map to SF Honda.</p></td></tr>';
+}
+
+function ve_staff_azure_save_term_field( int $term_id ): void {
+	if ( ! current_user_can( 'manage_categories' ) ) { return; }
+	$value = sanitize_text_field( wp_unslash( (string) ( $_POST['ve_staff_azure_value'] ?? '' ) ) );
+	if ( '' === $value ) { delete_term_meta( $term_id, VE_STAFF_AZURE_TERM_VALUE_META ); return; }
+	update_term_meta( $term_id, VE_STAFF_AZURE_TERM_VALUE_META, $value );
+}
+
+/** @param array<string, string> $columns @return array<string, string> */
+function ve_staff_azure_term_columns( array $columns ): array {
+	$columns['ve_staff_azure_value'] = 'Azure value';
+	return $columns;
+}
+
+function ve_staff_azure_term_column( string $content, string $column, int $term_id ): string {
+	if ( 've_staff_azure_value' !== $column ) { return $content; }
+	$value = (string) get_term_meta( $term_id, VE_STAFF_AZURE_TERM_VALUE_META, true );
+	return '' === $value ? '<span aria-hidden="true">—</span><span class="screen-reader-text">Uses the WordPress term name</span>' : esc_html( $value );
+}
+
+foreach ( array( 'location', 'department' ) as $ve_staff_azure_taxonomy ) {
+	add_action( $ve_staff_azure_taxonomy . '_add_form_fields', 've_staff_azure_add_term_field' );
+	add_action( $ve_staff_azure_taxonomy . '_edit_form_fields', 've_staff_azure_edit_term_field' );
+	add_action( 'created_' . $ve_staff_azure_taxonomy, 've_staff_azure_save_term_field' );
+	add_action( 'edited_' . $ve_staff_azure_taxonomy, 've_staff_azure_save_term_field' );
+	add_filter( 'manage_edit-' . $ve_staff_azure_taxonomy . '_columns', 've_staff_azure_term_columns' );
+	add_filter( 'manage_' . $ve_staff_azure_taxonomy . '_custom_column', 've_staff_azure_term_column', 10, 3 );
+}
+
 add_action( 'admin_menu', 've_staff_azure_admin_menu' );
 add_action( 'admin_init', 've_staff_azure_register_settings' );
 add_action( 'wp_ajax_ve_staff_azure_connection_test', 've_staff_azure_ajax_connection_test' );
 add_action( 'wp_ajax_ve_staff_azure_save_field', 've_staff_azure_ajax_save_field' );
 add_action( 'wp_ajax_ve_staff_azure_sync_preview', 've_staff_azure_ajax_sync_preview' );
+add_action( 'wp_ajax_ve_staff_azure_view_user', 've_staff_azure_ajax_view_user' );
+add_action( 'wp_ajax_ve_staff_azure_compare_staff', 've_staff_azure_ajax_compare_staff' );
 add_action( 'update_option_ve_staff_azure_settings', static function (): void { ve_staff_azure_reschedule(); } );
