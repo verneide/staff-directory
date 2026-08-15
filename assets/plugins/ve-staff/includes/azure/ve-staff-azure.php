@@ -10,6 +10,56 @@ function ve_staff_azure_common_user_fields(): array {
 	return array( 'displayName', 'givenName', 'surname', 'mail', 'userPrincipalName', 'jobTitle', 'department', 'companyName', 'employeeId', 'employeeType', 'mobilePhone', 'businessPhones', 'officeLocation', 'city', 'state', 'postalCode', 'streetAddress', 'country', 'preferredLanguage', 'onPremisesSamAccountName', 'onPremisesDistinguishedName', 'onPremisesExtensionAttributes' );
 }
 
+/** @return array<string, array<string, string>> */
+function ve_staff_azure_wordpress_targets(): array {
+	$targets = array(
+		'Staff post fields' => array(
+			'post:post_title'   => 'Post title',
+			'post:post_content' => 'Post content',
+			'post:post_excerpt' => 'Post excerpt',
+		),
+		'Staff custom fields' => array(),
+		'Staff taxonomies' => array(),
+	);
+	if ( function_exists( 'acf_get_field_groups' ) && function_exists( 'acf_get_fields' ) ) {
+		foreach ( acf_get_field_groups( array( 'post_type' => 'staff' ) ) as $group ) {
+			foreach ( (array) acf_get_fields( $group ) as $field ) {
+				$name = (string) ( $field['name'] ?? '' );
+				if ( '' === $name ) { continue; }
+				$children = is_array( $field['sub_fields'] ?? null ) ? $field['sub_fields'] : array();
+				if ( $children ) {
+					foreach ( $children as $child ) {
+						$child_name = (string) ( $child['name'] ?? '' );
+						if ( '' !== $child_name ) { $targets['Staff custom fields'][ $name . '.' . $child_name ] = (string) $field['label'] . ' → ' . (string) $child['label']; }
+					}
+				} else {
+					$targets['Staff custom fields'][ $name ] = (string) $field['label'];
+				}
+			}
+		}
+	}
+	foreach ( get_object_taxonomies( 'staff', 'objects' ) as $taxonomy ) {
+		$targets['Staff taxonomies'][ 'taxonomy:' . $taxonomy->name ] = (string) $taxonomy->labels->singular_name;
+	}
+	foreach ( $targets as &$options ) { asort( $options, SORT_NATURAL | SORT_FLAG_CASE ); }
+	unset( $options );
+	return $targets;
+}
+
+/** @param array<string, array<string, string>> $groups */
+function ve_staff_azure_target_options_html( array $groups, string $selected_target ): string {
+	$html = '';
+	foreach ( $groups as $label => $options ) {
+		if ( ! $options ) { continue; }
+		$html .= '<optgroup label="' . esc_attr( $label ) . '">';
+		foreach ( $options as $value => $option_label ) {
+			$html .= '<option value="' . esc_attr( $value ) . '" ' . selected( $value, $selected_target, false ) . '>' . esc_html( $option_label ) . '</option>';
+		}
+		$html .= '</optgroup>';
+	}
+	return $html;
+}
+
 /** @param array<string, mixed> $user @return array<string, mixed> */
 function ve_staff_azure_add_derived_fields( array $user ): array {
 	$distinguished_name = (string) ( $user['onPremisesDistinguishedName'] ?? '' );
@@ -206,6 +256,12 @@ function ve_staff_azure_import_user( array $user, string $source ): void {
 
 /** @param mixed $value */
 function ve_staff_azure_write_target( int $post_id, string $target, $value ): void {
+	if ( 0 === strpos( $target, 'post:' ) ) {
+		$field = substr( $target, 5 );
+		$result = wp_update_post( array( 'ID' => $post_id, $field => (string) $value ), true );
+		if ( is_wp_error( $result ) ) { throw new RuntimeException( 'Unable to update staff post field ' . $field . ': ' . $result->get_error_message() ); }
+		return;
+	}
 	if ( 0 === strpos( $target, 'taxonomy:' ) ) {
 		$taxonomy = substr( $target, 9 ); $term = get_term_by( 'slug', sanitize_title( (string) $value ), $taxonomy );
 		if ( ! $term ) { $term = get_term_by( 'name', (string) $value, $taxonomy ); }
@@ -263,7 +319,7 @@ function ve_staff_azure_export_post( int $post_id, WP_Post $post, bool $update )
 }
 
 /** @return mixed */
-function ve_staff_azure_read_target( int $post_id, string $target ) { $parts = explode( '.', $target ); if ( 2 === count( $parts ) ) { $group = get_field( $parts[0], $post_id ); return is_array( $group ) ? ( $group[ $parts[1] ] ?? '' ) : ''; } return get_field( $target, $post_id ); }
+function ve_staff_azure_read_target( int $post_id, string $target ) { if ( 0 === strpos( $target, 'post:' ) ) { $post = get_post( $post_id ); $field = substr( $target, 5 ); return $post instanceof WP_Post && isset( $post->{$field} ) ? $post->{$field} : ''; } if ( 0 === strpos( $target, 'taxonomy:' ) ) { $terms = wp_get_object_terms( $post_id, substr( $target, 9 ), array( 'fields' => 'names' ) ); if ( is_wp_error( $terms ) ) { throw new RuntimeException( 'Unable to read staff taxonomy ' . substr( $target, 9 ) . ': ' . $terms->get_error_message() ); } return 1 === count( $terms ) ? $terms[0] : $terms; } $parts = explode( '.', $target ); if ( 2 === count( $parts ) ) { $group = get_field( $parts[0], $post_id ); return is_array( $group ) ? ( $group[ $parts[1] ] ?? '' ) : ''; } return get_field( $target, $post_id ); }
 
 function ve_staff_azure_prune_logs(): void { global $wpdb; $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $wpdb->prefix . VE_STAFF_AZURE_LOG_TABLE . ' WHERE created_at < %s', gmdate( 'Y-m-d H:i:s', time() - 90 * DAY_IN_SECONDS ) ) ); }
 
@@ -457,11 +513,11 @@ function ve_staff_azure_ajax_sync_preview(): void {
 
 function ve_staff_azure_settings_page(): void {
 	if ( ! current_user_can( 'manage_options' ) ) { wp_die( esc_html__( 'You cannot manage Azure sync.', 've-staff' ) ); }
-	$s = ve_staff_azure_settings(); $help = ve_staff_azure_field_help(); $permission_state = ve_staff_azure_permission_state();
+	$s = ve_staff_azure_settings(); $help = ve_staff_azure_field_help(); $permission_state = ve_staff_azure_permission_state(); $wordpress_targets = ve_staff_azure_wordpress_targets();
 	$posts = get_posts( array( 'post_type' => 'staff', 'post_status' => array( 'publish', 'draft', 'private' ), 'numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC' ) );
 	wp_enqueue_style( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/css/ve-staff-azure-admin.css', array(), VE_STAFF_VERSION );
 	wp_enqueue_script( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/js/ve-staff-azure-admin.js', array(), VE_STAFF_VERSION, true );
-	wp_localize_script( 've-staff-azure-admin', 'veStaffAzure', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 've_staff_azure_admin' ) ) );
+	wp_localize_script( 've-staff-azure-admin', 'veStaffAzure', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 've_staff_azure_admin' ), 'targetOptions' => ve_staff_azure_target_options_html( $wordpress_targets, '' ) ) );
 	echo '<div class="wrap ve-azure"><h1>Microsoft Azure staff sync</h1>';
 	settings_errors( 've_staff_azure_settings' );
 	echo '<div class="notice notice-info inline"><h2>Microsoft Entra app registration</h2><ol><li>Create a single-tenant app registration in <strong>Microsoft Entra ID → App registrations</strong>.</li><li>No Redirect URI is required. This integration uses the server-to-server OAuth client credentials flow and never signs in a browser user.</li><li>Under <strong>API permissions</strong>, grant only the Microsoft Graph <strong>Application</strong> permissions needed: <code>User.Read.All</code> for Azure-to-WordPress user sync, <code>User.ReadWrite.All</code> for WordPress-to-Azure user fields, and <code>ProfilePhoto.ReadWrite.All</code> for WordPress-to-Azure photos.</li><li>Create a client secret under <strong>Certificates &amp; secrets</strong>, copy its value before leaving the page, and record its expiration date below.</li><li>Optional webhooks use notification URL <code>' . esc_html( rest_url( 've-staff/v1/azure/webhook' ) ) . '</code> and the client state below. Polling works without a webhook subscription.</li></ol></div><form id="ve-azure-settings" method="post" action="options.php">';
@@ -493,17 +549,18 @@ function ve_staff_azure_settings_page(): void {
 	foreach ( ve_staff_azure_common_user_fields() as $field ) { echo '<option value="' . esc_attr( $field ) . '"></option>'; }
 	for ( $attribute = 1; $attribute <= 15; $attribute++ ) { echo '<option value="onPremisesExtensionAttributes.extensionAttribute' . $attribute . '"></option>'; }
 	echo '<option value="organizationalUnit"></option></datalist><table class="widefat striped" id="ve-azure-mappings"><thead><tr><th>Azure field</th><th>WordPress target</th><th>Source of truth</th><th>Rules (JSON array)</th><th></th></tr></thead><tbody>';
-	$index = 0; foreach ( $s['mappings'] as $field => $mapping ) { echo ve_staff_azure_mapping_row( $index, (string) $field, $mapping ); $index++; }
+	$index = 0; foreach ( $s['mappings'] as $field => $mapping ) { echo ve_staff_azure_mapping_row( $index, (string) $field, $mapping, $wordpress_targets ); $index++; }
 	echo '</tbody></table><p><button type="button" class="button" id="ve-azure-add-mapping">Add mapping</button></p><details><summary>Rules reference and examples</summary><p>Available types: <code>trim</code>, <code>lowercase</code>, <code>uppercase</code>, <code>phone_digits</code>, <code>replace</code>, <code>regex</code>, and <code>value_map</code>.</p><pre>[{"type":"phone_digits"}]\n[{"type":"value_map","map":{"Vern Eide Honda":"vern-eide-honda"}}]</pre></details>';
 	submit_button(); echo '</form><hr><h2>Dry-run a staff member</h2><p>This fetches the matching Azure user, applies the <em>saved</em> mappings and rules, and shows the destination changes. It never writes data.</p><select id="ve-azure-test-post"><option value="">Choose staff…</option>'; foreach ( $posts as $post ) { echo '<option value="' . (int) $post->ID . '">' . esc_html( $post->post_title ) . '</option>'; } echo '</select> <button type="button" class="button button-secondary" id="ve-azure-run-preview">Run dry-run</button><div id="ve-azure-preview" aria-live="polite"></div></div>';
 }
 
-/** @param array<string, mixed> $mapping */
-function ve_staff_azure_mapping_row( int $index, string $field, array $mapping ): string {
+/** @param array<string, mixed> $mapping @param array<string, array<string, string>> $wordpress_targets */
+function ve_staff_azure_mapping_row( int $index, string $field, array $mapping, array $wordpress_targets ): string {
 	$name = 've_staff_azure_settings[mappings][' . $index . ']'; $rules = wp_json_encode( $mapping['rules'] ?? array(), JSON_UNESCAPED_SLASHES );
 	$options = array( 'azure_to_wp' => 'Azure → WordPress', 'wp_to_azure' => 'WordPress → Azure', 'disabled' => 'Disabled' ); $select = '';
 	foreach ( $options as $value => $label ) { $select .= '<option value="' . esc_attr( $value ) . '" ' . selected( $value, (string) ( $mapping['direction'] ?? 'disabled' ), false ) . '>' . esc_html( $label ) . '</option>'; }
-	return '<tr><td><input required list="ve-azure-field-options" name="' . esc_attr( $name ) . '[azure_field]" value="' . esc_attr( $field ) . '" placeholder="mobilePhone"></td><td><input required name="' . esc_attr( $name ) . '[target]" value="' . esc_attr( (string) ( $mapping['target'] ?? '' ) ) . '" placeholder="group.field"></td><td><select name="' . esc_attr( $name ) . '[direction]">' . $select . '</select></td><td><textarea required class="large-text code ve-azure-rules" rows="2" name="' . esc_attr( $name ) . '[rules]">' . esc_textarea( (string) $rules ) . '</textarea><span class="ve-azure-json-status"></span></td><td><button type="button" class="button-link-delete ve-azure-remove">Remove</button></td></tr>';
+	$target = (string) ( $mapping['target'] ?? '' );
+	return '<tr><td data-label="Azure field"><input required list="ve-azure-field-options" name="' . esc_attr( $name ) . '[azure_field]" value="' . esc_attr( $field ) . '" placeholder="mobilePhone"></td><td data-label="WordPress target"><select required name="' . esc_attr( $name ) . '[target]"><option value="">Choose a field…</option>' . ve_staff_azure_target_options_html( $wordpress_targets, $target ) . '</select></td><td data-label="Source of truth"><select name="' . esc_attr( $name ) . '[direction]">' . $select . '</select></td><td data-label="Rules (JSON array)"><textarea required class="large-text code ve-azure-rules" rows="2" name="' . esc_attr( $name ) . '[rules]">' . esc_textarea( (string) $rules ) . '</textarea><span class="ve-azure-json-status"></span></td><td class="ve-azure-mapping-actions"><button type="button" class="button-link-delete ve-azure-remove">Remove</button></td></tr>';
 }
 
 add_action( 'admin_menu', 've_staff_azure_admin_menu' );

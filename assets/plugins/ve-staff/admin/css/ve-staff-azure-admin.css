@@ -10,3 +10,11 @@
 .ve-azure-save-status.saving { color: #646970; }
 #ve-azure-preview { margin-top: 16px; max-width: 1200px; }
 #ve-azure-preview code { word-break: break-word; }
+@media screen and (max-width: 782px) {
+	#ve-azure-mappings, #ve-azure-mappings tbody, #ve-azure-mappings tr, #ve-azure-mappings td { display: block; width: 100%; }
+	#ve-azure-mappings thead { display: none; }
+	#ve-azure-mappings tr { box-sizing: border-box; margin-bottom: 16px; padding: 12px; }
+	#ve-azure-mappings td { border: 0; box-sizing: border-box; padding: 6px 0; }
+	#ve-azure-mappings td::before { content: attr(data-label); display: block; font-weight: 600; margin-bottom: 4px; }
+	#ve-azure-mappings .ve-azure-mapping-actions::before { content: none; }
+}
