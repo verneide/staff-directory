@@ -5,10 +5,12 @@ const VE_STAFF_AZURE_LOG_TABLE = 've_staff_azure_log';
 const VE_STAFF_AZURE_PERMISSIONS_OPTION = 've_staff_azure_permissions';
 const VE_STAFF_AZURE_PERMISSION_MAX_AGE = DAY_IN_SECONDS;
 const VE_STAFF_AZURE_TERM_VALUE_META = '_ve_staff_azure_value';
+const VE_STAFF_AZURE_TERM_COMPANY_META = '_ve_staff_azure_company_name';
+const VE_STAFF_AZURE_TERM_SYNC_META = '_ve_staff_sync_with_azure';
 
 /** @return array<int, string> */
 function ve_staff_azure_common_user_fields(): array {
-	return array( 'displayName', 'givenName', 'surname', 'mail', 'userPrincipalName', 'jobTitle', 'department', 'companyName', 'employeeId', 'employeeType', 'mobilePhone', 'businessPhones', 'officeLocation', 'city', 'state', 'postalCode', 'streetAddress', 'country', 'preferredLanguage', 'onPremisesSamAccountName', 'onPremisesDistinguishedName', 'onPremisesExtensionAttributes' );
+	return array( 'displayName', 'givenName', 'surname', 'mail', 'userPrincipalName', 'jobTitle', 'department', 'companyName', 'employeeId', 'employeeType', 'employeeHireDate', 'mobilePhone', 'businessPhones', 'officeLocation', 'city', 'state', 'postalCode', 'streetAddress', 'country', 'preferredLanguage', 'onPremisesSamAccountName', 'onPremisesDistinguishedName', 'onPremisesExtensionAttributes' );
 }
 
 /** @return array<string, array<string, string>> */
@@ -185,6 +187,38 @@ function ve_staff_azure_term_value( WP_Term $term ) {
 	return '' === $azure_value ? $term->name : $azure_value;
 }
 
+function ve_staff_azure_term_company_name( WP_Term $term ): string {
+	$company_name = (string) get_term_meta( $term->term_id, VE_STAFF_AZURE_TERM_COMPANY_META, true );
+	return '' === $company_name ? (string) ve_staff_azure_term_value( $term ) : $company_name;
+}
+
+function ve_staff_azure_term_sync_enabled( WP_Term $term ): bool {
+	return '0' !== (string) get_term_meta( $term->term_id, VE_STAFF_AZURE_TERM_SYNC_META, true );
+}
+
+/** @param mixed $value */
+function ve_staff_azure_find_term( string $taxonomy, $value ) {
+	if ( ! is_scalar( $value ) || '' === (string) $value ) { return null; }
+	$terms = get_terms( array( 'taxonomy' => $taxonomy, 'hide_empty' => false, 'meta_key' => VE_STAFF_AZURE_TERM_VALUE_META, 'meta_value' => (string) $value, 'number' => 1 ) );
+	if ( is_wp_error( $terms ) ) { throw new RuntimeException( 'Unable to find the Azure taxonomy value: ' . $terms->get_error_message() ); }
+	$term = $terms ? $terms[0] : get_term_by( 'slug', sanitize_title( (string) $value ), $taxonomy );
+	return $term ?: get_term_by( 'name', (string) $value, $taxonomy );
+}
+
+/** @param array<string, mixed> $user */
+function ve_staff_azure_user_sync_enabled( array $user, int $post_id ): bool {
+	foreach ( array( 'location' => 'officeLocation', 'department' => 'department' ) as $taxonomy => $field ) {
+		$term = ve_staff_azure_find_term( $taxonomy, ve_staff_azure_read_source( $user, $field ) );
+		if ( ! $term && $post_id > 0 ) {
+			$assigned = wp_get_object_terms( $post_id, $taxonomy );
+			if ( is_wp_error( $assigned ) ) { throw new RuntimeException( 'Unable to read staff taxonomy ' . $taxonomy . ': ' . $assigned->get_error_message() ); }
+			$term = $assigned ? $assigned[0] : null;
+		}
+		if ( $term instanceof WP_Term && ! ve_staff_azure_term_sync_enabled( $term ) ) { return false; }
+	}
+	return true;
+}
+
 function ve_staff_azure_connector(): Ve_Staff_Azure_Graph_Connector {
 	$s = ve_staff_azure_settings();
 	if ( '' === $s['tenant_id'] || '' === $s['client_id'] || '' === $s['client_secret'] ) { throw new RuntimeException( 'Azure tenant ID, client ID, and client secret are required.' ); }
@@ -247,6 +281,10 @@ function ve_staff_azure_import_user( array $user, string $source ): void {
 		$post_id = $posts ? (int) $posts[0]->ID : 0;
 	}
 	if ( 0 === $post_id ) { throw new RuntimeException( 'No staff post matches Azure user ' . $azure_id . '.' ); }
+	if ( ! ve_staff_azure_user_sync_enabled( $user, $post_id ) ) {
+		ve_staff_azure_log( 'info', 'import_skipped_term_sync_disabled', array( 'post_id' => $post_id, 'azure_id' => $azure_id, 'source' => $source ) );
+		return;
+	}
 	$settings = ve_staff_azure_settings();
 	$changes  = array();
 	foreach ( $settings['mappings'] as $azure_field => $mapping ) {
@@ -271,10 +309,7 @@ function ve_staff_azure_write_target( int $post_id, string $target, $value ): vo
 	}
 	if ( 0 === strpos( $target, 'taxonomy:' ) ) {
 		$taxonomy = substr( $target, 9 );
-		$terms = get_terms( array( 'taxonomy' => $taxonomy, 'hide_empty' => false, 'meta_key' => VE_STAFF_AZURE_TERM_VALUE_META, 'meta_value' => (string) $value, 'number' => 1 ) );
-		if ( is_wp_error( $terms ) ) { throw new RuntimeException( 'Unable to find the Azure taxonomy value: ' . $terms->get_error_message() ); }
-		$term = $terms ? $terms[0] : get_term_by( 'slug', sanitize_title( (string) $value ), $taxonomy );
-		if ( ! $term ) { $term = get_term_by( 'name', (string) $value, $taxonomy ); }
+		$term = ve_staff_azure_find_term( $taxonomy, $value );
 		if ( ! $term ) { throw new RuntimeException( sprintf( 'Mapped taxonomy term not found: taxonomy=%s value=%s', $taxonomy, (string) $value ) ); }
 		$result = wp_set_object_terms( $post_id, array( (int) $term->term_id ), $taxonomy, false );
 		if ( is_wp_error( $result ) ) { throw new RuntimeException( 'Unable to update staff taxonomy ' . $taxonomy . ': ' . $result->get_error_message() ); }
@@ -312,8 +347,9 @@ function ve_staff_azure_export_post( int $post_id, WP_Post $post, bool $update )
 	if ( 'staff' !== $post->post_type || wp_is_post_revision( $post_id ) || 'publish' !== $post->post_status ) { return; }
 	$s = ve_staff_azure_settings(); $azure_id = (string) get_post_meta( $post_id, '_ve_staff_azure_id', true );
 	if ( ! $s['enabled'] || '' === $azure_id || (int) get_post_meta( $post_id, '_ve_staff_azure_importing', true ) >= time() - 30 ) { return; }
+	if ( ! ve_staff_azure_user_sync_enabled( array(), $post_id ) ) { ve_staff_azure_log( 'info', 'export_skipped_term_sync_disabled', array( 'post_id' => $post_id, 'azure_id' => $azure_id ) ); return; }
 	$payload = array();
-	foreach ( $s['mappings'] as $azure_field => $mapping ) { if ( in_array( $mapping['direction'], array( 'both', 'wp_to_azure' ), true ) && 'photo' !== $azure_field ) { $payload[ $azure_field ] = ve_staff_azure_apply_rules( ve_staff_azure_read_target( $post_id, (string) $mapping['target'] ), (array) ( $mapping['rules'] ?? array() ) ); } }
+	foreach ( $s['mappings'] as $azure_field => $mapping ) { if ( in_array( $mapping['direction'], array( 'both', 'wp_to_azure' ), true ) && 'photo' !== $azure_field ) { $payload[ $azure_field ] = ve_staff_azure_apply_rules( ve_staff_azure_read_mapping_target( $post_id, (string) $mapping['target'], (string) $azure_field ), (array) ( $mapping['rules'] ?? array() ) ); } }
 	if ( ! $s['mock_mode'] ) {
 		$connector = ve_staff_azure_connector();
 		$capabilities = ve_staff_azure_permission_state()['capabilities'];
@@ -335,9 +371,18 @@ function ve_staff_azure_export_post( int $post_id, WP_Post $post, bool $update )
 /** @return mixed */
 function ve_staff_azure_read_target( int $post_id, string $target ) { if ( 0 === strpos( $target, 'post:' ) ) { $post = get_post( $post_id ); $field = substr( $target, 5 ); return $post instanceof WP_Post && isset( $post->{$field} ) ? $post->{$field} : ''; } if ( 0 === strpos( $target, 'taxonomy:' ) ) { $taxonomy = substr( $target, 9 ); $terms = wp_get_object_terms( $post_id, $taxonomy ); if ( is_wp_error( $terms ) ) { throw new RuntimeException( 'Unable to read staff taxonomy ' . $taxonomy . ': ' . $terms->get_error_message() ); } $values = array_map( 've_staff_azure_term_value', $terms ); return 1 === count( $values ) ? $values[0] : $values; } $parts = explode( '.', $target ); if ( 2 === count( $parts ) ) { $group = get_field( $parts[0], $post_id ); return is_array( $group ) ? ( $group[ $parts[1] ] ?? '' ) : ''; } return get_field( $target, $post_id ); }
 
+/** @return mixed */
+function ve_staff_azure_read_mapping_target( int $post_id, string $target, string $azure_field ) {
+	if ( 'companyName' !== $azure_field || 'taxonomy:location' !== $target ) { return ve_staff_azure_read_target( $post_id, $target ); }
+	$terms = wp_get_object_terms( $post_id, 'location' );
+	if ( is_wp_error( $terms ) ) { throw new RuntimeException( 'Unable to read staff taxonomy location: ' . $terms->get_error_message() ); }
+	$values = array_map( 've_staff_azure_term_company_name', $terms );
+	return 1 === count( $values ) ? $values[0] : $values;
+}
+
 function ve_staff_azure_prune_logs(): void { global $wpdb; $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $wpdb->prefix . VE_STAFF_AZURE_LOG_TABLE . ' WHERE created_at < %s', gmdate( 'Y-m-d H:i:s', time() - 90 * DAY_IN_SECONDS ) ) ); }
 
-function ve_staff_azure_register_meta_box(): void { add_meta_box( 've-staff-azure-history', 'Azure sync history', 've_staff_azure_render_meta_box', 'staff', 'normal', 'default' ); }
+function ve_staff_azure_register_meta_box(): void { add_meta_box( 've-staff-azure-history', 'Azure sync history', 've_staff_azure_render_meta_box', 'staff', 'side', 'default' ); }
 function ve_staff_azure_render_meta_box( WP_Post $post ): void { global $wpdb; $rows = $wpdb->get_results( $wpdb->prepare( 'SELECT created_at,event,context FROM ' . $wpdb->prefix . VE_STAFF_AZURE_LOG_TABLE . ' WHERE post_id=%d ORDER BY id DESC LIMIT 25', $post->ID ), ARRAY_A ); echo '<table class="widefat"><thead><tr><th>UTC time</th><th>Event</th><th>Details</th></tr></thead><tbody>'; foreach ( $rows as $row ) { echo '<tr><td>' . esc_html( $row['created_at'] ) . '</td><td>' . esc_html( $row['event'] ) . '</td><td><code>' . esc_html( $row['context'] ) . '</code></td></tr>'; } echo '</tbody></table>'; }
 
 add_filter( 'cron_schedules', static function ( array $schedules ): array { $seconds = max( 300, (int) get_option( 've_staff_azure_poll_interval_seconds', 900 ) ); $schedules['ve_staff_azure_interval'] = array( 'interval' => $seconds, 'display' => 'Azure staff sync' ); return $schedules; } );
@@ -549,7 +594,7 @@ function ve_staff_azure_ajax_sync_preview(): void {
 		foreach ( $settings['mappings'] as $field => $mapping ) {
 			if ( 'disabled' === $mapping['direction'] || 'photo' === $field ) { continue; }
 			$azure = ve_staff_azure_apply_rules( ve_staff_azure_read_source( $user, (string) $field ), (array) $mapping['rules'] );
-			$wordpress = ve_staff_azure_apply_rules( ve_staff_azure_read_target( $post_id, (string) $mapping['target'] ), (array) $mapping['rules'] );
+			$wordpress = ve_staff_azure_apply_rules( ve_staff_azure_read_mapping_target( $post_id, (string) $mapping['target'], (string) $field ), (array) $mapping['rules'] );
 			$from = 'azure_to_wp' === $mapping['direction'] ? $azure : $wordpress;
 			$to = 'azure_to_wp' === $mapping['direction'] ? $wordpress : $azure;
 			$rows[] = array( 'field' => $field, 'target' => $mapping['target'], 'source' => 'azure_to_wp' === $mapping['direction'] ? 'Azure' : 'WordPress', 'source_value' => $from, 'destination_value' => $to, 'action' => $from === $to ? 'No change' : 'Would update' );
@@ -567,7 +612,7 @@ function ve_staff_azure_comparison_rows( int $post_id, array $user, array $mappi
 			'employee' => get_the_title( $post_id ),
 			'field' => (string) $field,
 			'target' => (string) $mapping['target'],
-			'wordpress_value' => ve_staff_azure_apply_rules( ve_staff_azure_read_target( $post_id, (string) $mapping['target'] ), (array) $mapping['rules'] ),
+			'wordpress_value' => ve_staff_azure_apply_rules( ve_staff_azure_read_mapping_target( $post_id, (string) $mapping['target'], (string) $field ), (array) $mapping['rules'] ),
 			'azure_value' => ve_staff_azure_apply_rules( ve_staff_azure_read_source( $user, (string) $field ), (array) $mapping['rules'] ),
 		);
 	}
@@ -579,7 +624,7 @@ function ve_staff_azure_ajax_view_user(): void {
 	if ( ! current_user_can( 'manage_options' ) ) { wp_send_json_error( array( 'message' => 'You cannot view Azure staff data.' ), 403 ); }
 	$post_id = absint( $_POST['post_id'] ?? 0 ); $post = get_post( $post_id );
 	if ( ! $post instanceof WP_Post || 'staff' !== $post->post_type ) { wp_send_json_error( array( 'message' => 'Choose a valid staff post.' ), 400 ); }
-	try { $settings = ve_staff_azure_settings(); $user = ve_staff_azure_load_test_user( $post_id, $settings['mappings'] ); wp_send_json_success( array( 'employee' => $post->post_title, 'fields' => ve_staff_azure_discovered_fields( $user ) ) ); }
+	try { $inspection_mappings = array_fill_keys( ve_staff_azure_common_user_fields(), array() ); $user = ve_staff_azure_load_test_user( $post_id, $inspection_mappings ); wp_send_json_success( array( 'employee' => $post->post_title, 'fields' => ve_staff_azure_discovered_fields( $user ) ) ); }
 	catch ( Throwable $error ) { wp_send_json_error( array( 'message' => $error->getMessage() ), 400 ); }
 }
 
@@ -647,13 +692,17 @@ function ve_staff_azure_mapping_row( int $index, string $field, array $mapping, 
 	return '<tr><td data-label="Azure field"><input required list="ve-azure-field-options" name="' . esc_attr( $name ) . '[azure_field]" value="' . esc_attr( $field ) . '" placeholder="mobilePhone"></td><td data-label="WordPress target"><select required name="' . esc_attr( $name ) . '[target]"><option value="">Choose a field…</option>' . ve_staff_azure_target_options_html( $wordpress_targets, $target ) . '</select></td><td data-label="Source of truth"><select name="' . esc_attr( $name ) . '[direction]">' . $select . '</select></td><td data-label="Rules (JSON array)"><textarea required class="large-text code ve-azure-rules" rows="2" name="' . esc_attr( $name ) . '[rules]">' . esc_textarea( (string) $rules ) . '</textarea><span class="ve-azure-json-status"></span></td><td class="ve-azure-mapping-actions"><button type="button" class="button-link-delete ve-azure-remove">Remove</button></td></tr>';
 }
 
-function ve_staff_azure_add_term_field(): void {
+function ve_staff_azure_add_term_field( string $taxonomy ): void {
+	if ( 'location' === $taxonomy ) { echo '<div class="form-field"><label for="ve-staff-azure-company-name">Company Name</label><input id="ve-staff-azure-company-name" name="ve_staff_azure_company_name" type="text"><p>Uses the Azure value when blank, or the taxonomy name when both values are blank.</p></div>'; }
 	echo '<div class="form-field"><label for="ve-staff-azure-value">Azure value</label><input id="ve-staff-azure-value" name="ve_staff_azure_value" type="text" list="ve-staff-azure-values"><datalist id="ve-staff-azure-values"></datalist><button type="button" class="button ve-staff-fetch-azure-values">Load values from Azure</button><span class="ve-azure-value-status" role="status"></span><p>The exact value Azure uses for this term. Load the distinct values currently assigned to Azure users, then select one or keep typing.</p></div>';
+	echo '<div class="form-field"><input name="ve_staff_sync_with_azure" type="hidden" value="0"><label><input name="ve_staff_sync_with_azure" type="checkbox" value="1" checked> Sync with Azure</label><p>Disable this to skip staff with this value during Azure imports and exports.</p></div>';
 }
 
 function ve_staff_azure_edit_term_field( WP_Term $term ): void {
 	$value = (string) get_term_meta( $term->term_id, VE_STAFF_AZURE_TERM_VALUE_META, true );
+	if ( 'location' === $term->taxonomy ) { $company_name = (string) get_term_meta( $term->term_id, VE_STAFF_AZURE_TERM_COMPANY_META, true ); echo '<tr class="form-field"><th scope="row"><label for="ve-staff-azure-company-name">Company Name</label></th><td><input id="ve-staff-azure-company-name" name="ve_staff_azure_company_name" type="text" value="' . esc_attr( $company_name ) . '"><p class="description">Uses the Azure value when blank, or the taxonomy name when both values are blank.</p></td></tr>'; }
 	echo '<tr class="form-field"><th scope="row"><label for="ve-staff-azure-value">Azure value</label></th><td><input id="ve-staff-azure-value" name="ve_staff_azure_value" type="text" list="ve-staff-azure-values" value="' . esc_attr( $value ) . '"><datalist id="ve-staff-azure-values"></datalist><button type="button" class="button ve-staff-fetch-azure-values">Load values from Azure</button><span class="ve-azure-value-status" role="status"></span><p class="description">The exact value Azure uses for this term. Load the distinct values currently assigned to Azure users, then select one or keep typing.</p></td></tr>';
+	echo '<tr class="form-field"><th scope="row">Sync with Azure</th><td><input name="ve_staff_sync_with_azure" type="hidden" value="0"><label><input name="ve_staff_sync_with_azure" type="checkbox" value="1" ' . checked( ve_staff_azure_term_sync_enabled( $term ), true, false ) . '> Sync staff assigned this value</label><p class="description">Disable this to skip staff with this value during Azure imports and exports.</p></td></tr>';
 }
 
 function ve_staff_azure_enqueue_term_assets(): void {
@@ -665,21 +714,41 @@ function ve_staff_azure_enqueue_term_assets(): void {
 
 function ve_staff_azure_save_term_field( int $term_id ): void {
 	if ( ! current_user_can( 'manage_categories' ) ) { return; }
+	if ( ! isset( $_POST['ve_staff_azure_value'] ) ) { return; }
 	$value = sanitize_text_field( wp_unslash( (string) ( $_POST['ve_staff_azure_value'] ?? '' ) ) );
-	if ( '' === $value ) { delete_term_meta( $term_id, VE_STAFF_AZURE_TERM_VALUE_META ); return; }
-	update_term_meta( $term_id, VE_STAFF_AZURE_TERM_VALUE_META, $value );
+	if ( '' === $value ) { delete_term_meta( $term_id, VE_STAFF_AZURE_TERM_VALUE_META ); } else { update_term_meta( $term_id, VE_STAFF_AZURE_TERM_VALUE_META, $value ); }
+	$term = get_term( $term_id );
+	if ( $term instanceof WP_Term && 'location' === $term->taxonomy ) {
+		$company_name = sanitize_text_field( wp_unslash( (string) ( $_POST['ve_staff_azure_company_name'] ?? '' ) ) );
+		if ( '' === $company_name ) { delete_term_meta( $term_id, VE_STAFF_AZURE_TERM_COMPANY_META ); } else { update_term_meta( $term_id, VE_STAFF_AZURE_TERM_COMPANY_META, $company_name ); }
+	}
+	update_term_meta( $term_id, VE_STAFF_AZURE_TERM_SYNC_META, '1' === (string) ( $_POST['ve_staff_sync_with_azure'] ?? '0' ) ? '1' : '0' );
 }
 
 /** @param array<string, string> $columns @return array<string, string> */
 function ve_staff_azure_term_columns( array $columns ): array {
 	$columns['ve_staff_azure_value'] = 'Azure value';
+	$columns['ve_staff_sync_with_azure'] = 'Sync with Azure';
+	if ( isset( $_GET['taxonomy'] ) && 'location' === $_GET['taxonomy'] ) { $columns['ve_staff_azure_company_name'] = 'Company Name'; }
 	return $columns;
 }
 
 function ve_staff_azure_term_column( string $content, string $column, int $term_id ): string {
+	$term = get_term( $term_id );
+	if ( ! $term instanceof WP_Term ) { return $content; }
+	if ( 've_staff_sync_with_azure' === $column ) { return ve_staff_azure_term_sync_enabled( $term ) ? 'Yes' : '<strong>No</strong>'; }
+	if ( 've_staff_azure_company_name' === $column ) { return esc_html( ve_staff_azure_term_company_name( $term ) ); }
 	if ( 've_staff_azure_value' !== $column ) { return $content; }
 	$value = (string) get_term_meta( $term_id, VE_STAFF_AZURE_TERM_VALUE_META, true );
-	return '' === $value ? '<span aria-hidden="true">—</span><span class="screen-reader-text">Uses the WordPress term name</span>' : esc_html( $value );
+	$display = '' === $value ? '<span aria-hidden="true">—</span><span class="screen-reader-text">Uses the WordPress term name</span>' : esc_html( $value );
+	return $display . '<span class="ve-staff-azure-term-data" hidden data-azure-value="' . esc_attr( $value ) . '" data-company-name="' . esc_attr( (string) get_term_meta( $term_id, VE_STAFF_AZURE_TERM_COMPANY_META, true ) ) . '" data-sync="' . ( ve_staff_azure_term_sync_enabled( $term ) ? '1' : '0' ) . '"></span>';
+}
+
+function ve_staff_azure_quick_edit_term_field( string $column, string $screen, string $taxonomy ): void {
+	if ( 've_staff_azure_value' !== $column || ! in_array( $taxonomy, array( 'location', 'department' ), true ) ) { return; }
+	echo '<fieldset><div class="inline-edit-col"><legend class="inline-edit-legend">Azure sync</legend>';
+	if ( 'location' === $taxonomy ) { echo '<label><span class="title">Company Name</span><span class="input-text-wrap"><input name="ve_staff_azure_company_name" type="text"></span></label>'; }
+	echo '<label><span class="title">Azure value</span><span class="input-text-wrap"><input name="ve_staff_azure_value" type="text"></span></label><input name="ve_staff_sync_with_azure" type="hidden" value="0"><label class="alignleft"><input name="ve_staff_sync_with_azure" type="checkbox" value="1"><span class="checkbox-title">Sync with Azure</span></label></div></fieldset>';
 }
 
 foreach ( array( 'location', 'department' ) as $ve_staff_azure_taxonomy ) {
@@ -690,6 +759,7 @@ foreach ( array( 'location', 'department' ) as $ve_staff_azure_taxonomy ) {
 	add_filter( 'manage_edit-' . $ve_staff_azure_taxonomy . '_columns', 've_staff_azure_term_columns' );
 	add_filter( 'manage_' . $ve_staff_azure_taxonomy . '_custom_column', 've_staff_azure_term_column', 10, 3 );
 }
+add_action( 'quick_edit_custom_box', 've_staff_azure_quick_edit_term_field', 10, 3 );
 
 add_action( 'admin_menu', 've_staff_azure_admin_menu' );
 add_action( 'admin_init', 've_staff_azure_register_settings' );

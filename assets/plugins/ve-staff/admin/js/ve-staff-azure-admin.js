@@ -22,6 +22,23 @@
 			} catch (error) { status.textContent = ` ${error.message}`; status.className = 've-azure-value-status error'; }
 		});
 	}
+	if (typeof inlineEditTax !== 'undefined') {
+		const originalEdit = inlineEditTax.edit;
+		inlineEditTax.edit = function (term) {
+			originalEdit.apply(this, arguments);
+			const termId = typeof term === 'object' ? parseInt(this.getId(term), 10) : 0;
+			const row = document.getElementById(`tag-${termId}`);
+			const editor = document.getElementById(`edit-${termId}`);
+			const values = row ? row.querySelector('.ve-staff-azure-term-data') : null;
+			if (!editor || !values) return;
+			const azureValue = editor.querySelector('[name="ve_staff_azure_value"]');
+			const companyName = editor.querySelector('[name="ve_staff_azure_company_name"]');
+			const sync = editor.querySelector('[name="ve_staff_sync_with_azure"][type="checkbox"]');
+			if (azureValue) azureValue.value = values.dataset.azureValue;
+			if (companyName) companyName.value = values.dataset.companyName;
+			if (sync) sync.checked = values.dataset.sync === '1';
+		};
+	}
 	if (!form) return;
 	const validateRules = (textarea) => {
 		const status = textarea.parentElement.querySelector('.ve-azure-json-status');
