@@ -503,6 +503,39 @@ function ve_staff_azure_load_test_user( int $post_id, array $mappings ): array {
 	return ve_staff_azure_add_derived_fields( $users[0] );
 }
 
+/** @return array<string, array<int, string>> */
+function ve_staff_azure_directory_term_values(): array {
+	$values = array( 'location' => array(), 'department' => array() );
+	$url = 'https://graph.microsoft.com/v1.0/users?$select=officeLocation,department&$top=999';
+	$connector = ve_staff_azure_connector();
+	while ( '' !== $url ) {
+		$page = $connector->get_json( $url );
+		$users = is_array( $page['value'] ?? null ) ? $page['value'] : array();
+		foreach ( $users as $user ) {
+			if ( ! is_array( $user ) ) { continue; }
+			foreach ( array( 'location' => 'officeLocation', 'department' => 'department' ) as $taxonomy => $field ) {
+				$value = trim( (string) ( $user[ $field ] ?? '' ) );
+				if ( '' !== $value ) { $values[ $taxonomy ][ $value ] = $value; }
+			}
+		}
+		$url = is_string( $page['@odata.nextLink'] ?? null ) ? (string) $page['@odata.nextLink'] : '';
+	}
+	foreach ( $values as &$taxonomy_values ) {
+		$taxonomy_values = array_values( $taxonomy_values );
+		natcasesort( $taxonomy_values );
+		$taxonomy_values = array_values( $taxonomy_values );
+	}
+	unset( $taxonomy_values );
+	return $values;
+}
+
+function ve_staff_azure_ajax_term_values(): void {
+	check_ajax_referer( 've_staff_azure_admin', 'nonce' );
+	if ( ! current_user_can( 'manage_categories' ) ) { wp_send_json_error( array( 'message' => 'You cannot inspect Azure taxonomy values.' ), 403 ); }
+	try { wp_send_json_success( array( 'values' => ve_staff_azure_directory_term_values() ) ); }
+	catch ( Throwable $error ) { wp_send_json_error( array( 'message' => $error->getMessage() ), 400 ); }
+}
+
 function ve_staff_azure_ajax_sync_preview(): void {
 	check_ajax_referer( 've_staff_azure_admin', 'nonce' );
 	if ( ! current_user_can( 'manage_options' ) ) { wp_send_json_error( array( 'message' => 'You cannot preview Azure sync.' ), 403 ); }
@@ -566,8 +599,8 @@ function ve_staff_azure_settings_page(): void {
 	if ( ! current_user_can( 'manage_options' ) ) { wp_die( esc_html__( 'You cannot manage Azure sync.', 've-staff' ) ); }
 	$s = ve_staff_azure_settings(); $help = ve_staff_azure_field_help(); $permission_state = ve_staff_azure_permission_state(); $wordpress_targets = ve_staff_azure_wordpress_targets();
 	$posts = get_posts( array( 'post_type' => 'staff', 'post_status' => array( 'publish', 'draft', 'private' ), 'numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC' ) );
-	wp_enqueue_style( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/css/ve-staff-azure-admin.css', array(), VE_STAFF_VERSION );
-	wp_enqueue_script( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/js/ve-staff-azure-admin.js', array(), VE_STAFF_VERSION, true );
+	wp_enqueue_style( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/css/ve-staff-azure-admin.css', array(), (string) filemtime( VE_STAFF_PLUGIN_DIR . 'admin/css/ve-staff-azure-admin.css' ) );
+	wp_enqueue_script( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/js/ve-staff-azure-admin.js', array(), (string) filemtime( VE_STAFF_PLUGIN_DIR . 'admin/js/ve-staff-azure-admin.js' ), true );
 	wp_localize_script( 've-staff-azure-admin', 'veStaffAzure', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 've_staff_azure_admin' ), 'targetOptions' => ve_staff_azure_target_options_html( $wordpress_targets, '' ) ) );
 	echo '<div class="wrap ve-azure"><h1>Microsoft Azure staff sync</h1>';
 	settings_errors( 've_staff_azure_settings' );
@@ -615,12 +648,19 @@ function ve_staff_azure_mapping_row( int $index, string $field, array $mapping, 
 }
 
 function ve_staff_azure_add_term_field(): void {
-	echo '<div class="form-field"><label for="ve-staff-azure-value">Azure value</label><input id="ve-staff-azure-value" name="ve_staff_azure_value" type="text"><p>The exact value Azure uses for this term. Leave blank to use the WordPress term name.</p></div>';
+	echo '<div class="form-field"><label for="ve-staff-azure-value">Azure value</label><input id="ve-staff-azure-value" name="ve_staff_azure_value" type="text" list="ve-staff-azure-values"><datalist id="ve-staff-azure-values"></datalist><button type="button" class="button ve-staff-fetch-azure-values">Load values from Azure</button><span class="ve-azure-value-status" role="status"></span><p>The exact value Azure uses for this term. Load the distinct values currently assigned to Azure users, then select one or keep typing.</p></div>';
 }
 
 function ve_staff_azure_edit_term_field( WP_Term $term ): void {
 	$value = (string) get_term_meta( $term->term_id, VE_STAFF_AZURE_TERM_VALUE_META, true );
-	echo '<tr class="form-field"><th scope="row"><label for="ve-staff-azure-value">Azure value</label></th><td><input id="ve-staff-azure-value" name="ve_staff_azure_value" type="text" value="' . esc_attr( $value ) . '"><p class="description">The exact value Azure uses for this term. Leave blank to use the WordPress term name. For example, Vern Eide Honda can map to SF Honda.</p></td></tr>';
+	echo '<tr class="form-field"><th scope="row"><label for="ve-staff-azure-value">Azure value</label></th><td><input id="ve-staff-azure-value" name="ve_staff_azure_value" type="text" list="ve-staff-azure-values" value="' . esc_attr( $value ) . '"><datalist id="ve-staff-azure-values"></datalist><button type="button" class="button ve-staff-fetch-azure-values">Load values from Azure</button><span class="ve-azure-value-status" role="status"></span><p class="description">The exact value Azure uses for this term. Load the distinct values currently assigned to Azure users, then select one or keep typing.</p></td></tr>';
+}
+
+function ve_staff_azure_enqueue_term_assets(): void {
+	$screen = get_current_screen();
+	if ( ! $screen || ! in_array( $screen->taxonomy, array( 'location', 'department' ), true ) ) { return; }
+	wp_enqueue_script( 've-staff-azure-admin', VE_STAFF_PLUGIN_URL . 'admin/js/ve-staff-azure-admin.js', array(), (string) filemtime( VE_STAFF_PLUGIN_DIR . 'admin/js/ve-staff-azure-admin.js' ), true );
+	wp_localize_script( 've-staff-azure-admin', 'veStaffAzure', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 've_staff_azure_admin' ), 'taxonomy' => $screen->taxonomy ) );
 }
 
 function ve_staff_azure_save_term_field( int $term_id ): void {
@@ -653,9 +693,11 @@ foreach ( array( 'location', 'department' ) as $ve_staff_azure_taxonomy ) {
 
 add_action( 'admin_menu', 've_staff_azure_admin_menu' );
 add_action( 'admin_init', 've_staff_azure_register_settings' );
+add_action( 'admin_enqueue_scripts', 've_staff_azure_enqueue_term_assets' );
 add_action( 'wp_ajax_ve_staff_azure_connection_test', 've_staff_azure_ajax_connection_test' );
 add_action( 'wp_ajax_ve_staff_azure_save_field', 've_staff_azure_ajax_save_field' );
 add_action( 'wp_ajax_ve_staff_azure_sync_preview', 've_staff_azure_ajax_sync_preview' );
 add_action( 'wp_ajax_ve_staff_azure_view_user', 've_staff_azure_ajax_view_user' );
 add_action( 'wp_ajax_ve_staff_azure_compare_staff', 've_staff_azure_ajax_compare_staff' );
+add_action( 'wp_ajax_ve_staff_azure_term_values', 've_staff_azure_ajax_term_values' );
 add_action( 'update_option_ve_staff_azure_settings', static function (): void { ve_staff_azure_reschedule(); } );

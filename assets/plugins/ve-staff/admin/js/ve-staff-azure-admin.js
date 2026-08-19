@@ -1,7 +1,6 @@
 (function () {
 	'use strict';
 	const form = document.getElementById('ve-azure-settings');
-	if (!form) return;
 	const request = async (action, values) => {
 		const body = new URLSearchParams(Object.assign({ action, nonce: veStaffAzure.nonce }, values));
 		const response = await fetch(veStaffAzure.ajaxUrl, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
@@ -9,6 +8,21 @@
 		if (!data.success) throw new Error(data.data && data.data.message ? data.data.message : 'The request failed.');
 		return data.data;
 	};
+	const termValuesButton = document.querySelector('.ve-staff-fetch-azure-values');
+	if (termValuesButton) {
+		termValuesButton.addEventListener('click', async () => {
+			const status = document.querySelector('.ve-azure-value-status');
+			const options = document.getElementById('ve-staff-azure-values');
+			status.textContent = ' Loading Azure values…';
+			try {
+				const data = await request('ve_staff_azure_term_values', {});
+				const values = data.values && data.values[veStaffAzure.taxonomy] ? data.values[veStaffAzure.taxonomy] : [];
+				options.replaceChildren(...values.map((value) => new Option('', value)));
+				status.textContent = values.length ? ` Loaded ${values.length} values. Select the Azure value field to choose one.` : ' No populated values were found.';
+			} catch (error) { status.textContent = ` ${error.message}`; status.className = 've-azure-value-status error'; }
+		});
+	}
+	if (!form) return;
 	const validateRules = (textarea) => {
 		const status = textarea.parentElement.querySelector('.ve-azure-json-status');
 		try { const parsed = JSON.parse(textarea.value); if (!Array.isArray(parsed)) throw new Error('Rules must be an array'); status.textContent = 'Valid JSON'; status.className = 've-azure-json-status valid'; textarea.setCustomValidity(''); }
