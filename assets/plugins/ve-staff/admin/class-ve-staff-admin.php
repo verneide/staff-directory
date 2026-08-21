@@ -899,7 +899,7 @@ class Ve_Staff_Admin {
 	public function recompute_and_reconcile_anniversary_tags($post_id) {
 		if (get_post_type($post_id) !== 'staff') return;
 
-		$today = new DateTime('today');
+		$today = new DateTimeImmutable('today', wp_timezone());
 		$settings = $this->get_anniversary_settings();
 		$days_before  = (int) ($settings['days_before'] ?? 0);
 		$months_after = (int) ($settings['months_after'] ?? 6);
@@ -907,37 +907,33 @@ class Ve_Staff_Admin {
 		$last_str = get_field('anniversary_anniversary_date_last', $post_id) ?: '';
 		$next_str = get_field('anniversary_anniversary_date', $post_id) ?: '';
 		$years_current = (int) get_field('anniversary_years_service_current', $post_id);
+		$years_on_anniversary = (int) get_field('anniversary_years_service_on_anniversary', $post_id);
 
 		$tag_map = $this->get_anniversary_tag_map();
 		$valid_slugs = array_values($tag_map);
 
 		$current_slugs = wp_get_post_terms($post_id, 'post_tag', ['fields' => 'slugs']) ?: [];
 
-		$last = null; $next = null;
-		try { if ($last_str && preg_match('/^\d{4}-\d{2}-\d{2}$/', $last_str)) $last = new DateTime($last_str); } catch (Exception $e) {}
-		try { if ($next_str && preg_match('/^\d{4}-\d{2}-\d{2}$/', $next_str)) $next = new DateTime($next_str); } catch (Exception $e) {}
+		$last = $this->parse_anniversary_date($last_str);
+		$next = $this->parse_anniversary_date($next_str);
 
-		$in_window = false;
 		$expected_milestone = null;
 		$window_end_for_meta = null;
 
-		if ($last || $next) {
-			$anchor = null;
-			if ($days_before > 0 && $next && $today <= $next) {
-				$anchor = clone $next;
-			} elseif ($last) {
-				$anchor = clone $last;
-			}
+		$candidates = [
+			[ 'date' => $next, 'years' => $years_on_anniversary ],
+			[ 'date' => $last, 'years' => $years_current ],
+		];
 
-			if ($anchor) {
-				$window_start = (clone $anchor)->modify("-{$days_before} days");
-				$window_end   = (clone $anchor)->modify("+{$months_after} months");
-				$in_window    = ($today >= $window_start && $today <= $window_end);
+		foreach ($candidates as $candidate) {
+			if (!$candidate['date']) continue;
+
+			$window_start = $candidate['date']->modify("-{$days_before} days");
+			$window_end = $candidate['date']->modify("+{$months_after} months");
+			if ($today >= $window_start && $today <= $window_end) {
+				$expected_milestone = $candidate['years'];
 				$window_end_for_meta = $window_end;
-
-				if ($in_window) {
-					$expected_milestone = ($today < $anchor) ? ($years_current + 1) : $years_current;
-				}
+				break;
 			}
 		}
 
@@ -983,6 +979,17 @@ class Ve_Staff_Admin {
 		}
 	}
 
+	private function parse_anniversary_date(string $value): ?DateTimeImmutable {
+		$date = DateTimeImmutable::createFromFormat('!Y-m-d', $value, wp_timezone());
+		$errors = DateTimeImmutable::getLastErrors();
+
+		if (!$date || ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))) {
+			return null;
+		}
+
+		return $date;
+	}
+
 	public function update_anniversary_fields_staff_posts($post_id) {
 		$this->ve_log("Running update_anniversary_fields_staff_posts for post_id: $post_id");
 
@@ -1018,7 +1025,7 @@ class Ve_Staff_Admin {
 		$add_yrs_service = (int) get_field('anniversary_add_yrs_service', $post_id) ?: 0;
 		$this->ve_log("add_yrs_service: $add_yrs_service");
 
-		$today = new DateTime();
+		$today = new DateTime('today', wp_timezone());
 		$this->ve_log("Today's date: " . $today->format('Y-m-d'));
 
 		// Determine most recent hire/rehire date
@@ -1084,10 +1091,13 @@ class Ve_Staff_Admin {
 		$this->ve_log("🔁 Reconciled anniversary tags after field update for post {$post_id}");
 	}
 
-	public function get_anniversary_settings() {
+	public function get_anniversary_settings(): array {
+		$days_before = get_field('anniversary_days_before', 'option');
+		$months_after = get_field('anniversary_months_after', 'option');
+
 		return [
-			'days_before'  => (int) get_field('anniversary_days_before', 'option') ?: 0,
-			'months_after' => (int) get_field('anniversary_months_after', 'option') ?: 6,
+			'days_before'  => max(0, (int) $days_before),
+			'months_after' => max(0, ($months_after === false || $months_after === null || $months_after === '') ? 6 : (int) $months_after),
 		];
 	}
 
@@ -1327,7 +1337,6 @@ class Ve_Staff_Admin {
 		$updated_count = 0;
 		foreach ($staff_query->posts as $post_id) {
 			$this->update_anniversary_fields_staff_posts($post_id);
-			$this->recompute_and_reconcile_anniversary_tags($post_id);
 			$updated_count++;
 		}
 

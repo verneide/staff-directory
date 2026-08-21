@@ -138,6 +138,13 @@ function ve_staff_schedule_batch_update_event() {
 // Schedule event on plugin activation
 register_activation_hook(__FILE__, 've_staff_schedule_batch_update_event');
 
+// Repair a missing daily event after deployments or external cron cleanup.
+add_action('init', function() {
+	if (!wp_next_scheduled('daily_staff_batch_update_event')) {
+		ve_staff_schedule_batch_update_event();
+	}
+});
+
 // Re-run scheduling when saving ACF options page
 add_action('acf/save_post', function($post_id) {
 	if ($post_id === 'options') {
