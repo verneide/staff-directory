@@ -1000,11 +1000,12 @@ class Ve_Staff_Admin {
 			get_field('rehire_date_2', $post_id),
 			get_field('rehire_date_3', $post_id),
 			get_field('rehire_date_4', $post_id),
+			get_field('rehire_date_5', $post_id),
 		];
 
 		// Filter valid YYYY-MM-DD formatted dates
 		$dates = array_filter($raw_dates, function($date) {
-			return $date && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date);
+			return is_string($date) && $this->parse_anniversary_date($date) !== null;
 		});
 
 		$this->ve_log("Filtered dates: " . print_r($dates, true));
@@ -1012,7 +1013,7 @@ class Ve_Staff_Admin {
 		// Parse all valid dates into DateTime objects
 		foreach ($dates as &$date) {
 			try {
-				$date = new DateTime($date);
+				$date = new DateTime($date, wp_timezone());
 				$this->ve_log("Parsed date: " . $date->format('Y-m-d'));
 			} catch (Exception $e) {
 				$this->ve_log("Error parsing date '$date': " . $e->getMessage());
@@ -1048,7 +1049,7 @@ class Ve_Staff_Admin {
 		// ───────────────────────────────────────────────
 
 		// Base anniversary this year
-		$anniv_this_year = new DateTime();
+		$anniv_this_year = new DateTime('today', wp_timezone());
 		$anniv_this_year->setDate($today->format('Y'), $most_recent_date->format('m'), $most_recent_date->format('d'));
 
 		$last_anniversary = clone $anniv_this_year;
