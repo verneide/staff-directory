@@ -33,6 +33,19 @@
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
 }
+/** Listing Locations Column **/
+.listing_locations .categorychecklist-holder {
+    max-height: 500px !important;
+}
+.listing-locations ul.acf-checkbox-list {
+  column-count: 3;
+  column-gap: 30px;
+}
+
+.listing-locations ul.acf-checkbox-list li {
+  break-inside: avoid;
+  margin-bottom: 10px;
+}
 
 #post-body-content .acf-tab-wrap{
 	min-width: 100% !important;
