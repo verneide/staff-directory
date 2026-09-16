@@ -37,7 +37,7 @@
 .listing_locations .categorychecklist-holder {
     max-height: 500px !important;
 }
-.listing-locations ul.acf-checkbox-list.acf-bl, .listing-locations .acf-checkbox-list{
+.listing-locations .acf-taxonomy-field .acf-checkbox-list {
   column-count: 3;
   column-gap: 30px;
 }
