@@ -37,14 +37,14 @@
 .listing_locations .categorychecklist-holder {
     max-height: 500px !important;
 }
-.listing-locations .acf-taxonomy-field .acf-checkbox-list {
-  column-count: 3;
-  column-gap: 30px;
+.listing_locations .acf-checkbox-list {
+  column-count: 2;
+  column-gap: 20px;
 }
 
-.listing-locations ul.acf-checkbox-list li {
+/* Prevents checkbox items from breaking awkwardly across columns */
+.listing_locations .acf-checkbox-list li {
   break-inside: avoid;
-  margin-bottom: 10px;
 }
 
 #post-body-content .acf-tab-wrap{
