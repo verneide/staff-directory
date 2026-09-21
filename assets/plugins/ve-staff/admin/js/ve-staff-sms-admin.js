@@ -79,3 +79,19 @@ jQuery(document).ready(function () {
     });
 });
 
+jQuery(document).ready(function ($) {
+	var $recipients = $('#ve-sms-recipients');
+	if (!$recipients.length) return;
+	if ($.fn.select2) {
+		$recipients.select2({width: '100%', ajax: {url: veAjax.ajaxurl, dataType: 'json', delay: 250, data: function (params) {
+			return {action: 've_sms_search_recipients', nonce: veAjax.nonce, q: params.term || ''};
+		}}});
+	}
+	$('#ve-sms-load-recipients').on('click', function () {
+		var values = function (name) { return $('[data-name="' + name + '"] input:checked').map(function () { return this.value; }).get(); };
+		$.post(veAjax.ajaxurl, {action: 've_sms_load_recipients', nonce: veAjax.nonce, locations: values('sms_msg_location'), departments: values('sms_msg_department')}).done(function (response) {
+			if (!response.success) { window.alert(response.data.message || 'Recipients could not be loaded.'); return; }
+			$recipients.empty(); response.data.forEach(function (recipient) { $recipients.append(new Option(recipient.text, recipient.id, true, true)); }); $recipients.trigger('change');
+		});
+	});
+});

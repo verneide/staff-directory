@@ -276,6 +276,7 @@ class Ve_Staff_Admin {
 	public function adminPartials() {
 		$admin_partials = array(
 			'/ve-staff-admin-functions.php', // Initialize Admin Theme Functions
+			'/ve-staff-admin-sms-permissions.php',
 			'/ve-staff-admin-sms.php',
 			'/ve-staff-admin-sms-api.php',
 		);
