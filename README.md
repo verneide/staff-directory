@@ -2,6 +2,10 @@
 
 This repository contains the `ve-staff` WordPress plugin, its companion `vern-eide-staff` theme, and a SharePoint Framework integration.
 
+## Staff SMS permissions
+
+Staff SMS authors are limited by user-specific locations, departments, and Sending Number taxonomy terms. High-access users inherit all values when no explicit permissions are saved, while other roles inherit none. Authors load their permitted filter results into a searchable recipient selector and can remove individual staff before sending. Recipient Group terms provide reusable recipient sets, and the send path rechecks the author's current access so background and scheduled messages cannot bypass permissions.
+
 ## Embed versions
 
 Existing `?type=script` snippets continue to run v1. The post editor also presents a v2 snippet containing `data-version="2"`; it renders a skeleton immediately and AJAX-loads the listing into an isolated Shadow DOM. Listing responses include only the rendered directory and inline listing CSS, avoiding cross-origin requests for unrelated WordPress assets. V2 requests use the stable listing URL with browser cache bypassing and are treated like script embeds by the legacy referrer access check. Public v2 embed responses allow all consumer origins by default. Sites that need to restrict consumers can return an explicit origin list through `ve_staff_v2_allowed_origins`.

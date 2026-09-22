@@ -131,6 +131,9 @@ class Ve_Staff_SMS {
      * from the ve_staff_sms_numbers repeater on the options page.
      */
     public function populate_sms_msg_from_field( $field ) {
+		if ( function_exists( 've_sms_number_choices' ) ) {
+			return ve_sms_number_choices( $field );
+		}
         // Reset choices
         $field['choices'] = [];
 
@@ -1029,6 +1032,11 @@ class Ve_Staff_SMS {
 		}
 
 		if ($post_type === 'staff-sms') {
+			if ( $post_status === 'publish' && function_exists( 've_staff_sms_validate_post_access' ) && ! ve_staff_sms_validate_post_access( (int) $post_id ) ) {
+				wp_update_post( array( 'ID' => $post_id, 'post_status' => 'draft' ) );
+				update_post_meta( $post_id, 'staff_sms_permission_error', 'The message was not sent because its number or recipients are outside the author permissions.' );
+				return;
+			}
 			// Ensure the sent meta exists
 			if (!metadata_exists('post', $post_id, 'staff_sms_msg_sent')) {
 				update_post_meta($post_id, 'staff_sms_msg_sent', 0);
@@ -1177,6 +1185,9 @@ class Ve_Staff_SMS {
 	}
 	
 	public function sms_msg_get_staff_contact_info($post_id) {
+			if ( function_exists( 've_staff_sms_recipient_rows' ) ) {
+				return ve_staff_sms_recipient_rows( (int) $post_id );
+			}
 			$locations = get_field('sms_msg_location', $post_id); 
 			if ($locations) {
 			  if (!is_array($locations)) {
@@ -1355,6 +1366,11 @@ class Ve_Staff_SMS {
 
 	// SEND SMS MESSAGE FROM POST
 	public function send_sms_msg_post($post_id, $staff_array){
+		if ( function_exists( 've_staff_sms_validate_post_access' ) && ! ve_staff_sms_validate_post_access( (int) $post_id ) ) {
+			$this->log_sms_debug( $post_id, 'Send denied: the sending number or recipient group is outside the author permissions.' );
+			update_post_meta( $post_id, 'staff_sms_permission_error', 'Send denied because permissions changed or the recipient group contains inaccessible staff.' );
+			return;
+		}
 		$sms_from              = trim((string) get_field('sms_msg_from', $post_id));
 		$sms_msg               = (string) get_field('sms_msg_text', $post_id);
 		$sms_img               = get_field('sms_msg_image', $post_id);
