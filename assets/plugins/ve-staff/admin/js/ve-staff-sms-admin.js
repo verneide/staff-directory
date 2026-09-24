@@ -80,18 +80,35 @@ jQuery(document).ready(function () {
 });
 
 jQuery(document).ready(function ($) {
-	var $recipients = $('#ve-sms-recipients');
-	if (!$recipients.length) return;
-	if ($.fn.select2) {
+	function initializeRecipientSelect($recipients) {
+		if (!$.fn.select2) return;
 		$recipients.select2({width: '100%', ajax: {url: veAjax.ajaxurl, dataType: 'json', delay: 250, data: function (params) {
 			return {action: 've_sms_search_recipients', nonce: veAjax.nonce, q: params.term || ''};
 		}}});
 	}
-	$('#ve-sms-load-recipients').on('click', function () {
-		var values = function (name) { return $('[data-name="' + name + '"] input:checked').map(function () { return this.value; }).get(); };
-		$.post(veAjax.ajaxurl, {action: 've_sms_load_recipients', nonce: veAjax.nonce, locations: values('sms_msg_location'), departments: values('sms_msg_department')}).done(function (response) {
+
+	$('.ve-sms-recipients').each(function () {
+		initializeRecipientSelect($(this));
+	});
+
+	$('.ve-sms-load-recipients').on('click', function () {
+		var $button = $(this);
+		var $recipients = $($button.data('recipient-target'));
+		var values = function (name) {
+			var $groupFilter = $('.ve-sms-group-filter[data-filter="' + name + '"]');
+			if ($groupFilter.length) return $groupFilter.find('input:checked').map(function () { return this.value; }).get();
+			return $('[data-name="sms_msg_' + name + '"] input:checked').map(function () { return this.value; }).get();
+		};
+		$button.prop('disabled', true);
+		$.post(veAjax.ajaxurl, {action: 've_sms_load_recipients', nonce: veAjax.nonce, locations: values('location'), departments: values('department')}).done(function (response) {
 			if (!response.success) { window.alert(response.data.message || 'Recipients could not be loaded.'); return; }
-			$recipients.empty(); response.data.forEach(function (recipient) { $recipients.append(new Option(recipient.text, recipient.id, true, true)); }); $recipients.trigger('change');
+			$recipients.empty();
+			response.data.forEach(function (recipient) { $recipients.append(new Option(recipient.text, recipient.id, true, true)); });
+			$recipients.trigger('change');
+		}).fail(function () {
+			window.alert('Recipients could not be loaded. Please try again.');
+		}).always(function () {
+			$button.prop('disabled', false);
 		});
 	});
 });
