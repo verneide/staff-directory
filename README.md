@@ -4,7 +4,7 @@ This repository contains the `ve-staff` WordPress plugin, its companion `vern-ei
 
 ## Staff SMS permissions
 
-Staff SMS authors are limited by user-specific locations, departments, and Sending Number taxonomy terms. High-access users inherit all values when no explicit permissions are saved, while other roles inherit none. Authors load their permitted filter results into a searchable recipient selector and can remove individual staff before sending. Recipient Group terms provide reusable recipient sets, and the send path rechecks the author's current access so background and scheduled messages cannot bypass permissions.
+Staff SMS authors are limited by user-specific locations, departments, and Sending Number taxonomy terms. High-access users inherit all values when no explicit permissions are saved, while other roles inherit none. Authors load their permitted filter results into a searchable recipient selector, can remove individual staff before sending, and can save the final selection as a reusable Recipient Group. Recipient Groups use the same location, department, load, search, and removal workflow on their management screen. Sending Numbers are selected from the SMS-capable incoming numbers returned by the connected Twilio account, while the send path rechecks the author's current access so background and scheduled messages cannot bypass permissions.
 
 ## Embed versions
 
