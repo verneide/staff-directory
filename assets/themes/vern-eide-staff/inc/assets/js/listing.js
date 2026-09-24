@@ -1,488 +1,143 @@
-// Javascript Functions //
-(function(funcName, baseObj) {
-    // The public function name defaults to window.docReady
-    // but you can pass in your own object and own function name and those will be used
-    // if you want to put them in a different namespace
-    funcName = funcName || "docReady";
-    baseObj = baseObj || window;
-    var readyList = [];
-    var readyFired = false;
-    var readyEventHandlersInstalled = false;
+(function (windowObject) {
+  'use strict';
 
-    // call this when the document is ready
-    // this function protects itself against being called more than once
-    function ready() {
-        if (!readyFired) {
-            // this must be set to true before we start calling callbacks
-            readyFired = true;
-            for (var i = 0; i < readyList.length; i++) {
-                // if a callback here happens to add new ready handlers,
-                // the docReady() function will see that it already fired
-                // and will schedule the callback to run right after
-                // this event loop finishes so all handlers will still execute
-                // in order and no new ones will be added to the readyList
-                // while we are processing the list
-                readyList[i].fn.call(window, readyList[i].ctx);
-            }
-            // allow any closures held by these functions to free
-            readyList = [];
-        }
-    }
+  var namespace = windowObject.VEStaffDirectory || {};
 
-    function readyStateChange() {
-        if ( document.readyState === "complete" ) {
-            ready();
-        }
-    }
+  function all(root, selector) {
+    return Array.prototype.slice.call(root.querySelectorAll(selector));
+  }
 
-    // This is the one public interface
-    // docReady(fn, context);
-    // the context argument is optional - if present, it will be passed
-    // as an argument to the callback
-    baseObj[funcName] = function(callback, context) {
-        if (typeof callback !== "function") {
-            throw new TypeError("callback for docReady(fn) must be a function");
-        }
-        // if ready has already fired, then just schedule the callback
-        // to fire asynchronously, but right away
-        if (readyFired) {
-            setTimeout(function() {callback(context);}, 1);
-            return;
-        } else {
-            // add the function and context to the list
-            readyList.push({fn: callback, ctx: context});
-        }
-        // if document already ready to go, schedule the ready function to run
-        if (document.readyState === "complete") {
-            setTimeout(ready, 1);
-        } else if (!readyEventHandlersInstalled) {
-            // otherwise if we don't have event handlers installed, install them
-            if (document.addEventListener) {
-                // first choice is DOMContentLoaded event
-                document.addEventListener("DOMContentLoaded", ready, false);
-                // backup is window load event
-                window.addEventListener("load", ready, false);
-            } else {
-                // must be IE
-                document.attachEvent("onreadystatechange", readyStateChange);
-                window.attachEvent("onload", ready);
-            }
-            readyEventHandlersInstalled = true;
-        }
-    }
-})("docReady", window);  
- 
-// // *** CREATE NEW JQUERY OBJECT TO AVOID CONFLICTS *** //
-var $j = jQuery.noConflict();
-	
-var list;
-var listid;
-var locfilterenabled;
-var deptfilterenabled;
-var tagfilterenabled;
-var selectedDepartment;
-var selectedLocation;
-var selectedLocationFilter;
-var objdept;
-var objloc;
-var deptheaders;
-var staffcards;
-
-/* PAGE READY */
-$j(function() {
-	$j('.loading-section').remove();
-});
-	
-$j(function() {
-  /* FILTERS AVAILABLE */
-	if($j('#departmentfilterselect').length){deptfilterenabled = true;}
-	if($j('#locationfilterselect').length){locfilterenabled = true;}
-	if($j('#tagfilterselect').length){tagfilterenabled = true;}
-
-	/* RESET ALL FILTERS */
-		$j.fn.veResetFilters = function(list){ 
-				listid = list.data("list-id");
-				$j('.ve-hidden').removeClass('ve-hidden');
-				if(deptfilterenabled){
-					$j('#departmentfilterselect').val($j('#departmentfilterselect option:first').val());
-				}
-				if(locfilterenabled){
-					$j('#locationfilterselect').val($j('#locationfilterselect option:first').val());
-				}
-				if(tagfilterenabled){
-					$j("#tagfilterselect").val($j("#tagfilterselect option:first").val());
-				};
-				if ($j('#employeenamesearch').length){
-					$j('#employeenamesearch').val('');
-				}
-				if ($j('#employeeextsearch').length){
-					$j('#employeeextsearch').val('');
-				}
-				if ($j('.ve-no-results').length){
-					$j('.ve-no-results').remove();
-				}
-				if ($j('.department-list').length){
-					$j('.department-list').remove();
-				}
-		};
-
-	/* RESET TEXT INPUT FILTERS */
-		$j.fn.veResetTextFilters = function(){ 
-			if ($j('.ve-no-results').length){
-				$j(".ve-no-results").remove();
-			}
-			if ($j('#employeenamesearch').length){
-				$j('#employeenamesearch').val('');
-			}
-			if ($j('#employeeextsearch').length){
-				$j('#employeeextsearch').val('');
-			}
-			if ($j('.department-list').length){
-				$j(".department-list").remove();
-			}
-		};
-
-	/* RESET SELECT FILTERS */
-		$j.fn.veResetSelectFilters = function(){ 
-			if ($j('.ve-no-results').length){
-				$j(".ve-no-results").remove();
-			}
-			if(deptfilterenabled){
-				$j("#departmentfilterselect").val($j("#departmentfilterselect option:first").val());
-			};
-			if(locfilterenabled){
-				$j("#locationfilterselect").val($j("#locationfilterselect option:first").val());
-			};
-			if(tagfilterenabled){
-				$j("#tagfilterselect").val($j("#tagfilterselect option:first").val());
-			};
-		};
-	
-	/* RESET LOC/DEPT FILTERS */
-		$j.fn.veResetLocDeptSelectFilters = function(){ 
-			if ($j('.ve-no-results').length){
-				$j(".ve-no-results").remove();
-			}
-			if(deptfilterenabled){
-				$j("#departmentfilterselect").val($j("#departmentfilterselect option:first").val());
-			};
-			if(locfilterenabled){
-				$j("#locationfilterselect").val($j("#locationfilterselect option:first").val());
-			};
-		};
-					   
-	/* RESET BUTTON */
-		$j('#resetFilterBtn').click(function() {
-			list = $j(this).parents("div #partialView").last();
-			$j.fn.veResetFilters(list);
-		});
-
-	/* NO RESULTS */
-		$j.fn.veNoResults = function(){ 
-			deptheaders = $j('.department-header').not('.ve-hidden').length;
-			staffcards = $j('.employee-tile').not('.ve-hidden').length;
-			if (deptheaders == 0 && staffcards == 0){
-				$j(".employee-list .ve-row").append( '<h3 class="ve-no-results"><center>No Results Found</center></h3>' );
-			};
-		};
-
-    /* DEPARTMENT / LOCATION SELECTOR CHANGE */
-    $j('#departmentfilterselect, #locationfilterselect').change(function() {
-		$j.fn.veResetTextFilters();
-		if (deptfilterenabled){
-			selectedDepartment = $j('#departmentfilterselect').val();
-		}
-		if (locfilterenabled && deptfilterenabled){
-			/* Location & Department Filter Enabled */
-			selectedLocation = $j('#locationfilterselect').val();
-			if (selectedLocation == "all" && selectedDepartment == "all") {
-				$j('.employee-tile, .department-header').removeClass('ve-hidden');
-			} else if (selectedLocation == "all" && selectedDepartment != "all") {
-				$j('.employee-tile, .department-header').not('.ve-hidden').addClass('ve-hidden');	 
-				$j('.employee-tile[data-dept="' + selectedDepartment + '"], .department-header[data-dept="' + selectedDepartment + '"]').removeClass('ve-hidden');
-			} else {
-				$j('.employee-tile, .department-header').not('.ve-hidden').addClass('ve-hidden');
-				$j('.department-header[data-loc*="' + selectedLocation + '"], .employee-tile[data-loc*="' + selectedLocation + '"]').each( function( index, element){
-					objdept = $j(this).attr("data-dept");
-					if(objdept == selectedDepartment || selectedDepartment == "all"){
-						$j(this).removeClass('ve-hidden');
-					} else {
-						$j(this).addClass('ve-hidden');
-					};
-				});
-				selectedLocationFilter = $j('#locationfilterselect option[value='+selectedLocation+']').data('filter');
-				if (selectedLocationFilter == 0){
-					$j('.department-header').not('.ve-hidden').addClass('ve-hidden');
-				}
-			};
-		} else if (locfilterenabled && !deptfilterenabled){
-			/* Location Filter Only Enabled*/
-			selectedLocation = $j('#locationfilterselect').val();
-			if (selectedLocation == "all") {
-				$j('.employee-tile').removeClass('ve-hidden');
-			} else {
-				$j('.employee-tile').not('.ve-hidden').addClass('ve-hidden');
-				$j('.employee-tile[data-loc*="' + selectedLocation + '"]').removeClass('ve-hidden');
-			};
-		} else {
-			if (selectedDepartment == "all") {
-				$j('.employee-tile, .department-header').removeClass('ve-hidden');
-			} else {
-				$j('.employee-tile, .department-header').not('.ve-hidden').addClass('ve-hidden');
-				$j('.employee-tile[data-dept="' + selectedDepartment + '"], .department-header[data-dept="' + selectedDepartment + '"]').removeClass('ve-hidden');
-			};
-		};
-		$j.fn.veNoResults();
+  function setHidden(elements, hidden) {
+    elements.forEach(function (element) {
+      element.classList.toggle('ve-hidden', hidden);
     });
-    
-    /* EMPLOYEE SEARCH */
-		$j('#employeenamesearch').keyup(function() {
-			var searchedName = this.value.toUpperCase();
-			$j.fn.veResetSelectFilters();
-			if (searchedName.length === 0) {
-				$j('.employee-tile, .department-header').removeClass('ve-hidden');
-			} else {
-				$j('.employee-tile, .department-header').addClass('ve-hidden');
-				$j('.employee-tile[data-employee-name*="' + searchedName + '"]').removeClass('ve-hidden');
-			}
-			$j.fn.veNoResults();
-		});
+  }
 
-    /* EXT SEARCH */
-		$j('#employeeextsearch').keyup(function() {
-			var searchedExt = this.value.toUpperCase();
-			$j.fn.veResetSelectFilters();
-			if (searchedExt.length === 0) {
-				$j('.employee-tile').removeClass('ve-hidden');
-				$j('.department-header').removeClass('ve-hidden');
-			} else {
-				$j('.employee-tile').addClass('ve-hidden');
-				$j('.department-header').addClass('ve-hidden');
-				$j('.employee-tile[data-ext*="' + searchedExt + '"]').removeClass('ve-hidden');
-			}
-			$j.fn.veNoResults();
-		});
-	
-	/* TAG SEARCH */
-	$j('#tagfilterselect').change(function() {
-		$j.fn.veResetLocDeptSelectFilters();
-		$j.fn.veResetTextFilters();
-		var selectedTag = $j(this).val();
-		if (selectedTag == "all") {
-			$j('.employee-tile, .department-header').removeClass('ve-hidden');
-		} else {
-			$j('.employee-tile').addClass('ve-hidden');
-			$j('.department-header').addClass('ve-hidden');
-			$j('.employee-tile[data-tags*="' + selectedTag + '"]').removeClass('ve-hidden');
-		}
-		$j.fn.veNoResults();
-	});
+  function value(root, selector) {
+    var field = root.querySelector(selector);
+    return field ? field.value : 'all';
+  }
 
-	/* PREVENT ENTER ON EMPLOYEE SEARCH */
-	$j('#employeenamesearch').keypress(
-	  function(event){
-		if (event.which == '13') {
-		  event.preventDefault();
-		}
-	});
-
-	/* PREVENT ENTER ON INPUT BOX ENTIRE PAGE*/
-	$j(document).keypress(
-	  function(event){
-		if (event.which == '13') {
-		  event.preventDefault();
-		}
-	});
-
-	/* VIEW MORE BUTTON */
-		$j('#viewMoreBtn').click(function() {
-			$j('.employee-tile').removeClass('ve-hidden');
-			$j('.viewMoreWrapper').addClass('ve-hidden');
-		});
-		
-}); /* END Main */
-
-
-window.addEventListener('load', function() {
-	/* ADD TAG MAANGER TO HEAD */
-	$j("head").append("<!-- VE Staff Google Tag Manager -->\r\n<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':\r\nnew Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],\r\nj=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=\r\n'https:\/\/www.googletagmanager.com\/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);\r\n})(window,document,'script','dataLayer','GTM-MJTG6FV');<\/script>\r\n<!-- End Google Tag Manager -->");
-
-	/* ADD TAG MAANGER BODY TO BODY */
-	$j("body").prepend("<!-- VE Staff Google Tag Manager (noscript) -->\r\n<noscript><iframe src=\"https:\/\/www.googletagmanager.com\/ns.html?id=GTM-MJTG6FV\"\r\nheight=\"0\" width=\"0\" style=\"display:none;visibility:hidden\"><\/iframe><\/noscript>\r\n<!-- End Google Tag Manager (noscript) -->");
-});
-
-/* Checks if the site hosted by Dealerspike, then adds a css class to the body if it is */
-document.addEventListener('DOMContentLoaded', function () {
-   // Check if the page contains the specified meta tag with "dealerspike.com" in its content
-   const metaTag = document.querySelector('meta[name="author"][content*="dealerspike.com"]');
-   if (metaTag) {
-      // If the meta tag is found, add the class "ve-dealerspike" to the body's classList
-      document.body.classList.add('ve-dealerspike');
-   }
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-var velistingModals = document.getElementById("listingmodals");
-// Get a reference to the body element
-var pgbody = document.body;
-// Loop through and move each child element of listingModals to the bottom of the body
-if (velistingModals){
-	while (velistingModals.firstChild) {
-		pgbody.appendChild(velistingModals.firstChild);
-	}
-}
-});
-
-/* document.addEventListener("DOMContentLoaded", function () {
-    // Check if we're on desktop
-    if (window.innerWidth >= 768) {
-        // Show the offcanvas content by default
-        var veoffcanvasElement = document.getElementById('offcanvasFiltersTop');
-        var veoffcanvasInstance = new bootstrap.Offcanvas(veoffcanvasElement);
-        veoffcanvasInstance.veshow();
-    }
-}); */
-
-// Get the current site's domain, ensuring "www" is removed if applicable
-function getDomainWithoutWWW() {
-    var hostname = window.location.hostname;
-
-    // Remove "www." if it exists at the start of the hostname
-    if (hostname.startsWith("www.")) {
-        hostname = hostname.substring(4);
-    }
-
-    return hostname;
-}
-
-// Replace {{sitedomain}} in href attributes within .employee-list divs
-function replaceSiteDomainInLinks() {
-    // Get the current domain without www
-    var currentDomain = getDomainWithoutWWW();
-    
-    // Get all a elements within .employee-list div
-    var links = document.querySelectorAll('.employee-list a');
-
-    // Iterate through each link and replace {{sitedomain}} with the current domain
-    links.forEach(function(link) {
-        var href = link.getAttribute('href');
-        if (href && href.includes('{{sitedomain}}')) {
-            link.setAttribute('href', href.replace('{{sitedomain}}', currentDomain));
-        }
+  function resetFields(root, selectors) {
+    selectors.forEach(function (selector) {
+      var field = root.querySelector(selector);
+      if (field) {
+        field.value = field.tagName === 'SELECT' ? field.options[0].value : '';
+      }
     });
-}
+  }
 
-// Run the replaceSiteDomainInLinks function after the window has loaded
-window.addEventListener('load', replaceSiteDomainInLinks);
+  function updateEmptyState(root) {
+    var oldMessage = root.querySelector('.ve-no-results');
+    if (oldMessage) {
+      oldMessage.remove();
+    }
+    if (root.querySelector('.employee-tile:not(.ve-hidden), .department-header:not(.ve-hidden)')) {
+      return;
+    }
+    var row = root.querySelector('.employee-list .ve-row');
+    if (row) {
+      var message = document.createElement('h3');
+      message.className = 've-no-results ve-text-center';
+      message.textContent = 'No Results Found';
+      row.appendChild(message);
+    }
+  }
 
+  function filterSelects(root) {
+    var department = value(root, '#departmentfilterselect');
+    var location = value(root, '#locationfilterselect');
+    all(root, '.employee-tile, .department-header').forEach(function (item) {
+      var departmentMatches = department === 'all' || item.getAttribute('data-dept') === department;
+      var locationMatches = location === 'all' || (item.getAttribute('data-loc') || '').indexOf(location) !== -1;
+      item.classList.toggle('ve-hidden', !departmentMatches || !locationMatches);
+    });
+    updateEmptyState(root);
+  }
 
-/* STAFF SUGGEST EDIT MODAL */
-docReady(function() {
-	var modal = document.getElementById('veSuggestEditModal');
-	var form = document.getElementById('veSuggestEditForm');
-	if (!modal || !form) {
-		return;
-	}
+  function filterText(root, field, attribute) {
+    var query = field.value.toUpperCase();
+    resetFields(root, ['#departmentfilterselect', '#locationfilterselect', '#tagfilterselect']);
+    setHidden(all(root, '.employee-tile, .department-header'), query.length > 0);
+    all(root, '.employee-tile').forEach(function (item) {
+      if (!query || (item.getAttribute(attribute) || '').toUpperCase().indexOf(query) !== -1) {
+        item.classList.remove('ve-hidden');
+      }
+    });
+    updateEmptyState(root);
+  }
 
-	function setFieldValue(fieldName, value) {
-		var field = form.querySelector('[name="' + fieldName + '"]');
-		if (field) {
-			field.value = value || '';
-		}
-	}
+  function bindFilters(root) {
+    root.addEventListener('change', function (event) {
+      if (event.target.matches('#departmentfilterselect, #locationfilterselect')) {
+        resetFields(root, ['#employeenamesearch', '#employeeextsearch', '#tagfilterselect']);
+        filterSelects(root);
+      }
+      if (event.target.matches('#tagfilterselect')) {
+        var tag = event.target.value;
+        resetFields(root, ['#departmentfilterselect', '#locationfilterselect', '#employeenamesearch', '#employeeextsearch']);
+        setHidden(all(root, '.employee-tile, .department-header'), tag !== 'all');
+        all(root, '.employee-tile').forEach(function (item) {
+          if (tag === 'all' || (item.getAttribute('data-tags') || '').indexOf(tag) !== -1) {
+            item.classList.remove('ve-hidden');
+          }
+        });
+        updateEmptyState(root);
+      }
+    });
+    root.addEventListener('input', function (event) {
+      if (event.target.matches('#employeenamesearch')) {
+        filterText(root, event.target, 'data-employee-name');
+      }
+      if (event.target.matches('#employeeextsearch')) {
+        filterText(root, event.target, 'data-ext');
+      }
+    });
+    root.addEventListener('click', function (event) {
+      if (event.target.closest('#resetFilterBtn')) {
+        resetFields(root, ['#departmentfilterselect', '#locationfilterselect', '#tagfilterselect', '#employeenamesearch', '#employeeextsearch']);
+        setHidden(all(root, '.employee-tile, .department-header'), false);
+        updateEmptyState(root);
+      }
+      if (event.target.closest('#viewMoreBtn')) {
+        setHidden(all(root, '.employee-tile'), false);
+        setHidden(all(root, '.viewMoreWrapper'), true);
+      }
+    });
+  }
 
-	function getVeModalInstance() {
-		if (window.bootstrap && window.bootstrap.veModal) {
-			return window.bootstrap.veModal.getOrCreateInstance(modal, { backdrop: true });
-		}
-		return null;
-	}
+  function replaceSiteDomain(root) {
+    var domain = windowObject.location.hostname.replace(/^www\./, '');
+    all(root, '.employee-list a[href*="{{sitedomain}}"] ').forEach(function (link) {
+      link.href = link.getAttribute('href').replace('{{sitedomain}}', domain);
+    });
+  }
 
-	function closeModal() {
-		var modalInstance = getVeModalInstance();
-		if (modalInstance) {
-			modalInstance.vehide();
-			return;
-		}
-		modal.classList.remove('veshow');
-		modal.setAttribute('aria-hidden', 'true');
-		modal.style.display = 'none';
-	}
+  function initialize(root) {
+    if (!root || root.__veStaffInitialized) {
+      return;
+    }
+    root.__veStaffInitialized = true;
+    setHidden(all(root, '.loading-section'), true);
+    bindFilters(root);
+    replaceSiteDomain(root);
+    if (namespace.lazyLoad) {
+      namespace.lazyLoad.initialize(root);
+    }
+  }
 
-	function openModal(button) {
-		var fieldNames = ['email', 'extension', 'tracking_number', 'title', 'cell_phone', 'direct_office', 'other'];
-		form.reset();
-		setFieldValue('staff_post_id', button.getAttribute('data-staff-post-id'));
-		setFieldValue('employee_name', button.getAttribute('data-employee-name'));
-		setFieldValue('employee_name_display', button.getAttribute('data-employee-name'));
-		fieldNames.forEach(function(fieldName) {
-			var currentValue = button.getAttribute('data-current-' + fieldName.replace(/_/g, '-')) || '';
-			var currentValueDisplay = modal.querySelector('[data-current-value="' + fieldName + '"]');
-			setFieldValue('current_' + fieldName, currentValue);
-			if (currentValueDisplay) {
-				currentValueDisplay.value = currentValue || 'Not Set';
-			}
-		});
-		var employeeHeading = modal.querySelector('[data-suggest-edit-employee]');
-		if (employeeHeading) {
-			employeeHeading.textContent = button.getAttribute('data-employee-name') || '';
-		}
-		var modalInstance = getVeModalInstance();
-		if (modalInstance) {
-			modalInstance.veshow(button);
-			return;
-		}
-		modal.classList.add('veshow');
-		modal.setAttribute('aria-hidden', 'false');
-		modal.style.display = 'block';
-	}
+  namespace.initialize = initialize;
+  windowObject.VEStaffDirectory = namespace;
 
-	document.addEventListener('click', function(event) {
-		var openButton = event.target.closest('.ve-suggest-edit-btn');
-		if (openButton) {
-			event.preventDefault();
-			openModal(openButton);
-			return;
-		}
-		if (event.target.closest('[data-suggest-edit-close]')) {
-			event.preventDefault();
-			closeModal();
-		}
-	});
+  function initializeDocument() {
+    all(document, '#veStaffList, #veStaffDisplay').forEach(function (container) {
+      initialize(container);
+    });
+  }
 
-	form.addEventListener('submit', function(event) {
-		event.preventDefault();
-		var status = form.querySelector('.ve-suggest-edit-status');
-		var submitButton = form.querySelector('[type="submit"]');
-		var data = new FormData(form);
-		data.append('action', 've_staff_suggest_edit');
-		data.append('nonce', window.veStaffSuggestEdit ? window.veStaffSuggestEdit.nonce : '');
-		if (status) {
-			status.textContent = 'Submitting...';
-		}
-		if (submitButton) {
-			submitButton.disabled = true;
-		}
-		fetch(window.veStaffSuggestEdit.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: data })
-			.then(function(response) { return response.json(); })
-			.then(function(response) {
-				if (!response.success) {
-					throw new Error(response.data && response.data.message ? response.data.message : 'Unable to submit suggested edit.');
-				}
-				if (status) {
-					status.textContent = response.data.message;
-				}
-				setTimeout(closeModal, 1200);
-			})
-			.catch(function(error) {
-				if (status) {
-					status.textContent = error.message;
-				}
-			})
-			.finally(function() {
-				if (submitButton) {
-					submitButton.disabled = false;
-				}
-			});
-	});
-});
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeDocument, { once: true });
+  } else {
+    initializeDocument();
+  }
+}(window));

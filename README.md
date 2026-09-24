@@ -14,6 +14,8 @@ V1 script responses are explicitly non-cacheable and all locally hosted listing 
 
 V1 and v2 embeds use the script access rules, while an external referrer remains available for URL allow-list validation. Listing behavior is initialized on DOM readiness rather than the host page's `load` event, so legacy scripts still initialize when an external site defers their execution until after the page has loaded.
 
+Embed assets are isolated from vendor pages: listing CSS is contained in an explicit staff-directory scope, the v1 runtime uses only the `VEStaffDirectory` namespace and does not inject jQuery or Bootstrap, and v2 continues to render inside Shadow DOM. Both embed versions take ownership of staff image loading, recognize legacy lazy-load attributes, and remove vendor lazy-load classes after successful loads so host optimizers cannot leave staff photos hidden.
+
 ## SharePoint
 
 The production-oriented SPFx 1.18 sample is under `sharepoint/eide-web-staff-integration`. Set its `apiEndpoint` and optional `entraResource` web-part properties, update the tenant URL in `config/package-solution.json`, then run `npm install`, `gulp bundle --ship`, and `gulp package-solution --ship`. See that directory's README for Entra ID permission setup.

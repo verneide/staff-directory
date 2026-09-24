@@ -13,6 +13,54 @@
     root.appendChild(style);
   };
 
+  const initializeImages = function (root) {
+    root.querySelectorAll('img[data-src], img[data-lazy-src], img[data-original]').forEach(function (image) {
+      const source = image.getAttribute('data-src') || image.getAttribute('data-lazy-src') || image.getAttribute('data-original');
+      if (!source) return;
+      image.addEventListener('load', function () {
+        image.classList.remove('lazy', 've-lazy', 'lazyload', 'lazyload-loading');
+        image.classList.add('ve-lazy-loaded');
+      }, { once: true });
+      image.addEventListener('error', function () {
+        image.classList.remove('lazyload-loading');
+        console.error('VE staff v2 image failed to load', { src: source, alt: image.alt });
+      }, { once: true });
+      image.src = source;
+      image.removeAttribute('data-src');
+      image.removeAttribute('data-lazy-src');
+      image.removeAttribute('data-original');
+    });
+  };
+
+  const initializeFilters = function (root) {
+    const items = function () { return root.querySelectorAll('.employee-tile, .department-header'); };
+    const value = function (selector) {
+      const field = root.querySelector(selector);
+      return field ? field.value : 'all';
+    };
+    const update = function () {
+      const department = value('#departmentfilterselect');
+      const location = value('#locationfilterselect');
+      items().forEach(function (item) {
+        const departmentMatches = department === 'all' || item.getAttribute('data-dept') === department;
+        const locationMatches = location === 'all' || (item.getAttribute('data-loc') || '').includes(location);
+        item.classList.toggle('ve-hidden', !departmentMatches || !locationMatches);
+      });
+    };
+    root.addEventListener('change', function (event) {
+      if (event.target.matches('#departmentfilterselect, #locationfilterselect')) update();
+    });
+    root.addEventListener('input', function (event) {
+      if (!event.target.matches('#employeenamesearch, #employeeextsearch')) return;
+      const attribute = event.target.matches('#employeenamesearch') ? 'data-employee-name' : 'data-ext';
+      const query = event.target.value.toUpperCase();
+      items().forEach(function (item) { item.classList.add('ve-hidden'); });
+      root.querySelectorAll('.employee-tile').forEach(function (item) {
+        if (!query || (item.getAttribute(attribute) || '').toUpperCase().includes(query)) item.classList.remove('ve-hidden');
+      });
+    });
+  };
+
   const loadEmbed = function (host) {
     const endpoint = host.getAttribute('data-endpoint');
     if (!endpoint) throw new Error('The v2 embed requires a data-endpoint attribute.');
@@ -30,6 +78,8 @@
         root.innerHTML = '';
         loadStyles(root, documentResult);
         root.appendChild(content);
+        initializeImages(root);
+        initializeFilters(root);
       })
       .catch(function (error) {
         root.innerHTML = '<div role="alert">The staff directory could not be loaded. Please try again later.</div>';
