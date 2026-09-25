@@ -113,6 +113,161 @@
     });
   }
 
+  function modalTarget(root, button) {
+    var selector = button.getAttribute('data-bs-target');
+    var container = root.parentElement || root;
+    return selector && container.querySelector(selector);
+  }
+
+  function closeModal(modal) {
+    var backdrop = modal.__veStaffBackdrop;
+    modal.classList.remove('veshow');
+    modal.setAttribute('aria-hidden', 'true');
+    modal.style.display = 'none';
+    if (backdrop) {
+      backdrop.remove();
+      modal.__veStaffBackdrop = null;
+    }
+    document.body.classList.remove('vemodal-open');
+    document.body.style.overflow = modal.__veStaffBodyOverflow || '';
+    if (modal.__veStaffTrigger) {
+      modal.__veStaffTrigger.focus();
+      modal.__veStaffTrigger = null;
+    }
+  }
+
+  function openModal(modal, button) {
+    var modalContainer = modal.parentElement;
+    var backdrop = document.createElement('div');
+    backdrop.className = 'vemodal-backdrop vefade veshow';
+    backdrop.addEventListener('click', function () {
+      closeModal(modal);
+    });
+    modal.__veStaffTrigger = button;
+    modal.__veStaffBackdrop = backdrop;
+    modal.__veStaffBodyOverflow = document.body.style.overflow;
+    modalContainer.appendChild(backdrop);
+    modal.style.display = 'block';
+    modal.setAttribute('aria-hidden', 'false');
+    modal.classList.add('veshow');
+    document.body.classList.add('vemodal-open');
+    document.body.style.overflow = 'hidden';
+    var focusTarget = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusTarget) {
+      focusTarget.focus();
+    }
+  }
+
+  function populateSuggestEdit(modal, button) {
+    var form = modal.querySelector('#veSuggestEditForm');
+    var fieldNames = ['email', 'extension', 'tracking_number', 'title', 'cell_phone', 'direct_office', 'other'];
+    if (!form) {
+      return;
+    }
+    form.reset();
+    function setField(name, fieldValue) {
+      var field = form.querySelector('[name="' + name + '"]');
+      if (field) {
+        field.value = fieldValue || '';
+      }
+    }
+    setField('staff_post_id', button.getAttribute('data-staff-post-id'));
+    setField('employee_name', button.getAttribute('data-employee-name'));
+    setField('employee_name_display', button.getAttribute('data-employee-name'));
+    fieldNames.forEach(function (fieldName) {
+      var currentValue = button.getAttribute('data-current-' + fieldName.replace(/_/g, '-')) || '';
+      var currentValueDisplay = modal.querySelector('[data-current-value="' + fieldName + '"]');
+      setField('current_' + fieldName, currentValue);
+      if (currentValueDisplay) {
+        currentValueDisplay.value = currentValue || 'Not Set';
+      }
+    });
+    var heading = modal.querySelector('[data-suggest-edit-employee]');
+    if (heading) {
+      heading.textContent = button.getAttribute('data-employee-name') || '';
+    }
+  }
+
+  function submitSuggestEdit(form) {
+    var status = form.querySelector('.ve-suggest-edit-status');
+    var submitButton = form.querySelector('[type="submit"]');
+    var config = windowObject.veStaffSuggestEdit || {};
+    var data = new FormData(form);
+    data.append('action', 've_staff_suggest_edit');
+    data.append('nonce', config.nonce || '');
+    if (!config.ajaxUrl) {
+      if (status) {
+        status.textContent = 'Unable to submit suggested edit.';
+      }
+      return;
+    }
+    if (status) {
+      status.textContent = 'Submitting...';
+    }
+    if (submitButton) {
+      submitButton.disabled = true;
+    }
+    fetch(config.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: data })
+      .then(function (response) { return response.json(); })
+      .then(function (response) {
+        if (!response.success) {
+          throw new Error(response.data && response.data.message ? response.data.message : 'Unable to submit suggested edit.');
+        }
+        if (status) {
+          status.textContent = response.data.message;
+        }
+        windowObject.setTimeout(function () { closeModal(form.closest('.vemodal')); }, 1200);
+      })
+      .catch(function (error) {
+        if (status) {
+          status.textContent = error.message;
+        }
+      })
+      .finally(function () {
+        if (submitButton) {
+          submitButton.disabled = false;
+        }
+      });
+  }
+
+  function bindModals(root) {
+    var container = root.parentElement || root;
+    container.addEventListener('click', function (event) {
+      var openButton = event.target.closest('[data-bs-toggle="vemodal"]');
+      var closeButton = event.target.closest('[data-bs-dismiss="vemodal"], [data-suggest-edit-close]');
+      var modal;
+      if (openButton && root.contains(openButton)) {
+        modal = modalTarget(root, openButton);
+        if (modal) {
+          event.preventDefault();
+          event.stopPropagation();
+          if (openButton.classList.contains('ve-suggest-edit-btn')) {
+            populateSuggestEdit(modal, openButton);
+          }
+          openModal(modal, openButton);
+        }
+      } else if (closeButton) {
+        modal = closeButton.closest('.vemodal');
+        if (modal) {
+          event.preventDefault();
+          closeModal(modal);
+        }
+      }
+    });
+    container.addEventListener('submit', function (event) {
+      if (event.target.matches('#veSuggestEditForm')) {
+        event.preventDefault();
+        submitSuggestEdit(event.target);
+      }
+    });
+    container.addEventListener('keydown', function (event) {
+      var open = container.querySelector('.vemodal.veshow');
+      if (event.key === 'Escape' && open) {
+        closeModal(open);
+      }
+    });
+  }
+
   function initialize(root) {
     if (!root || root.__veStaffInitialized) {
       return;
@@ -120,6 +275,7 @@
     root.__veStaffInitialized = true;
     setHidden(all(root, '.loading-section'), true);
     bindFilters(root);
+    bindModals(root);
     replaceSiteDomain(root);
     if (namespace.lazyLoad) {
       namespace.lazyLoad.initialize(root);
