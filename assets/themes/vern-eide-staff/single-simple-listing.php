@@ -370,28 +370,18 @@ if ($is_script) {
 	}
 
 	// --- JS (order matters) ---
-	$js_urls[] = 'https://code.jquery.com/jquery-3.6.0.min.js'; // full jQuery in embed to avoid slim/plugin issues
 
-	$bootstrap_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/bootstrap.bundle.js');
 	$listing_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/listing.js');
 	$lazy_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/ve-lazy-load.js');
-	$ga_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/ga-events.js');
 
 	if (function_exists('get_staff_js_src_url')) {
-		$tmp = get_staff_js_src_url('bootstrap-bundle'); if ($tmp) $bootstrap_js = $tmp;
 		$tmp = get_staff_js_src_url('listing-js');      if ($tmp) $listing_js   = $tmp;
 		$tmp = get_staff_js_src_url('ve-lazy-load');    if ($tmp) $lazy_js      = $tmp;
-		$tmp = get_staff_js_src_url('ve-ga-events');    if ($tmp) $ga_js        = $tmp;
 	}
 
-	$js_urls[] = $bootstrap_js;
-	$js_urls[] = $listing_js;
 	$js_urls[] = $lazy_js;
-	$js_urls[] = $ga_js;
+	$js_urls[] = $listing_js;
 
-	if (!is_user_logged_in()) {
-		$js_urls[] = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/ve-security.js');
-	}
 
 	$css_urls = array_values(array_unique(array_filter($css_urls)));
 	$js_urls  = array_values(array_unique(array_filter($js_urls)));
@@ -464,8 +454,8 @@ if ($is_script) {
 	echo "            }\n";
 	echo "          });\n";
 	echo "        })(container);\n";
-	echo "        if (window.veLazyLoadInit) window.veLazyLoadInit(container);\n";
-	echo "        setTimeout(function(){ try { if (window.veLazyLoadInit) window.veLazyLoadInit(container); } catch(e) {} }, 250);\n";
+	echo "        if (window.VEStaffDirectory) window.VEStaffDirectory.initialize(container);\n";
+	echo "        setTimeout(function(){ try { if (window.VEStaffDirectory) window.VEStaffDirectory.initialize(container); } catch(e) {} }, 250);\n";
 	echo "      } catch(e) {}\n";
 	echo "      return;\n";
 	echo "    }\n";

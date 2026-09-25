@@ -188,28 +188,19 @@ if ($is_script) {
 	}
 
 	// --- JS (order matters) ---
-		// --- JS (order matters) ---
-	// IMPORTANT: don't inject a second jQuery if the host already has one.
-	// We'll conditionally load it in the loader instead.
-	$jquery_url = 'https://code.jquery.com/jquery-3.6.0.min.js';
+	// The embed runtime is dependency-free and uses one application namespace.
 
-	$bootstrap_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/bootstrap.bundle.js');
 	$listing_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/listing.js');
 	$lazy_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/ve-lazy-load.js');
-	$ga_js = ve_staff_get_versioned_theme_asset_url('/inc/assets/js/ga-events.js');
 
 	if (function_exists('get_staff_js_src_url')) {
-		$tmp = get_staff_js_src_url('bootstrap-bundle'); if ($tmp) $bootstrap_js = $tmp;
 		$tmp = get_staff_js_src_url('listing-js');      if ($tmp) $listing_js   = $tmp;
 		$tmp = get_staff_js_src_url('ve-lazy-load');    if ($tmp) $lazy_js      = $tmp;
-		$tmp = get_staff_js_src_url('ve-ga-events');    if ($tmp) $ga_js        = $tmp;
 	}
 
-	// Build list WITHOUT jQuery first; loader will inject it only if needed.
-	$js_urls[] = $bootstrap_js;
-	$js_urls[] = $listing_js;
+	// Load image handling before directory initialization.
 	$js_urls[] = $lazy_js;
-	$js_urls[] = $ga_js;
+	$js_urls[] = $listing_js;
 
 	// OPTIONAL: avoid injecting security script into client sites unless required
 	// if (!is_user_logged_in()) {
@@ -227,7 +218,6 @@ if ($is_script) {
 		'css'       => $css_urls,
 		'js'        => $js_urls,
 		'inlineCss' => $inline_css,
-		'jquery'    => $jquery_url,
 		'suggestEdit' => [
 			'ajaxUrl' => admin_url('admin-ajax.php'),
 			'nonce'   => wp_create_nonce('ve_staff_suggest_edit'),
@@ -306,9 +296,9 @@ if ($is_script) {
 	echo "  function initLazy(){\n";
 	echo "    try {\n";
 	echo "      bindImgListeners(container);\n";
-	echo "      if (window.veLazyLoadInit) window.veLazyLoadInit(container);\n";
-	echo "      setTimeout(function(){ try { if (window.veLazyLoadInit) window.veLazyLoadInit(container); bindImgListeners(container); } catch(e) {} }, 250);\n";
-	echo "      setTimeout(function(){ try { if (window.veLazyLoadInit) window.veLazyLoadInit(container); bindImgListeners(container); } catch(e) {} }, 1000);\n";
+	echo "      if (window.VEStaffDirectory) window.VEStaffDirectory.initialize(container);\n";
+	echo "      setTimeout(function(){ try { if (window.VEStaffDirectory) window.VEStaffDirectory.initialize(container); bindImgListeners(container); } catch(e) {} }, 250);\n";
+	echo "      setTimeout(function(){ try { if (window.VEStaffDirectory) window.VEStaffDirectory.initialize(container); bindImgListeners(container); } catch(e) {} }, 1000);\n";
 	echo "    } catch(e) {}\n";
 	echo "  }\n";
 
@@ -333,14 +323,8 @@ if ($is_script) {
 	echo "    loadOne(urls[i], function(){ loadSeq(urls, i+1); });\n";
 	echo "  }\n";
 
-	// Conditionally load jQuery (only if missing)
 	echo "  function start(){\n";
-	echo "    if (window.jQuery) {\n";
-	echo "      loadSeq(p.js, 0);\n";
-	echo "      return;\n";
-	echo "    }\n";
-	echo "    // No jQuery on host: load ours first, then continue\n";
-	echo "    loadOne(p.jquery, function(){ loadSeq(p.js, 0); });\n";
+	echo "    loadSeq(p.js, 0);\n";
 	echo "  }\n";
 	echo "  start();\n";
 
