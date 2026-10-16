@@ -5320,4 +5320,73 @@ body:not(.inventory-template-default) .di-stacks.di-stacks--bottom, body:not(.in
 	font-weight: 700;
 	margin-top: 10px;
 }
+/* Individual, wrapping staff tags. */
+.employee-tile-img { position: relative; }
+.ve-staff-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1.3;
+}
+.ve-staff-tags--photo {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 1;
+}
+.ve-staff-tag {
+  --ve-tag-color: #428bca;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35em;
+  max-width: 100%;
+  padding: .3em .75em;
+  border: 1px solid var(--ve-tag-color);
+  border-radius: 999px;
+  background: var(--ve-tag-color);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.ve-staff-tags--title { margin: 8px auto 0; }
+.ve-staff-tags--title .ve-staff-tag {
+  background: transparent;
+  color: var(--ve-tag-color);
+}
+.ve-staff-tag-icon { flex-shrink: 0; }
+
+
+/* The mobile filter panel is owned by the directory, independent of host Bootstrap. */
+.ve-staff-filters { display: block; }
+.ve-staff-filters-backdrop[hidden] { display: none; }
+.ve-staff-filters-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  background: rgb(0 0 0 / 45%);
+}
+@media (min-width: 768px) {
+  [data-ve-staff-filters-open], [data-ve-staff-filters-close],
+  .ve-staff-filters > .offcanvas-header { display: none !important; }
+}
+@media (max-width: 767.98px) {
+  .ve-staff-filters {
+    display: none;
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 99999;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 16px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
+  }
+  .ve-staff-filters.ve-staff-filters--open { display: block; }
+}
 }

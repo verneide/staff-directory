@@ -16,6 +16,12 @@ V1 and v2 embeds use the script access rules, while an external referrer remains
 
 Embed assets are isolated from vendor pages: listing CSS is contained in an explicit staff-directory scope, the v1 runtime uses only the `VEStaffDirectory` namespace and does not inject jQuery or Bootstrap, and v2 continues to render inside Shadow DOM. Both embed versions take ownership of staff image loading, recognize legacy lazy-load attributes, and remove vendor lazy-load classes after successful loads so host optimizers cannot leave staff photos hidden.
 
+## Staff tag presentation
+
+Staff Tags settings include **Tag placement**, an optional emoji/symbol **Tag icon**, and a **Tag color** override. Automatic placement keeps names containing Birthday, New, or Anniversary (case-insensitive substring matching) over the photo in separate filled pills. These celebration tags always stay over the photo. Other tags default to centered, wrapping outlined pills directly below the job title; their placement can be overridden. Blank colors retain the existing blue (#428bca). Existing card and public visibility controls still apply. Presentation settings are read when rendering, so cached staff payloads do not delay placement, icon, or color changes. Sync the updated Staff Tags ACF field group if the site reports pending local JSON changes.
+
+Mobile filters use directory-specific attributes and a scoped runtime in both embed versions, with Close, backdrop click, Escape, and keyboard focus handling. Desktop filters stay inline. V1 does not require the host site's Bootstrap or jQuery.
+
 ## SharePoint
 
 The production-oriented SPFx 1.18 sample is under `sharepoint/eide-web-staff-integration`. Set its `apiEndpoint` and optional `entraResource` web-part properties, update the tenant URL in `config/package-solution.json`, then run `npm install`, `gulp bundle --ship`, and `gulp package-solution --ship`. See that directory's README for Entra ID permission setup.
