@@ -241,6 +241,7 @@ add_filter( 'the_password_form', 'wp_bootstrap_starter_password_form' );
  * Include Staff Query Functions
  */
 require get_template_directory() . '/inc/ve-staff/staff-query-functions.php';
+require get_template_directory() . '/inc/ve-staff/staff-tags.php';
 
 /**
  * Implement the Custom Header feature.

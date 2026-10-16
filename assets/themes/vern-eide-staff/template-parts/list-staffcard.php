@@ -159,30 +159,14 @@ foreach ($deptstaff as $k => $v) {
 					}
 
 		};
-					
 				// INTERNAL CARD CODE 
 ?>
 				<div class="<?php echo $rowcolumnsclass ?> ve-margin-bottom-xl employee-tile ve-width-100 dept<?php echo $deptid ?>" data-card-num="<?php echo $staffCardNum;?>" data-loc="<?php echo htmlspecialchars(json_encode($emplocationslisted), ENT_QUOTES, 'UTF-8'); ?>" data-dept="<?php echo $deptname ?>" data-dept-id="<?php echo $deptid ?>" data-employee-name='<?php echo htmlspecialchars(strtoupper($name), ENT_QUOTES, "UTF-8"); ?>' data-staff-post-id="<?php echo esc_attr($staffid); ?>" <?php if(isset($dataext)){echo $dataext;} ?> data-tags="<?php echo htmlspecialchars(json_encode(array_column($stafftags, 'id')), ENT_QUOTES, 'UTF-8'); ?>">
-					<?php 
-					if ($stafftags) {
-						// Filter tags where 'card_visible' equals 1
-						$visible_tags = array_filter($stafftags, function($tag) {
-							return isset($tag['card_visible']) && $tag['card_visible'] == '1';
-						});
-						// Extract 'name' values from each sub-array in visible tags
-						$tagnames = array_column($visible_tags, 'name');
-						// Join the names into a comma-separated string
-						$stafftagname = implode(', ', $tagnames);
-						// Display the tag names
-						if (count($tagnames) > 0) {
-							echo '<span class="ve-badge bg-primary">' . $stafftagname . '</span>';
-						}
-					}
-					?>
 					<div class="ve-col-sm-12 ve-rounded-3 border-radius-20 ve-pad-none ve-bg-grey">
 						<div class="ve-pad-left-none ve-pad-right-none border-thick border-radius-20">
 							<div class="ve-pad-left-none ve-pad-right-none employee-wrapper">
 								<div class="employee-tile-img ve-text-center ve-valign-top ve-margin-bottom-sm">
+									<?php echo ve_staff_tag_pills($stafftags, 'photo'); ?>
 									<?php
 										  $placeholder = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
@@ -229,6 +213,7 @@ foreach ($deptstaff as $k => $v) {
 									<div class="employee-details ve-pad-top-md ve-pad-bottom-none ve-m-2" >
 										<h3 class="employee-name ve-bolder ve-font-16 ve-black ve-block"><?php echo $name ?></h3>
 										<span class="employee-title ve-font-14 ve-black ve-block"><?php echo $title ?></span>
+										<?php echo ve_staff_tag_pills($stafftags, 'title'); ?>
 										<?php if ($group || $internal){?>
 										<hr>
 										<span class="employee-location ve-font-12 ve-black ve-block" style="padding-top: 5px;"><i><?php echo $location ?></i></span>
@@ -412,27 +397,11 @@ foreach ($deptstaff as $k => $v) {
 ?>
 			
 				<div class="<?php echo $rowcolumnsclass ?> ve-margin-bottom-xl employee-tile ve-width-100 dept<?php echo $deptid ?>" data-card-num="<?php echo $staffCardNum;?>" data-loc="<?php echo htmlspecialchars(json_encode($emplocationslisted), ENT_QUOTES, 'UTF-8'); ?>" data-dept="<?php echo $deptname ?>" data-employee-name='<?php echo htmlspecialchars(strtoupper($name), ENT_QUOTES, "UTF-8"); ?>' data-tags="<?php echo htmlspecialchars(json_encode(array_column($stafftags, 'id')), ENT_QUOTES, 'UTF-8'); ?>" <?php if(isset($dataext)){echo $dataext;} ?> >
-					<?php 
-					if ($stafftags) {
-						// Filter tags where 'card_visible' equals 1
-						$visible_tags = array_filter($stafftags, function($tag) {
-							return isset($tag['card_visible']) && $tag['card_visible'] == '1';
-						});
-						// Extract 'name' values from each sub-array in visible tags
-						$tagnames = array_column($visible_tags, 'name');
-						// Join the names into a comma-separated string
-						$stafftagname = implode(', ', $tagnames);
-						// Display the tag names
-						if (count($tagnames) > 0) {
-							echo '<span class="ve-badge bg-primary">' . $stafftagname . '</span>';
-						}
-					}
-				
-					?>
 					<div class="ve-col-sm-12 ve-rounded-3 border-radius-20 ve-pad-none ve-bg-grey">
 						<div class="ve-pad-left-none ve-pad-right-none border-thick border-radius-20">
 							<div class="ve-text-left ve-col-sm-12 ve-pad-left-none ve-pad-right-none employee-wrapper">
 								<div class="employee-tile-img ve-text-center ve-valign-top ve-margin-bottom-sm">
+									<?php echo ve_staff_tag_pills($stafftags, 'photo'); ?>
 									<?php
 										  $placeholder = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
@@ -479,6 +448,7 @@ foreach ($deptstaff as $k => $v) {
 									<div class="employee-details ve-pad-top-md ve-pad-bottom-none ve-m-2" >
 										<h3 class="employee-name ve-bolder ve-font-16 ve-black ve-block"><?php echo $name ?></h3>
 										<span class="employee-title ve-font-14 ve-black ve-block"><?php echo $title ?></span>
+										<?php echo ve_staff_tag_pills($stafftags, 'title'); ?>
 										<?php if ($group || $internal){?>
 										<hr>
 										<span class="employee-location ve-font-12 ve-black ve-block" style="padding-top: 5px;"><i><?php echo $location ?></i></span>

@@ -4,49 +4,6 @@
  */
 
 // Helper functions that don’t break existing $args references.
-if (!function_exists('ve_staff_render_tags')) {
-	function ve_staff_render_tags($stafftags, $displaytype = '') {
-		if (empty($stafftags)) return '';
-
-		$filtered = [];
-
-		foreach ($stafftags as $tag) {
-			// Handle both object and array types gracefully
-			$slug = '';
-			$name = '';
-
-			if (is_object($tag)) {
-				$slug = $tag->slug ?? '';
-				$name = $tag->name ?? '';
-			} elseif (is_array($tag)) {
-				if (isset($tag['slug'])) {
-					$slug = $tag['slug'];
-					$name = $tag['name'] ?? '';
-				} elseif (isset($tag['term']['slug'])) {
-					$slug = $tag['term']['slug'];
-					$name = $tag['term']['name'] ?? '';
-				}
-			}
-
-			if (empty($slug)) continue;
-
-			// Display type filtering
-			if ($displaytype === 'anniversary') {
-				if (preg_match('/^\d{1,2}-year$/', $slug)) {
-					$filtered[] = $name;
-				}
-			} else {
-				if (isset($tag['card_visible']) && $tag['card_visible'] == '1') {
-					$filtered[] = $name;
-				}
-			}
-		}
-
-		if (empty($filtered)) return '';
-		return '<span class="ve-badge bg-primary">' . esc_html(implode(', ', $filtered)) . '</span>';
-	}
-}
-
 if (!function_exists('ve_staff_render_location')) {
 	function ve_staff_render_location($args, $showloclogo, $location_id) {
 		if (empty($args['data']['location']) && empty($args['data']['deptname'])) return '';
@@ -99,13 +56,14 @@ switch ($displaytype) {
 			data-displaytype="<?php echo esc_attr($displaytype); ?>">
 			<div class="ve-row border-radius-2em employee-wrapper">
 				<div class="ve-col-md-12 employee-tile-img ve-text-center ve-pad-none ve-margin-bottom-sm ve-margin-top-sm">
-					<?php echo ve_staff_render_tags($stafftags, $displaytype); ?>
+					<?php echo ve_staff_tag_pills($stafftags, 'photo'); ?>
 					<img class="skip-lazy" alt="<?php echo esc_attr($args['data']['name']); ?> at <?php echo esc_attr($args['data']['location']); ?>" src="<?php echo esc_url($args['data']['photourl']); ?>">
 				</div>
 				<div class="ve-col-md-12 employee-details-wrapper ve-bg-grey ve-width-100 <?php echo $birthdaytoday ? '' : 'border-radius-bottom-2em'; ?>">
 					<div class="employee-details ve-pad-md">
 						<h2 class="ve-boldest ve-black"><?php echo esc_html($args['data']['name']); ?></h2>
 						<h4 class="ve-black"><?php echo esc_html($args['data']['title']); ?></h4>
+						<?php echo ve_staff_tag_pills($stafftags, 'title'); ?>
 						<hr>
 						<?php echo ve_staff_render_location($args, $showloclogo, $location_id); ?>
 						<h4 class="ve-black ve-bold ve-pad-top-sm"><?php echo esc_html($birthdayformatted); ?></h4>
@@ -132,13 +90,14 @@ switch ($displaytype) {
 			data-displaytype="<?php echo esc_attr($displaytype); ?>">
 			<div class="ve-row border-radius-2em employee-wrapper">
 				<div class="ve-col-md-12 employee-tile-img ve-text-center ve-pad-none ve-margin-bottom-sm ve-margin-top-sm">
-					<?php echo ve_staff_render_tags($stafftags, $displaytype); ?>
+					<?php echo ve_staff_tag_pills($stafftags, 'photo'); ?>
 					<img class="skip-lazy" alt="<?php echo esc_attr($args['data']['name']); ?>" src="<?php echo esc_url($args['data']['photourl']); ?>">
 				</div>
 				<div class="ve-col-md-12 employee-details-wrapper ve-bg-grey ve-width-100">
 					<div class="employee-details ve-pad-md">
 						<h2 class="ve-boldest ve-black"><?php echo esc_html($args['data']['name']); ?></h2>
 						<h4 class="ve-black"><?php echo esc_html($args['data']['title']); ?></h4>
+						<?php echo ve_staff_tag_pills($stafftags, 'title'); ?>
 						<?php echo ve_staff_render_location($args, $showloclogo, $location_id); ?>
 						<h4 class="ve-black ve-bold ve-pad-top-sm"><?php echo date('F Y', strtotime($newpromoinfo['newpromo_date'])); ?></h4>
 					</div>
@@ -163,13 +122,14 @@ switch ($displaytype) {
 			data-displaytype="<?php echo esc_attr($displaytype); ?>">
 			<div class="ve-row border-radius-2em employee-wrapper">
 				<div class="ve-col-md-12 employee-tile-img ve-text-center ve-pad-none ve-margin-bottom-sm ve-margin-top-sm">
-					<?php echo ve_staff_render_tags($stafftags, $displaytype); ?>
+					<?php echo ve_staff_tag_pills($stafftags, 'photo'); ?>
 					<img class="skip-lazy" alt="<?php echo esc_attr($args['data']['name']); ?>" src="<?php echo esc_url($args['data']['photourl']); ?>">
 				</div>
 				<div class="ve-col-md-12 employee-details-wrapper ve-bg-grey border-radius-bottom-2em">
 					<div class="employee-details ve-pad-md">
 						<h2 class="ve-boldest ve-black"><?php echo esc_html($args['data']['name']); ?></h2>
 						<h4 class="ve-black"><?php echo esc_html($args['data']['title']); ?></h4>
+						<?php echo ve_staff_tag_pills($stafftags, 'title'); ?>
 						<?php echo ve_staff_render_location($args, $showloclogo, $location_id); ?>
 						<?php if ($anniv_label): ?>
 							<?php
@@ -200,13 +160,14 @@ switch ($displaytype) {
 			data-displaytype="<?php echo esc_attr($displaytype); ?>">
 			<div class="ve-row border-radius-2em employee-wrapper">
 				<div class="ve-col-md-12 employee-tile-img ve-text-center ve-pad-none ve-margin-bottom-sm ve-margin-top-sm">
-					<?php echo ve_staff_render_tags($stafftags, $displaytype); ?>
+					<?php echo ve_staff_tag_pills($stafftags, 'photo'); ?>
 					<img class="skip-lazy" alt="<?php echo esc_attr($args['data']['name']); ?>" src="<?php echo esc_url($args['data']['photourl']); ?>">
 				</div>
 				<div class="ve-col-md-12 employee-details-wrapper ve-bg-grey <?php echo empty($btmmessage) ? 'border-radius-bottom-2em' : ''; ?>">
 					<div class="employee-details ve-pad-md">
 						<h2 class="ve-boldest ve-black"><?php echo esc_html($args['data']['name']); ?></h2>
 						<h4 class="ve-black"><?php echo esc_html($args['data']['title']); ?></h4>
+						<?php echo ve_staff_tag_pills($stafftags, 'title'); ?>
 						<?php echo ve_staff_render_location($args, $showloclogo, $location_id); ?>
 					</div>
 					<?php if (!empty($btmmessage)): ?>

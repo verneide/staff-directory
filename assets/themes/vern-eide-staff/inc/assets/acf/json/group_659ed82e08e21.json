@@ -69,6 +69,42 @@
             "ui_on_text": "Yes",
             "ui_off_text": "No",
             "ui": 1
+        },
+        {
+            "key": "field_ve_tag_placement",
+            "label": "Tag placement",
+            "name": "tag_placement",
+            "type": "select",
+            "instructions": "Automatic places tags containing Birthday, New, or Anniversary over the photo and other tags below the job title. Celebration tags always stay over the photo.",
+            "choices": {
+                "auto": "Automatic",
+                "photo": "Over photo",
+                "title": "Below job title"
+            },
+            "default_value": "auto",
+            "allow_null": 0,
+            "multiple": 0,
+            "ui": 0,
+            "return_format": "value"
+        },
+        {
+            "key": "field_ve_tag_icon",
+            "label": "Tag icon",
+            "name": "tag_icon",
+            "type": "text",
+            "instructions": "Optional emoji or symbol shown before the tag name (for example 🎂, ⭐, or 🏆). Leave blank for no icon.",
+            "default_value": "",
+            "maxlength": 32
+        },
+        {
+            "key": "field_ve_tag_color",
+            "label": "Tag color",
+            "name": "tag_color",
+            "type": "color_picker",
+            "instructions": "Optional custom pill color. Leave blank to use the existing blue (#428bca).",
+            "default_value": "",
+            "enable_opacity": 0,
+            "return_format": "string"
         }
     ],
     "location": [
@@ -96,5 +132,5 @@
     "acfe_form": 0,
     "acfe_meta": "",
     "acfe_note": "",
-    "modified": 1704919022
+    "modified": 1792187482
 }

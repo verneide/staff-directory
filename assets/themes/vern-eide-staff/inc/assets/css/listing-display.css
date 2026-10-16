@@ -1264,3 +1264,46 @@
 
 
 
+
+/* Individual, wrapping staff tags. */
+.employee-tile-img { position: relative; }
+.ve-staff-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1.3;
+}
+.ve-staff-tags--photo {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 1;
+}
+.ve-staff-tag {
+  --ve-tag-color: #428bca;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35em;
+  max-width: 100%;
+  padding: .3em .75em;
+  border: 1px solid var(--ve-tag-color);
+  border-radius: 999px;
+  background: var(--ve-tag-color);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.ve-staff-tags--title { margin: 8px auto 0; }
+.ve-staff-tags--title .ve-staff-tag {
+  background: transparent;
+  color: var(--ve-tag-color);
+}
+.ve-staff-tag-icon { flex-shrink: 0; }
+
+#veStaffDisplay .ve-staff-tag { font-size: .85em; }

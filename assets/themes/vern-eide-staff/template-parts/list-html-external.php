@@ -32,10 +32,10 @@ $staffCardNum = 1;
             <?php // List Filter
 			if ($showfilters !== FALSE){ ?>
 				<!-- Button to toggle offcanvas on mobile -->
-				<button class="ve-secondary-button-grey close-filters-btn d-block d-md-none ve-sticky-top" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFiltersTop" aria-controls="offcanvasFiltersTop">View Filters</button>
+				<button class="ve-secondary-button-grey close-filters-btn d-block d-md-none ve-sticky-top" type="button" data-ve-staff-filters-open="#offcanvasFiltersTop" aria-controls="offcanvasFiltersTop" aria-expanded="false">View Filters</button>
 
 				<!-- Offcanvas Component -->
-				<div class="offcanvas offcanvas-top ve-sticky-top filters" tabindex="-1" id="offcanvasFiltersTop" aria-labelledby="offcanvasTopLabel">
+				<div class="ve-staff-filters filters" tabindex="-1" id="offcanvasFiltersTop" aria-labelledby="offcanvasTopLabel">
 				  <div class="offcanvas-header d-block d-md-none">
 					<h5 id="offcanvasTopLabel">Staff Filters</h5>
 				  </div>
@@ -55,7 +55,7 @@ $staffCardNum = 1;
 									)
 								); 
 					 ?>
-					  <button type="button" class="ve-secondary-button-grey close-filters-btn d-block d-md-none" data-bs-dismiss="offcanvas" aria-label="Close">Close Filters</button>
+					  <button type="button" class="ve-secondary-button-grey close-filters-btn d-block d-md-none" data-ve-staff-filters-close aria-label="Close">Close Filters</button>
 				  </div>
 				</div>
 			<?php	
