@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff filter initialization regression</title>
+<style>
+  body { font: 16px sans-serif; }
+  .ve-hidden { display: none; }
+  @media (max-width: 767.98px) { .ve-staff-filters { display: none; } }
+</style>
+<h1>Staff filter initialization regression</h1>
+<p>Reload at mobile and desktop widths. This exercises both initialization orders and repeated embed callbacks.</p>
+<pre id="results">Running…</pre>
+<div id="fixtures"></div>
+<script>
+  function fixture() {
+    var wrapper = document.createElement('div');
+    wrapper.className = 've-staff-embed';
+    wrapper.innerHTML = '<div id="veStaffList">' +
+      '<button data-ve-staff-filters-open aria-expanded="false">View Filters</button>' +
+      '<div class="ve-staff-filters" tabindex="-1"><div class="ve-staff-filters-header"><h5>Staff Filters</h5></div>' +
+      '<input id="employeenamesearch"><button id="resetFilterBtn">Reset</button>' +
+      '<button data-ve-staff-filters-close>Close</button></div>' +
+      '<div class="employee-list"><div class="ve-row">' +
+      '<div class="employee-tile" data-employee-name="Alice">Alice</div>' +
+      '<div class="employee-tile" data-employee-name="Bob">Bob</div></div></div></div>';
+    document.getElementById('fixtures').appendChild(wrapper);
+    return wrapper;
+  }
+  var first = fixture();
+</script>
+<script src="../assets/themes/vern-eide-staff/inc/assets/js/listing.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var lines = [];
+    function assert(condition, message) {
+      if (!condition) throw new Error(message);
+      lines.push('PASS: ' + message);
+    }
+    function exercise(wrapper, label) {
+      var root = wrapper.querySelector('#veStaffList');
+      var trigger = root.querySelector('[data-ve-staff-filters-open]');
+      var panel = root.querySelector('.ve-staff-filters');
+      VEStaffDirectory.initialize(wrapper);
+      VEStaffDirectory.initialize(wrapper);
+      assert((root.innerHTML.match(/Staff filters inline position/g) || []).length === 1, label + ': one panel binding');
+      if (!matchMedia('(max-width: 767.98px)').matches) {
+        assert(root.contains(panel) && getComputedStyle(panel).display !== 'none', label + ': desktop filters remain inline');
+        trigger.click();
+        assert(!document.querySelector('.ve-staff-filter-portal'), label + ': desktop does not open overlay');
+        var desktopInput = panel.querySelector('input');
+        desktopInput.value = 'Bob';
+        desktopInput.dispatchEvent(new Event('input', { bubbles: true }));
+        assert(root.querySelectorAll('.employee-tile:not(.ve-hidden)').length === 1, label + ': desktop filtering works');
+        wrapper.remove();
+        return;
+      }
+      trigger.click();
+      assert(trigger.getAttribute('aria-expanded') === 'true' && panel.classList.contains('ve-staff-filters--open'), label + ': single click stays open');
+      assert(getComputedStyle(panel).display !== 'none', label + ': panel visible');
+      var input = panel.querySelector('input');
+      input.value = 'Alice';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      assert(root.querySelectorAll('.employee-tile:not(.ve-hidden)').length === 1, label + ': filtering works in portal');
+      panel.querySelector('#resetFilterBtn').click();
+      assert(root.querySelectorAll('.employee-tile:not(.ve-hidden)').length === 2, label + ': reset works');
+      panel.querySelector('[data-ve-staff-filters-close]').click();
+      assert(root.contains(panel) && !document.querySelector('.ve-staff-filter-portal'), label + ': close restores panel and removes overlay');
+      assert(document.activeElement === trigger, label + ': focus restored');
+      trigger.click();
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      assert(trigger.getAttribute('aria-expanded') === 'false' && !document.querySelector('.ve-staff-filter-portal'), label + ': reopen and Escape');
+      trigger.click();
+      document.querySelector('.ve-staff-filter-portal').shadowRoot.querySelector('.ve-staff-filters-backdrop').click();
+      assert(root.contains(panel) && !document.querySelector('.ve-staff-filter-portal'), label + ': backdrop closes cleanly');
+      wrapper.remove();
+    }
+    try {
+      exercise(first, 'document first');
+      var second = fixture();
+      VEStaffDirectory.initialize(second);
+      VEStaffDirectory.initialize(second.querySelector('#veStaffList'));
+      exercise(second, 'embed first');
+      lines.push('All checks passed.');
+    } catch (error) {
+      lines.push('FAIL: ' + error.message);
+    }
+    document.getElementById('results').textContent = lines.join('\n');
+  });
+</script>
+</html>

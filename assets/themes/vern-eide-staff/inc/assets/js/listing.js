@@ -239,7 +239,14 @@
   }
 
   function initialize(root) {
-    if (!root || root.__veStaffInitialized) {
+    if (!root) return;
+    // Embed callbacks pass a wrapper, while document startup finds the listing.
+    // Always bind to the listing itself so bubbling cannot toggle a panel twice.
+    if (!root.matches || !root.matches('#veStaffList, #veStaffDisplay')) {
+      all(root, '#veStaffList, #veStaffDisplay').forEach(initialize);
+      return;
+    }
+    if (root.__veStaffInitialized) {
       return;
     }
     root.__veStaffInitialized = true;
