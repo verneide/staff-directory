@@ -114,7 +114,17 @@
     var backdrop = document.createElement('div');
     backdrop.className = 've-staff-filters-backdrop';
     backdrop.hidden = true;
-    root.appendChild(backdrop);
+    // Keep the fallback backdrop in the panel's stacking context.
+    panel.parentNode.insertBefore(backdrop, panel);
+    var panelId = 've-staff-filters-' + Math.random().toString(36).slice(2);
+    panel.id = panelId;
+    trigger.setAttribute('aria-controls', panelId);
+    trigger.setAttribute('data-ve-staff-filters-open', '#' + panelId);
+    var heading = panel.querySelector('.ve-staff-filters-header h5');
+    if (heading) {
+      heading.id = panelId + '-label';
+      panel.setAttribute('aria-labelledby', heading.id);
+    }
     var previousFocus;
     function focusable() {
       return all(panel, 'button, input, select, textarea, a[href], [tabindex="0"]').filter(function (element) {
@@ -122,6 +132,10 @@
       });
     }
     function close(restoreFocus) {
+      if (panel.hasAttribute('popover')) {
+        panel.hidePopover();
+        panel.removeAttribute('popover');
+      }
       panel.classList.remove('ve-staff-filters--open');
       panel.removeAttribute('role');
       panel.removeAttribute('aria-modal');
@@ -140,6 +154,12 @@
         panel.setAttribute('aria-modal', 'true');
         trigger.setAttribute('aria-expanded', 'true');
         backdrop.hidden = false;
+        // Top-layer rendering escapes transformed/clipped host containers.
+        // Leave the DOM in place so directory-scoped filter events still work.
+        if (typeof panel.showPopover === 'function') {
+          panel.setAttribute('popover', 'manual');
+          panel.showPopover();
+        }
         (focusable()[0] || panel).focus();
       } else if (event.target.closest('[data-ve-staff-filters-close]') || event.target === backdrop) {
         event.preventDefault();

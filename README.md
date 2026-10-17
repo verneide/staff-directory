@@ -20,7 +20,7 @@ Embed assets are isolated from vendor pages: listing CSS is contained in an expl
 
 Staff Tags settings include **Tag placement**, an optional emoji/symbol **Tag icon**, and a **Tag color** override. Automatic placement keeps names containing Birthday, New, or Anniversary (case-insensitive substring matching) over the photo in separate filled pills. These celebration tags always stay over the photo. Other tags default to centered, wrapping outlined pills directly below the job title; their placement can be overridden. Blank colors retain the existing blue (#428bca). Existing card and public visibility controls still apply. Presentation settings are read when rendering, so cached staff payloads do not delay placement, icon, or color changes. Sync the updated Staff Tags ACF field group if the site reports pending local JSON changes.
 
-Mobile filters use directory-specific attributes and a scoped runtime in both embed versions, with Close, backdrop click, Escape, and keyboard focus handling. Desktop filters stay inline. V1 does not require the host site's Bootstrap or jQuery.
+Mobile filters use directory-specific classes, unique accessible IDs, and a scoped runtime in both embed versions, with Close, backdrop click, Escape, and keyboard focus handling. Supported browsers render the panel in the native popover top layer so host stacking contexts, transforms, and clipping cannot hide it behind the backdrop. Older browsers keep the fallback backdrop beside the panel in the same stacking context. Desktop filters stay inline. V1 does not require the host site's Bootstrap or jQuery.
 
 ## SharePoint
 
