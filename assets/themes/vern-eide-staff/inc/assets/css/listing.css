@@ -947,7 +947,7 @@
             .ve-md-none {
             display: none !important;
             }
-			#offcanvasFiltersTop {
+			.ve-staff-filters {
 				visibility: visible;
 				position: static;
 				transform: none;
@@ -5363,7 +5363,12 @@ body:not(.inventory-template-default) .di-stacks.di-stacks--bottom, body:not(.in
 
 
 /* The mobile filter panel is owned by the directory, independent of host Bootstrap. */
-.ve-staff-filters { display: block; }
+.ve-staff-filters {
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+}
 .ve-staff-filters-backdrop[hidden] { display: none; }
 .ve-staff-filters-backdrop {
   position: fixed;
@@ -5373,13 +5378,18 @@ body:not(.inventory-template-default) .di-stacks.di-stacks--bottom, body:not(.in
 }
 @media (min-width: 768px) {
   [data-ve-staff-filters-open], [data-ve-staff-filters-close],
-  .ve-staff-filters > .offcanvas-header { display: none !important; }
+  .ve-staff-filters > .ve-staff-filters-header { display: none !important; }
 }
 @media (max-width: 767.98px) {
   .ve-staff-filters {
     display: none;
     position: fixed;
     inset: 0 0 auto;
+    margin: 0;
+    width: auto;
+    height: auto;
+    border: 0;
+    color: #222;
     z-index: 99999;
     max-height: 85vh;
     overflow-y: auto;

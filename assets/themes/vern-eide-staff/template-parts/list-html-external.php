@@ -31,15 +31,15 @@ $staffCardNum = 1;
         <div class="section-container ve-pad-none ve-pad-bottom-lg ve-clear-fix ve-text-left ve-col-sm-12" <?php echo $pgtypecssid ?> style="background-color: white;">
             <?php // List Filter
 			if ($showfilters !== FALSE){ ?>
-				<!-- Button to toggle offcanvas on mobile -->
-				<button class="ve-secondary-button-grey close-filters-btn d-block d-md-none ve-sticky-top" type="button" data-ve-staff-filters-open="#offcanvasFiltersTop" aria-controls="offcanvasFiltersTop" aria-expanded="false">View Filters</button>
+				<!-- Directory-owned mobile filter controls -->
+				<button class="ve-secondary-button-grey ve-staff-filters-button" type="button" data-ve-staff-filters-open="#veStaffFiltersPanel" aria-controls="veStaffFiltersPanel" aria-expanded="false">View Filters</button>
 
-				<!-- Offcanvas Component -->
-				<div class="ve-staff-filters filters" tabindex="-1" id="offcanvasFiltersTop" aria-labelledby="offcanvasTopLabel">
-				  <div class="offcanvas-header d-block d-md-none">
-					<h5 id="offcanvasTopLabel">Staff Filters</h5>
+				<!-- Filter panel stays inline on desktop -->
+				<div class="ve-staff-filters" tabindex="-1" id="veStaffFiltersPanel" aria-labelledby="veStaffFiltersLabel">
+				  <div class="ve-staff-filters-header">
+					<h5 id="veStaffFiltersLabel">Staff Filters</h5>
 				  </div>
-				  <div class="offcanvas-body">
+				  <div class="ve-staff-filters-body">
 					<?php
 								get_template_part( 
 									'template-parts/list-filter', 
@@ -55,7 +55,7 @@ $staffCardNum = 1;
 									)
 								); 
 					 ?>
-					  <button type="button" class="ve-secondary-button-grey close-filters-btn d-block d-md-none" data-ve-staff-filters-close aria-label="Close">Close Filters</button>
+					  <button type="button" class="ve-secondary-button-grey ve-staff-filters-button" data-ve-staff-filters-close aria-label="Close">Close Filters</button>
 				  </div>
 				</div>
 			<?php	
