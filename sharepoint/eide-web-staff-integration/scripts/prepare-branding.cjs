@@ -1,7 +1,8 @@
-// Package the supplied PNG unchanged so App Catalog does not depend on an external icon URL.
+// Resize the supplied logo to SharePoint App Catalog's required 96 x 96 PNG.
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 
 const source = 'https://vern-eide.s3.amazonaws.com/cdn/logos/VE_Secondary_Black_1x1_250px.png';
 const destination = path.resolve(__dirname, '../sharepoint/assets/ve-staff-icon-v2.png');
@@ -28,8 +29,23 @@ const request = https.get(source, response => {
       return;
     }
     fs.mkdirSync(path.dirname(destination), { recursive: true });
-    fs.writeFileSync(destination, png);
-    console.log('Packaged Vern Eide app icon.');
+    const resize = spawnSync('python3', ['-c', [
+      'import io, sys',
+      'from PIL import Image',
+      'image = Image.open(io.BytesIO(sys.stdin.buffer.read())).convert("RGBA")',
+      'image.resize((96, 96), Image.Resampling.LANCZOS).save(sys.stdout.buffer, format="PNG")'
+    ].join('\n')], { input: png });
+    if (resize.error || resize.status !== 0) {
+      fail(resize.error || new Error('Logo resize failed. Install Pillow==12.0.0 for python3. ' + resize.stderr));
+      return;
+    }
+    const icon = resize.stdout;
+    if (icon.length < 24 || icon.readUInt32BE(16) !== 96 || icon.readUInt32BE(20) !== 96) {
+      fail(new Error('Resized app icon must be 96 by 96 pixels.'));
+      return;
+    }
+    fs.writeFileSync(destination, icon);
+    console.log('Packaged Vern Eide app icon (96 x 96).');
   });
 });
 function fail(error) {
