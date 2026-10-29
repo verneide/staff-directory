@@ -387,7 +387,9 @@ function ve_staff_sharepoint_catalog() {
         $lists[] = array('id' => $list->ID, 'title' => html_entity_decode(wp_strip_all_tags(get_the_title($list)), ENT_QUOTES, 'UTF-8'),
             'url' => get_permalink($list), 'listType' => $type);
     }
+    // This query-string API can run after WordPress marks the homepage as 404.
+    // Always set success explicitly; wp_send_json otherwise preserves that status.
     wp_send_json(array('schemaVersion' => 1, 'lists' => $lists,
-        'nextPage' => $page < $query->max_num_pages ? $page + 1 : null));
+        'nextPage' => $page < $query->max_num_pages ? $page + 1 : null), 200);
 }
 add_action('template_redirect', 've_staff_sharepoint_catalog', 1);
