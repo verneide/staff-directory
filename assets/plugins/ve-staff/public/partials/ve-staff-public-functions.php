@@ -298,7 +298,7 @@ function ve_staff_is_sharepoint_request() {
 }
 
 function ve_staff_sharepoint_origin_allowed($origin) {
-    $origins = apply_filters('ve_staff_sharepoint_allowed_origins', array());
+    $origins = apply_filters('ve_staff_sharepoint_allowed_origins', array('https://verneide.sharepoint.com'));
     return is_string($origin) && 0 === strpos($origin, 'https://') && in_array($origin, (array) $origins, true);
 }
 
