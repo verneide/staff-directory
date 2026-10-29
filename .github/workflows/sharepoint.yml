@@ -22,6 +22,11 @@ jobs:
           node-version: '18.20.8'
           cache: npm
           cache-dependency-path: sharepoint/eide-web-staff-integration/package-lock.json
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install app icon resizing dependency
+        run: python3 -m pip install Pillow==12.0.0
       - run: npm ci
       - run: npm test
       - run: npm run package
