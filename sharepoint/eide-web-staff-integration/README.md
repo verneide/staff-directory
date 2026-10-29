@@ -19,8 +19,8 @@ Each load fetches current `listing.css`, the list's `embed_custom_css`, and temp
 ## Install
 
 1. Deploy the plugin/theme changes from this branch using the existing hosting workflow. Both must be deployed together.
-2. Copy `server/sharepoint-origins.example.php` into the site's `wp-content/mu-plugins/ve-staff-sharepoint-origins.php`, replacing the placeholder with the exact HTTPS tenant origin, such as `https://contoso.sharepoint.com`. Include additional tenant origins explicitly if needed; wildcards are not accepted. Until configured, this endpoint returns 403. The configuration file is outside the theme/plugin sync destinations and will not be deleted by their rsync operations.
-3. If the site's existing referrer rules check **script** embeds, add the tenant host to the existing allowed URL list too. The SharePoint path uses the browser's Origin header for that check, so a missing Referer does not randomly block it.
+2. The API is configured for `https://verneide.sharepoint.com`, including the supplied home page `https://verneide.sharepoint.com/SitePages/Home.aspx`. CORS uses only the origin, not `/SitePages/Home.aspx`. No separate configuration file is required for this tenant. To override the origin list later, copy `server/sharepoint-origins.example.php` into `wp-content/mu-plugins/ve-staff-sharepoint-origins.php` and edit its explicit HTTPS origins; wildcards are not accepted. That optional configuration is outside the theme/plugin sync destinations.
+3. The repository's existing allowed URL list already includes `verneide.sharepoint.com`, covering **script** embed referrer checks. Preserve that entry if editing the site's access settings. The SharePoint path uses the browser's Origin header for that check, so a missing Referer does not randomly block it.
 4. Exclude `type=sharepoint` responses from SiteGround/CDN/full-page caches and permit these GET/OPTIONS requests through any WAF. PHP sends `private, no-store` and `Vary: Origin`, but an upstream cache must not serve an old page before PHP runs.
 5. Use **Node 18.20.8** (the existing SPFx 1.18.2 toolchain requires Node 18):
 
