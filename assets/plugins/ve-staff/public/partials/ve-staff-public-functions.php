@@ -341,13 +341,19 @@ function ve_staff_build_v2_view($html, $inline_css, $title) {
 }
 
 function ve_staff_send_sharepoint_view($html, $inline_css, $title) {
+    // Staff card loops can change the global post. Use the main requested list.
+    $list_id = get_queried_object_id();
+    $list_type = get_post_type($list_id);
+    if (!$list_id || !in_array($list_type, array('listing', 'simple-listing'), true)) {
+        wp_send_json(array('error' => 'The requested page is not a supported directory list.'), 500);
+    }
     $view = ve_staff_build_v2_view($html, $inline_css, $title);
     wp_send_json(array_merge($view, array(
         'schemaVersion' => 1,
         'embedVersion' => 2,
-        'listId' => get_the_ID(),
-        'listType' => get_post_type(),
-    )));
+        'listId' => $list_id,
+        'listType' => $list_type,
+    )), 200);
 }
 
 /** V2 HTML embeds and SharePoint JSON use exactly the same HTML and CSS. */
