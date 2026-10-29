@@ -1,5 +1,5 @@
 <?php
-/** Copy to wp-content/mu-plugins/ve-staff-sharepoint-origins.php and set your tenant. */
+/** Optional override: copy to wp-content/mu-plugins/ve-staff-sharepoint-origins.php. */
 add_filter('ve_staff_sharepoint_allowed_origins', function () {
-    return array('https://YOUR-TENANT.sharepoint.com');
+    return array('https://verneide.sharepoint.com');
 });
