@@ -103,3 +103,37 @@ test('contact details toggle independently and suggestions link to the source si
   assert.equal(root.querySelector('a').href, 'https://staff.eideweb.com/listing/team/');
   dispose(); dom.window.close();
 });
+
+test('list discovery follows pages, sends no credentials, and validates every URL', async () => {
+  let calls = 0;
+  const list = { id: 1, title: 'Team', url: 'https://staff.eideweb.com/listing/team/', listType: 'listing' };
+  let body;
+  const { requestLists } = load(apiFile, { URL, fetch: async (url, options) => {
+    calls++;
+    assert.equal(options.credentials, 'omit');
+    assert.equal(options.redirect, 'error');
+    assert.equal(new URL(url).searchParams.get('ve_staff_lists'), '1');
+    return { ok: true, headers: { get: () => 'application/json' }, json: async () => body || ({schemaVersion: 1, lists: [list], nextPage: calls === 1 ? 2 : null}) };
+  } });
+  const signal = new AbortController().signal;
+  assert.equal((await requestLists('listing', signal)).length, 2);
+  assert.equal(calls, 2);
+  for (const url of ['https://evil.example/listing/team/', 'https://staff.eideweb.com/simple-listing/team/']) {
+    body = {schemaVersion: 1, lists: [{...list, url}], nextPage: null};
+    await assert.rejects(() => requestLists('listing', signal));
+  }
+  body = {schemaVersion: 1, lists: [], nextPage: 1};
+  await assert.rejects(() => requestLists('listing', signal), /Invalid list catalog/);
+  body = {schemaVersion: 1, lists: [], nextPage: null};
+  assert.equal((await requestLists('simple-listing', signal)).length, 0);
+  await assert.rejects(() => requestLists('staff', signal), /valid list type/);
+});
+
+test('list discovery reports access denial and undeployed endpoint', async () => {
+  let response = { ok: false, status: 403 };
+  const { requestLists } = load(apiFile, { URL, fetch: async () => response });
+  const run = () => requestLists('listing', new AbortController().signal);
+  await assert.rejects(run, /HTTP 403/);
+  response = {ok: true, headers: {get: () => 'text/html'}};
+  await assert.rejects(run, /Deploy the updated WordPress plugin/);
+});
