@@ -1,9 +1,9 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
   "solution": {
-    "name": "EideWeb Staff Directory Integration",
+    "name": "eide-web-staff-integration-client-side-solution",
     "id": "749a8674-74dd-40c4-88c7-98475ee5690d",
-    "version": "2.1.0.2",
+    "version": "2.1.0.3",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -25,7 +25,8 @@
       "categories": [
         "Collaboration"
       ]
-    }
+    },
+    "title": "EideWeb Staff Directory Integration"
   },
   "paths": {
     "zippedPackage": "solution/eide-web-staff-integration.sppkg"
