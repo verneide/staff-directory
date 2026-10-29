@@ -24,7 +24,7 @@ Mobile filters use a body-level overlay containing both the panel and backdrop i
 
 ## SharePoint
 
-The production-oriented SPFx 1.18 sample is under `sharepoint/eide-web-staff-integration`. Set its `apiEndpoint` and optional `entraResource` web-part properties, update the tenant URL in `config/package-solution.json`, then run `npm install`, `gulp bundle --ship`, and `gulp package-solution --ship`. See that directory's README for Entra ID permission setup.
+The full-width SPFx web part is under [`sharepoint/eide-web-staff-integration`](sharepoint/eide-web-staff-integration/README.md). It requests an existing Staff List or Simple List URL as versioned JSON, renders sanitized directory content in SharePoint without an iframe, and loads current site CSS on each page load. Configure the exact tenant origin on WordPress, build the `.sppkg`, and deploy it to the SharePoint App Catalog. Full-width sections require a communication site. The hosting workflow only syncs the plugin and theme folders and skips SharePoint-only commits. See the web part README for installation, the existing embed access model, and verification steps.
 
 ## Generated asset maintenance
 

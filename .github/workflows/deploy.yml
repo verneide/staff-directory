@@ -3,6 +3,10 @@ name: Deploy to SiteGround
 on:
   push:
     branches: ["main"]
+    paths:
+      - "assets/plugins/ve-staff/**"
+      - "assets/themes/vern-eide-staff/**"
+      - ".github/workflows/deploy.yml"
 
 permissions:
   contents: read

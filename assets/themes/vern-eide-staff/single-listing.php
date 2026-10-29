@@ -17,6 +17,7 @@ $embed_version = isset($_GET['embed_version']) ? sanitize_text_field(wp_unslash(
 
 $is_script = (strtolower($type) === 'script');
 $is_json   = (strtolower($type) === 'json');
+$is_sharepoint = ve_staff_is_sharepoint_request();
 $is_v2_embed = ('2' === $embed_version);
 
 /** -----------------------------
@@ -33,6 +34,7 @@ if ($is_script && !headers_sent()) {
  *  ACCESS CHECK
  *  ----------------------------- */
 if (!ve_staff_check_page_access()) {
+    if ($is_sharepoint) wp_send_json(array('error' => 'Directory access denied.'), 403);
 	$access_error = "Error: Unauthorized - Contact Support";
 
 	if ($is_script) {
@@ -47,7 +49,7 @@ if (!ve_staff_check_page_access()) {
 /** -----------------------------
  *  PAGE ASSETS (normal page mode)
  *  ----------------------------- */
-if (!$is_script && !$is_v2_embed) {
+if (!$is_script && !$is_v2_embed && !$is_sharepoint) {
 	//wp_enqueue_script('ve-lazy-load');
 	wp_enqueue_style('ve-staff-listing');
 	wp_enqueue_script('listing-js');
@@ -169,6 +171,11 @@ if ($internal) {
 
 global $htmlcontent;
 $htmlcontent = (string)($htmlcontent ?? '');
+
+if ($is_sharepoint) {
+    ve_staff_send_sharepoint_view($htmlcontent, $inline_css, $listingpgtitle);
+}
+
 
 
 /**
