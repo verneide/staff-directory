@@ -3,16 +3,28 @@
   "solution": {
     "name": "EideWeb Staff Directory Integration",
     "id": "749a8674-74dd-40c4-88c7-98475ee5690d",
-    "version": "2.1.0.1",
+    "version": "2.1.0.2",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
     "developer": {
-      "name": "Vern Eide",
+      "name": "Vern Eide Marketing",
       "websiteUrl": "https://staff.eideweb.com",
       "privacyUrl": "",
       "termsOfUseUrl": "",
       "mpnId": "Undefined-1.18.2"
+    },
+    "iconPath": "assets/ve-staff-icon-v2.png",
+    "metadata": {
+      "shortDescription": {
+        "default": "Find and connect with Vern Eide staff through searchable directories and Simple Lists in SharePoint."
+      },
+      "longDescription": {
+        "default": "Help teams find and connect with Vern Eide colleagues directly in SharePoint. Display searchable Staff Lists and Simple Lists, including birthdays and new or promoted employees, using the list settings managed at staff.eideweb.com. Supports full-width communication-site sections, staff photos, contact details, filters, and current directory styles without an iframe."
+      },
+      "categories": [
+        "Collaboration"
+      ]
     }
   },
   "paths": {
