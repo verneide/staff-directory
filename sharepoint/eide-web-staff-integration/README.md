@@ -9,9 +9,9 @@ An SPFx 1.18.2 web part that renders the existing Staff List and Simple List vie
 - **Category:** Collaboration
 - **Short description:** Find and connect with Vern Eide staff through searchable directories and Simple Lists in SharePoint.
 - **Description:** Help teams find and connect with Vern Eide colleagues directly in SharePoint. Display searchable Staff Lists and Simple Lists, including birthdays and new or promoted employees, using the list settings managed at staff.eideweb.com. Supports full-width communication-site sections, staff photos, contact details, filters, and current directory styles without an iframe.
-- **Icon:** [Vern Eide secondary black logo](https://vern-eide.s3.amazonaws.com/cdn/logos/VE_Secondary_Black_1x1_250px.png). The web part picker references this URL. `npm run package` downloads and validates the original PNG, then includes it in the package as `assets/ve-staff-icon-v2.png` for the App Catalog. Packaging requires HTTPS access to the logo host and fails if the logo cannot be downloaded; it does not silently publish a missing icon. The downloaded copy is generated output, excluded from Git and hosting sync.
+- **Icon:** [Vern Eide secondary black logo](https://vern-eide.s3.amazonaws.com/cdn/logos/VE_Secondary_Black_1x1_250px.png). The web part picker references this URL. `npm run package` downloads and validates the original PNG, resizes it to the required **96 × 96 pixels**, then includes it in the package as `assets/ve-staff-icon-v2.png` for the App Catalog. Packaging requires HTTPS access to the logo host and fails if the logo cannot be downloaded; it does not silently publish a missing icon. The downloaded copy is generated output, excluded from Git and hosting sync.
 
-Replace and deploy the rebuilt `2.1.0.3` package in the App Catalog to apply these metadata changes. They do not update an already uploaded package automatically.
+Replace and deploy the rebuilt `2.1.0.4` package in the App Catalog to apply these metadata changes. They do not update an already uploaded package automatically.
 
 ## How it works
 
@@ -33,16 +33,17 @@ Each load fetches current `listing.css`, the list's `embed_custom_css`, and temp
 2. The API is configured for `https://verneide.sharepoint.com`, including the supplied home page `https://verneide.sharepoint.com/SitePages/Home.aspx`. CORS uses only the origin, not `/SitePages/Home.aspx`. No separate configuration file is required for this tenant. To override the origin list later, copy `server/sharepoint-origins.example.php` into `wp-content/mu-plugins/ve-staff-sharepoint-origins.php` and edit its explicit HTTPS origins; wildcards are not accepted. That optional configuration is outside the theme/plugin sync destinations.
 3. The repository's existing allowed URL list already includes `verneide.sharepoint.com`, covering **script** embed referrer checks. Preserve that entry if editing the site's access settings. The SharePoint path uses the browser's Origin header for that check, so a missing Referer does not randomly block it.
 4. Exclude `type=sharepoint` responses from SiteGround/CDN/full-page caches and permit these GET/OPTIONS requests through any WAF. PHP sends `private, no-store` and `Vary: Origin`, but an upstream cache must not serve an old page before PHP runs.
-5. Use **Node 18.20.8** (the existing SPFx 1.18.2 toolchain requires Node 18):
+5. Install Python 3 with Pillow for app-icon resizing. Use **Node 18.20.8** (the existing SPFx 1.18.2 toolchain requires Node 18):
 
    ```sh
    cd sharepoint/eide-web-staff-integration
+   python3 -m pip install Pillow==12.0.0
    npm ci
    npm test
    npm run package
    ```
 
-6. Upload `sharepoint/solution/eide-web-staff-integration.sppkg` from this project to the SharePoint tenant App Catalog and deploy it. For an existing installation, replace the previous package with version `2.1.0.3` and deploy the update. The solution and web part IDs remain the same, so this updates the existing app. No placeholder Entra API permission request is included.
+6. Upload `sharepoint/solution/eide-web-staff-integration.sppkg` from this project to the SharePoint tenant App Catalog and deploy it. For an existing installation, replace the previous package with version `2.1.0.4` and deploy the update. The solution and web part IDs remain the same, so this updates the existing app. No placeholder Entra API permission request is included.
 7. Edit a communication-site page, add a **Full-width section**, insert **EideWeb Staff Directory Integration**, and paste the list URL in the property pane. Choose whether to show the list title. Add separate instances for regular, birthday, or other Simple Lists.
 8. Verify as an ordinary reader: internal/public fields, images, mobile filters, biographies, contact details, two parts on one page, View More, and style changes after reload. A real tenant test is still required; local tests cannot validate tenant CSP or WAF settings.
 
