@@ -2,11 +2,16 @@
 // Public Query Functions used in Posts etc.
 
 function ve_staff_check_page_access() {
+    // SharePoint fetches retain Origin even when the browser omits Referer.
+    if (ve_staff_is_sharepoint_request()) {
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        if (!ve_staff_sharepoint_origin_allowed($origin)) return false;
+    }
 	if(is_user_logged_in()){
 		return true;
 	}
     $host = ve_staff_clean_url($_SERVER['HTTP_HOST'] ?? '');
-    $referrer = $_SERVER['HTTP_REFERER'] ?? '';
+    $referrer = ve_staff_is_sharepoint_request() ? ($_SERVER['HTTP_ORIGIN'] ?? '') : ($_SERVER['HTTP_REFERER'] ?? '');
     $referrer_host = !empty($referrer) ? ve_staff_clean_url($referrer) : '';
     $request_type = isset($_GET['type']) ? sanitize_text_field(wp_unslash($_GET['type'])) : '';
     $embed_version = isset($_GET['embed_version']) ? sanitize_text_field(wp_unslash($_GET['embed_version'])) : '';
@@ -15,7 +20,7 @@ function ve_staff_check_page_access() {
     $source = '';
 
     // Determine the source of the request
-    if ($is_v2_embed) {
+    if ($is_v2_embed || ve_staff_is_sharepoint_request()) {
         $source = 'script';
     } elseif (!empty($referrer)) {
         if ($referrer_host == $host) {
@@ -30,7 +35,7 @@ function ve_staff_check_page_access() {
     }
 
     // Get sources to check list against. 
-    $check_sources = get_field('ve_allowed_referrer_logic', 'option');
+    $check_sources = (array) get_field('ve_allowed_referrer_logic', 'option');
 
     // Check if the source is in the logic if not return true.
     if (!in_array($source, $check_sources)) {
@@ -286,3 +291,52 @@ function delete_temporary_vcards() {
     }
 }
 add_action('delete_temporary_vcards', 'delete_temporary_vcards');
+
+/** Versioned SharePoint view API. CORS is a browser policy, not user authentication. */
+function ve_staff_is_sharepoint_request() {
+    return isset($_GET['type']) && 'sharepoint' === strtolower(sanitize_text_field(wp_unslash($_GET['type'])));
+}
+
+function ve_staff_sharepoint_origin_allowed($origin) {
+    $origins = apply_filters('ve_staff_sharepoint_allowed_origins', array('https://verneide.sharepoint.com'));
+    return is_string($origin) && 0 === strpos($origin, 'https://') && in_array($origin, (array) $origins, true);
+}
+
+function ve_staff_sharepoint_headers() {
+    if (!ve_staff_is_sharepoint_request() || !is_singular(array('listing', 'simple-listing'))) return;
+    // Never let another embed mode's wildcard headers apply to this endpoint.
+    header_remove('Access-Control-Allow-Origin');
+    header_remove('Access-Control-Allow-Credentials');
+    header('Vary: Origin', false);
+    nocache_headers();
+    header('Cache-Control: private, no-store, max-age=0');
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    if (!ve_staff_sharepoint_origin_allowed($origin)) {
+        wp_send_json(array('error' => 'SharePoint origin is not configured.'), 403);
+    }
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Access-Control-Allow-Methods: GET, OPTIONS');
+    header('Access-Control-Allow-Headers: Accept');
+    if ('OPTIONS' === ($_SERVER['REQUEST_METHOD'] ?? 'GET')) {
+        status_header(204);
+        exit;
+    }
+    if ('GET' !== ($_SERVER['REQUEST_METHOD'] ?? 'GET')) {
+        header('Allow: GET, OPTIONS');
+        wp_send_json(array('error' => 'Method not allowed.'), 405);
+    }
+}
+add_action('template_redirect', 've_staff_sharepoint_headers', 0);
+
+function ve_staff_send_sharepoint_view($html, $inline_css, $title) {
+    $path = get_template_directory() . '/inc/assets/css/listing.css';
+    $css = is_readable($path) ? file_get_contents($path) : false;
+    if (false === $css) wp_send_json(array('error' => 'Directory stylesheet unavailable.'), 500);
+    wp_send_json(array(
+        'schemaVersion' => 1,
+        'listId' => get_the_ID(),
+        'listType' => get_post_type(),
+        'html' => $title . $html,
+        'css' => $css . "\n" . $inline_css,
+    ));
+}

@@ -18,6 +18,7 @@ $api         = isset($_GET['api'])   ? sanitize_text_field(wp_unslash($_GET['api
 
 $is_script = (strtolower($type) === 'script');
 $is_json   = (strtolower($type) === 'json');
+$is_sharepoint = ve_staff_is_sharepoint_request();
 
 /** -----------------------------
  *  SCRIPT RESPONSE HEADERS
@@ -33,6 +34,7 @@ if ($is_script && !headers_sent()) {
  *  ACCESS CHECK
  *  ----------------------------- */
 if (!ve_staff_check_page_access()) {
+    if ($is_sharepoint) wp_send_json(array('error' => 'Directory access denied.'), 403);
 	$access_error = "Error: Unauthorized - Contact Support";
 
 	if ($is_script) {
@@ -55,7 +57,7 @@ if (current_user_can('manage_options') || current_user_can('create_staff')) {
 /** -----------------------------
  *  PAGE ASSETS (normal page mode)
  *  ----------------------------- */
-if (!$is_script) {
+if (!$is_script && !$is_sharepoint) {
 	wp_enqueue_style('ve-staff-listing');
 	wp_enqueue_script('listing-js');
 	wp_enqueue_script('ve-ga-events');
@@ -351,6 +353,11 @@ if (!empty($debug)) { ?>
 
 <?php
 $htmlcontent = (string) ob_get_clean();
+
+if ($is_sharepoint) {
+    ve_staff_send_sharepoint_view($htmlcontent, $inline_css, $listingpgtitle);
+}
+
 
 /** -----------------------------
  *  SCRIPT EMBED MODE (payload injection)

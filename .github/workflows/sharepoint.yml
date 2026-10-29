@@ -1,0 +1,32 @@
+name: Validate SharePoint web part
+on:
+  pull_request:
+    paths:
+      - 'sharepoint/**'
+      - 'assets/themes/vern-eide-staff/inc/assets/js/listing.js'
+      - 'assets/themes/vern-eide-staff/inc/assets/js/ve-lazy-load.js'
+      - '.github/workflows/sharepoint.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sharepoint/eide-web-staff-integration
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '18.20.8'
+          cache: npm
+          cache-dependency-path: sharepoint/eide-web-staff-integration/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eide-staff-sharepoint
+          path: sharepoint/eide-web-staff-integration/sharepoint/solution/*.sppkg
+          if-no-files-found: error

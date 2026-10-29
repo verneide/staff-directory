@@ -1,9 +1,16 @@
 {
   "name": "eide-web-staff-integration",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
-  "engines": { "node": ">=18.17.1 <19.0.0" },
-  "scripts": { "build": "gulp bundle", "test": "gulp test", "package": "gulp bundle --ship && gulp package-solution --ship" },
+  "engines": {
+    "node": ">=18.17.1 <19.0.0"
+  },
+  "scripts": {
+    "build": "npm run prepare:runtime && gulp bundle",
+    "test": "npm run prepare:runtime && node tests/directory.test.cjs",
+    "package": "npm run prepare:runtime && gulp bundle --ship && gulp package-solution --ship",
+    "prepare:runtime": "node scripts/prepare-runtime.cjs"
+  },
   "dependencies": {
     "@microsoft/sp-core-library": "1.18.2",
     "@microsoft/sp-http": "1.18.2",
@@ -23,6 +30,8 @@
     "@types/react": "17.0.45",
     "@types/react-dom": "17.0.17",
     "gulp": "4.0.2",
-    "typescript": "4.7.4"
+    "typescript": "4.7.4",
+    "@types/webpack-env": "1.18.5",
+    "jsdom": "22.1.0"
   }
 }

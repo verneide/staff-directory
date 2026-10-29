@@ -228,7 +228,12 @@
         else if (!event.shiftKey && event.target === last) { event.preventDefault(); first.focus(); }
       }
     });
-    media.addEventListener('change', function () { close(false); });
+    function onMediaChange() { close(false); }
+    media.addEventListener('change', onMediaChange);
+    root.__veStaffDisposePanel = function () {
+      close(false);
+      media.removeEventListener('change', onMediaChange);
+    };
   }
 
   function replaceSiteDomain(root) {
@@ -255,11 +260,18 @@
     bindFilters(root);
     replaceSiteDomain(root);
     if (namespace.lazyLoad) {
-      namespace.lazyLoad.initialize(root);
+      root.__veStaffDisposeImages = namespace.lazyLoad.initialize(root);
     }
   }
 
   namespace.initialize = initialize;
+  namespace.dispose = function (scope) {
+    var roots = scope.matches && scope.matches('#veStaffList, #veStaffDisplay') ? [scope] : all(scope, '#veStaffList, #veStaffDisplay');
+    roots.forEach(function (root) {
+      if (root.__veStaffDisposePanel) root.__veStaffDisposePanel();
+      if (root.__veStaffDisposeImages) root.__veStaffDisposeImages();
+    });
+  };
   windowObject.VEStaffDirectory = namespace;
 
   function initializeDocument() {
