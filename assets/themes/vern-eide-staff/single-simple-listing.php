@@ -19,6 +19,7 @@ $api         = isset($_GET['api'])   ? sanitize_text_field(wp_unslash($_GET['api
 $is_script = (strtolower($type) === 'script');
 $is_json   = (strtolower($type) === 'json');
 $is_sharepoint = ve_staff_is_sharepoint_request();
+$is_v2_embed = isset($_GET['embed_version']) && '2' === sanitize_text_field(wp_unslash($_GET['embed_version']));
 
 /** -----------------------------
  *  SCRIPT RESPONSE HEADERS
@@ -57,7 +58,7 @@ if (current_user_can('manage_options') || current_user_can('create_staff')) {
 /** -----------------------------
  *  PAGE ASSETS (normal page mode)
  *  ----------------------------- */
-if (!$is_script && !$is_sharepoint) {
+if (!$is_script && !$is_sharepoint && !$is_v2_embed) {
 	wp_enqueue_style('ve-staff-listing');
 	wp_enqueue_script('listing-js');
 	wp_enqueue_script('ve-ga-events');
@@ -356,6 +357,9 @@ $htmlcontent = (string) ob_get_clean();
 
 if ($is_sharepoint) {
     ve_staff_send_sharepoint_view($htmlcontent, $inline_css, $listingpgtitle);
+}
+if ($is_v2_embed && !$is_script) {
+    ve_staff_send_v2_view($htmlcontent, $inline_css, $listingpgtitle);
 }
 
 
