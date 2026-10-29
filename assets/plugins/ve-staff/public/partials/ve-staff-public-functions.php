@@ -303,7 +303,7 @@ function ve_staff_sharepoint_origin_allowed($origin) {
 }
 
 function ve_staff_sharepoint_headers() {
-    if (!ve_staff_is_sharepoint_request() || !is_singular(array('listing', 'simple-listing'))) return;
+    if (!ve_staff_is_sharepoint_request() || (!is_singular(array('listing', 'simple-listing')) && !ve_staff_is_sharepoint_catalog_request())) return;
     // Never let another embed mode's wildcard headers apply to this endpoint.
     header_remove('Access-Control-Allow-Origin');
     header_remove('Access-Control-Allow-Credentials');
@@ -340,3 +340,33 @@ function ve_staff_send_sharepoint_view($html, $inline_css, $title) {
         'css' => $css . "\n" . $inline_css,
     ));
 }
+
+/** List discovery uses the same origin and embed access checks as rendered lists. */
+function ve_staff_is_sharepoint_catalog_request() {
+    return ve_staff_is_sharepoint_request() && isset($_GET['ve_staff_lists']) && '1' === $_GET['ve_staff_lists'];
+}
+
+function ve_staff_sharepoint_catalog() {
+    if (!ve_staff_is_sharepoint_catalog_request()) return;
+    if (!ve_staff_check_page_access()) wp_send_json(array('error' => 'Directory access denied.'), 403);
+    $type = isset($_GET['list_type']) ? sanitize_text_field(wp_unslash($_GET['list_type'])) : 'listing';
+    if (!in_array($type, array('listing', 'simple-listing'), true)) {
+        wp_send_json(array('error' => 'Invalid list type.'), 400);
+    }
+    $page = isset($_GET['page']) ? filter_var($_GET['page'], FILTER_VALIDATE_INT) : 1;
+    if (false === $page || $page < 1 || $page > 100) wp_send_json(array('error' => 'Invalid page.'), 400);
+    $query = new WP_Query(array(
+        'post_type' => $type, 'post_status' => 'publish', 'has_password' => false,
+        'posts_per_page' => 100, 'paged' => $page,
+        'orderby' => array('title' => 'ASC', 'ID' => 'ASC'),
+        'update_post_meta_cache' => false, 'update_post_term_cache' => false,
+    ));
+    $lists = array();
+    foreach ($query->posts as $list) {
+        $lists[] = array('id' => $list->ID, 'title' => html_entity_decode(wp_strip_all_tags(get_the_title($list)), ENT_QUOTES, 'UTF-8'),
+            'url' => get_permalink($list), 'listType' => $type);
+    }
+    wp_send_json(array('schemaVersion' => 1, 'lists' => $lists,
+        'nextPage' => $page < $query->max_num_pages ? $page + 1 : null));
+}
+add_action('template_redirect', 've_staff_sharepoint_catalog', 1);
