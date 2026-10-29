@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import posixpath
 import re
+import struct
 from urllib.parse import unquote
 import xml.etree.ElementTree as ET
 import zipfile
@@ -41,7 +42,10 @@ with zipfile.ZipFile(package) as archive:
     icon = solution.get("iconPath")
     if icon:
         assert icon in names, "App icon missing from package"
-        assert archive.read(icon).startswith(bytes.fromhex("89504e470d0a1a0a")), "Invalid PNG icon"
+        png = archive.read(icon)
+        assert len(png) >= 24 and png.startswith(bytes.fromhex("89504e470d0a1a0a")) and png[12:16] == b"IHDR", "Invalid PNG icon"
+        dimensions = struct.unpack(">II", png[16:24])
+        assert dimensions == (96, 96), f"App icon must be 96 x 96 pixels; got {dimensions}"
     assert any(name.startswith("ClientSideAssets/") and name.endswith(".js") for name in names), "Client bundle missing"
     report = {
         "file": package.name,
