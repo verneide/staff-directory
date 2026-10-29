@@ -1,6 +1,17 @@
-# Eide Staff for SharePoint Online
+# EideWeb Staff Directory Integration
 
 An SPFx 1.18.2 web part that renders the existing Staff List and Simple List views directly inside a Shadow DOM, with no iframe. `supportsFullBleed: true` enables placement in a full-width section on a **communication site** modern page. Team sites do not offer that section type; the part fills its available column there.
+
+## App Catalog metadata
+
+- **Name:** EideWeb Staff Directory Integration
+- **Publisher:** Vern Eide Marketing
+- **Category:** Collaboration
+- **Short description:** Find and connect with Vern Eide staff through searchable directories and Simple Lists in SharePoint.
+- **Description:** Help teams find and connect with Vern Eide colleagues directly in SharePoint. Display searchable Staff Lists and Simple Lists, including birthdays and new or promoted employees, using the list settings managed at staff.eideweb.com. Supports full-width communication-site sections, staff photos, contact details, filters, and current directory styles without an iframe.
+- **Icon:** [Vern Eide secondary black logo](https://vern-eide.s3.amazonaws.com/cdn/logos/VE_Secondary_Black_1x1_250px.png). The web part picker references this URL. `npm run package` downloads and validates the original PNG, then includes it in the package as `assets/ve-staff-icon-v2.png` for the App Catalog. Packaging requires HTTPS access to the logo host and fails if the logo cannot be downloaded; it does not silently publish a missing icon. The downloaded copy is generated output, excluded from Git and hosting sync.
+
+Replace and deploy the rebuilt `2.1.0.2` package in the App Catalog to apply these metadata changes. They do not update an already uploaded package automatically.
 
 ## How it works
 
@@ -31,8 +42,8 @@ Each load fetches current `listing.css`, the list's `embed_custom_css`, and temp
    npm run package
    ```
 
-6. Upload `sharepoint/solution/eide-web-staff-integration.sppkg` from this project to the SharePoint tenant App Catalog and deploy it. No placeholder Entra API permission request is included.
-7. Edit a communication-site page, add a **Full-width section**, insert **Eide Staff**, and paste the list URL in the property pane. Choose whether to show the list title. Add separate instances for regular, birthday, or other Simple Lists.
+6. Upload `sharepoint/solution/eide-web-staff-integration.sppkg` from this project to the SharePoint tenant App Catalog and deploy it. For an existing installation, replace the previous package with version `2.1.0.2` and deploy the update. The solution and web part IDs remain the same, so this updates the existing app. No placeholder Entra API permission request is included.
+7. Edit a communication-site page, add a **Full-width section**, insert **EideWeb Staff Directory Integration**, and paste the list URL in the property pane. Choose whether to show the list title. Add separate instances for regular, birthday, or other Simple Lists.
 8. Verify as an ordinary reader: internal/public fields, images, mobile filters, biographies, contact details, two parts on one page, View More, and style changes after reload. A real tenant test is still required; local tests cannot validate tenant CSP or WAF settings.
 
 ## Access model

@@ -9,7 +9,8 @@
     "build": "npm run prepare:runtime && gulp bundle",
     "test": "npm run prepare:runtime && node tests/directory.test.cjs",
     "package": "npm run prepare:runtime && gulp bundle --ship && gulp package-solution --ship",
-    "prepare:runtime": "node scripts/prepare-runtime.cjs"
+    "prepare:runtime": "node scripts/prepare-runtime.cjs",
+    "prepackage": "node scripts/prepare-branding.cjs"
   },
   "dependencies": {
     "@microsoft/sp-core-library": "1.18.2",

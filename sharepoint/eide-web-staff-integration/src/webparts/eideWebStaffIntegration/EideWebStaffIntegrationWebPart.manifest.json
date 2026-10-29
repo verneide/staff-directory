@@ -17,16 +17,16 @@
         "default": "Other"
       },
       "title": {
-        "default": "Eide Staff"
+        "default": "EideWeb Staff Directory Integration"
       },
       "description": {
-        "default": "Full-width Staff Lists and Simple Lists from staff.eideweb.com."
+        "default": "Find and connect with Vern Eide staff through searchable directories and Simple Lists in SharePoint."
       },
-      "officeFabricIconFontName": "People",
       "properties": {
         "apiEndpoint": "",
         "showTitle": true
-      }
+      },
+      "iconImageUrl": "https://vern-eide.s3.amazonaws.com/cdn/logos/VE_Secondary_Black_1x1_250px.png"
     }
   ]
 }
