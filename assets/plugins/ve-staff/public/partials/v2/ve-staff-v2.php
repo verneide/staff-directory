@@ -11,6 +11,8 @@ if (!defined('ABSPATH')) {
  * Adds CORS headers to public v2 embed responses.
  */
 function ve_staff_v2_cors_headers() {
+	// SharePoint JSON uses the stricter exact-origin policy, never the v2 wildcard.
+	if (ve_staff_is_sharepoint_request()) return;
 	if (!isset($_GET['embed_version']) || '2' !== sanitize_text_field(wp_unslash($_GET['embed_version']))) {
 		return;
 	}
