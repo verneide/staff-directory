@@ -25,8 +25,13 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run package
+      - name: Verify generated SharePoint package
+        id: verify
+        run: python3 scripts/verify-package.py
       - uses: actions/upload-artifact@v6
         with:
-          name: eide-staff-sharepoint
-          path: sharepoint/eide-web-staff-integration/sharepoint/solution/*.sppkg
+          name: eide-staff-sharepoint-v${{ steps.verify.outputs.version }}
+          path: |
+            sharepoint/eide-web-staff-integration/sharepoint/solution/*.sppkg
+            sharepoint/eide-web-staff-integration/sharepoint/solution/package-verification.json
           if-no-files-found: error
