@@ -19,7 +19,7 @@ test('only approved listing URLs; remove conflicting modes and preserve existing
   assert.equal(url.searchParams.get('type'), 'sharepoint');
   assert.equal(url.searchParams.get('api'), 'fixture');
   assert.equal(url.searchParams.get('title'), '0');
-  assert.equal(url.searchParams.has('embed_version'), false);
+  assert.equal(url.searchParams.get('embed_version'), '2');
   assert.equal(url.searchParams.has('debug'), false);
   for (const bad of ['', 'http://staff.eideweb.com/listing/a/', 'https://evil.example/listing/a/', 'https://staff.eideweb.com/wp-admin/', 'https://user:secret@staff.eideweb.com/listing/a/']) {
     assert.throws(() => listingEndpoint(bad, true));
