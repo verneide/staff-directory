@@ -43,3 +43,35 @@ export async function requestPayload(endpoint: string, showTitle: boolean, signa
   }
   throw new Error('The directory is temporarily unavailable.');
 }
+
+export interface IStaffListOption { id: number; title: string; url: string; listType: string; }
+
+export async function requestLists(listType: string, signal: AbortSignal): Promise<IStaffListOption[]> {
+  if (!['listing', 'simple-listing'].includes(listType)) throw new Error('Choose a valid list type.');
+  const lists: IStaffListOption[] = [];
+  for (let page = 1; page <= 100; page++) {
+    const url = new URL('https://staff.eideweb.com/');
+    url.search = `?type=sharepoint&ve_staff_lists=1&list_type=${listType}&page=${page}`;
+    const response = await fetch(url.toString(), {
+      method: 'GET', credentials: 'omit', cache: 'no-store', redirect: 'error', signal,
+      headers: { Accept: 'application/json' }
+    });
+    if (!response.ok) throw new Error(`Unable to load lists (HTTP ${response.status}). Check the site's SharePoint access settings.`);
+    if (!(response.headers.get('content-type') || '').includes('application/json')) {
+      throw new Error('List discovery is unavailable. Deploy the updated WordPress plugin and exclude SharePoint requests from page caching.');
+    }
+    const payload = await response.json();
+    if (!payload || payload.schemaVersion !== 1 || !Array.isArray(payload.lists) ||
+        (payload.nextPage !== null && payload.nextPage !== page + 1)) throw new Error('Invalid list catalog response.');
+    for (const item of payload.lists) {
+      if (!item || !Number.isInteger(item.id) || item.id < 1 || typeof item.title !== 'string' || item.listType !== listType || typeof item.url !== 'string') {
+        throw new Error('Invalid list catalog entry.');
+      }
+      const safe = listingEndpoint(item.url, true);
+      if (!safe.pathname.startsWith(`/${listType}/`)) throw new Error('List type does not match its URL.');
+      lists.push({ id: item.id, title: item.title || `List ${item.id}`, url: item.url, listType });
+    }
+    if (payload.nextPage === null) return lists;
+  }
+  throw new Error('Too many lists to load. Contact the directory administrator.');
+}
