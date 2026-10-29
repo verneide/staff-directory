@@ -75,3 +75,18 @@ export async function requestLists(listType: string, signal: AbortSignal): Promi
   }
   throw new Error('Too many lists to load. Contact the directory administrator.');
 }
+
+/** The legacy embed key selects internal fields; it is not a WordPress password. */
+export function withEmbedApiKey(endpoint: string, key?: string): string {
+  if (!endpoint || !key?.trim()) return endpoint;
+  const url = listingEndpoint(endpoint, true);
+  url.searchParams.set('api', key.trim());
+  return url.toString();
+}
+
+export function catalogFailureMessage(error: unknown): string {
+  if (error instanceof TypeError) {
+    return 'The browser could not read the list catalog from staff.eideweb.com. Check that the WordPress plugin update is deployed, SharePoint requests bypass page caching, and the site allows this SharePoint origin. A redirect, CORS, firewall or SharePoint content-security policy can cause this. See the browser Console for the specific cause; then select Refresh lists. A missing internal embed key does not cause this connection error.';
+  }
+  return error instanceof Error ? error.message : 'Unable to load lists. Select Refresh lists to retry.';
+}
