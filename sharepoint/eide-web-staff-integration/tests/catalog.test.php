@@ -9,7 +9,8 @@ function get_field(...$args) { return array(); }
 function get_the_title($post) { return 'Team &amp; Friends'; }
 function wp_strip_all_tags($s) { return strip_tags($s); }
 function get_permalink($post) { return 'https://staff.eideweb.com/listing/team/'; }
-function wp_send_json($body, $status=200) { throw new Exception(json_encode(array($status, $body))); }
+// Match WordPress: omitted status retains the status set by the main page query.
+function wp_send_json($body, $status=null) { throw new Exception(json_encode(array($status ?? http_response_code(), $body))); }
 class WP_Query {
     public $posts; public $max_num_pages = 2;
     public function __construct($args) {
@@ -19,6 +20,7 @@ class WP_Query {
 }
 require __DIR__ . '/../../../assets/plugins/ve-staff/public/partials/ve-staff-public-functions.php';
 function check($origin, $type, $page, $expected) {
+    http_response_code(404); // The homepage/page query may already have failed.
     $_SERVER['HTTP_ORIGIN']=$origin;
     $_GET=array('type'=>'sharepoint','ve_staff_lists'=>'1','list_type'=>$type,'page'=>$page);
     try { ve_staff_sharepoint_catalog(); throw new Error('No response'); }
