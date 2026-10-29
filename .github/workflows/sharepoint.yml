@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'sharepoint/**'
+      - 'assets/plugins/ve-staff/public/partials/ve-staff-public-functions.php'
       - 'assets/themes/vern-eide-staff/inc/assets/js/listing.js'
       - 'assets/themes/vern-eide-staff/inc/assets/js/ve-lazy-load.js'
       - '.github/workflows/sharepoint.yml'
@@ -29,6 +30,8 @@ jobs:
         run: python3 -m pip install Pillow==12.0.0
       - run: npm ci
       - run: npm test
+      - name: Validate list discovery access and query
+        run: php tests/catalog.test.php
       - run: npm run package
       - name: Verify generated SharePoint package
         id: verify
