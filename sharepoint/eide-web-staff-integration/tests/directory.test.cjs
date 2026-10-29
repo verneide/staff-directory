@@ -137,3 +137,18 @@ test('list discovery reports access denial and undeployed endpoint', async () =>
   response = {ok: true, headers: {get: () => 'text/html'}};
   await assert.rejects(run, /Deploy the updated WordPress plugin/);
 });
+
+test('explicit embed key survives list changes and cannot be sent to another origin', () => {
+  const { withEmbedApiKey } = load(apiFile, { URL });
+  for (const path of ['listing/team/', 'simple-listing/birthdays/']) {
+    const url = new URL(withEmbedApiKey('https://staff.eideweb.com/' + path, ' fixture-key '));
+    assert.equal(url.searchParams.get('api'), 'fixture-key');
+    assert.equal(url.searchParams.get('type'), 'sharepoint');
+  }
+  const legacy = 'https://staff.eideweb.com/listing/team/?api=old&group=TRUE';
+  assert.equal(withEmbedApiKey(legacy, ''), legacy);
+  const updated = new URL(withEmbedApiKey(legacy, 'new'));
+  assert.equal(updated.searchParams.get('api'), 'new');
+  assert.equal(updated.searchParams.get('group'), 'TRUE');
+  assert.throws(() => withEmbedApiKey('https://evil.example/listing/team/', 'fixture-key'));
+});
