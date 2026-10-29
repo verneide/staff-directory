@@ -10,7 +10,7 @@ export function listingEndpoint(value: string, showTitle: boolean): URL {
     throw new Error('Enter a listing or simple-listing URL from https://staff.eideweb.com.');
   }
   // Preserve listing options (including legacy embed access parameters).
-  url.searchParams.delete('embed_version');
+  url.searchParams.set('embed_version', '2');
   url.searchParams.delete('debug');
   url.searchParams.set('type', 'sharepoint');
   url.searchParams.set('title', showTitle ? '1' : '0');
