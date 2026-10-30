@@ -6,16 +6,6 @@ export function bindCardActions(root: ShadowRoot, listingUrl: string): () => voi
     if (dialog) { if (dialog.open) dialog.close(); dialog.remove(); dialog = undefined; }
     if (opener) opener.focus();
   };
-  // Edit suggestions are a separate WordPress form workflow, not a read API operation.
-  root.querySelectorAll<HTMLButtonElement>('.ve-suggest-edit-btn').forEach(button => {
-    const link = document.createElement('a');
-    link.className = button.className;
-    link.textContent = 'Suggest edit on staff site';
-    const url = new URL(listingUrl);
-    url.searchParams.delete('type'); url.searchParams.delete('embed_version');
-    link.href = url.toString(); link.target = '_blank'; link.rel = 'noopener noreferrer';
-    button.replaceWith(link);
-  });
   const click = (event: Event): void => {
     const element = event.target as Element;
     if (!element.closest) return;

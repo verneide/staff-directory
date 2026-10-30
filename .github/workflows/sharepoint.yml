@@ -8,6 +8,9 @@ on:
       - 'assets/themes/vern-eide-staff/single-simple-listing.php'
       - 'assets/themes/vern-eide-staff/template-parts/list-html-internal.php'
       - 'assets/themes/vern-eide-staff/inc/assets/js/listing.js'
+      - 'assets/themes/vern-eide-staff/inc/assets/css/listing.css'
+      - 'assets/themes/vern-eide-staff/functions.php'
+      - 'assets/plugins/ve-staff/public/v2/embed-loader.js'
       - 'assets/themes/vern-eide-staff/inc/assets/js/ve-lazy-load.js'
       - '.github/workflows/sharepoint.yml'
   workflow_dispatch:
@@ -36,6 +39,7 @@ jobs:
       - name: Validate list discovery access and query
         run: |
           php tests/catalog.test.php
+          php tests/suggestions.test.php
           php tests/template-context.test.php
       - run: npm run package
       - name: Verify generated SharePoint package

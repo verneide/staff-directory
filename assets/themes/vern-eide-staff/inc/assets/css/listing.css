@@ -1,5 +1,110 @@
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Roboto:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 
+/* Shared interaction styling: scoped to directory content and its owned dialogs. */
+#veStaffList {
+  --ve-surface: #e9eef3;
+  --ve-ink: #243447;
+  --ve-shadow: 7px 7px 16px #cbd2da, -7px -7px 16px #fff;
+}
+#veStaffList.ve-directory-enhanced [data-ve-staff-filters-open] {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 22px;
+  border-radius: 14px;
+  border: 1px solid #c6cfd9;
+  background: var(--ve-surface);
+  color: var(--ve-ink);
+  box-shadow: var(--ve-shadow);
+}
+#veStaffList.ve-directory-enhanced .ve-staff-filters { display: none !important; }
+.ve-staff-filter-surface .ve-staff-filters-header,
+.ve-staff-filter-surface [data-ve-staff-filters-close] { display: block !important; }
+.ve-staff-filter-surface .ve-staff-filters-header,
+.ve-staff-filter-surface .ve-staff-filters-body,
+.ve-staff-filter-surface #employeeHeadingWrapper {
+  max-width: 1100px;
+  margin-inline: auto;
+}
+.ve-staff-filter-surface #employeeHeadingWrapper > .ve-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 24px;
+  margin: 24px 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+.ve-staff-filter-surface #employeeHeadingWrapper .ve-col-auto,
+.ve-staff-filter-surface #employeeHeadingWrapper .ve-form > div {
+  width: 100%; max-width: 100%; min-width: 0;
+  float: none; text-align: left; padding: 0;
+}
+.ve-staff-filter-surface input,
+.ve-staff-filter-surface select {
+  display: block; width: 100% !important; min-width: 0 !important;
+  min-height: 52px; box-sizing: border-box;
+  padding: 12px 16px !important; margin-top: 8px;
+  border: 1px solid #b8c4d1 !important; border-radius: 12px;
+  background: #e9eef3; color: #243447; font: inherit;
+  box-shadow: inset 3px 3px 7px #cbd2da, inset -3px -3px 7px #fff;
+}
+.ve-staff-filter-surface .filter-label { color: #425469 !important; font-weight: 600; }
+.ve-staff-filter-surface #resetFilterBtn,
+.ve-staff-filter-surface [data-ve-staff-filters-close] {
+  display: inline-flex !important; align-items: center; justify-content: center;
+  width: 168px !important; max-width: 100%; min-height: 48px; box-sizing: border-box;
+  padding: 12px 18px !important; margin: 12px 8px 0 0;
+  border: 1px solid #b8c4d1; border-radius: 12px;
+  background: #e9eef3; color: #243447; font: 600 15px/1.4 Arial,sans-serif;
+  box-shadow: 5px 5px 12px #cbd2da, -5px -5px 12px #fff;
+  cursor: pointer;
+}
+.ve-staff-filter-surface :focus-visible,
+#veStaffList :is(button,a,input,select,textarea):focus-visible {
+  outline: 3px solid #2169aa; outline-offset: 3px;
+}
+#veStaffList .ve-filter-pills { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+#veStaffList .ve-filter-pills[hidden] { display: none; }
+#veStaffList .ve-filter-pill {
+  display: inline-flex; max-width: 100%; overflow-wrap: anywhere;
+  padding: 9px 14px; border: 1px solid #b8c4d1; border-radius: 24px;
+  background: #e9eef3; color: #243447; font: 600 14px/1.5 Arial,sans-serif;
+  box-shadow: 3px 3px 7px #cbd2da, -3px -3px 7px #fff; cursor: pointer;
+}
+#veStaffList .employee-tile > .ve-rounded-3 {
+  border-radius: 18px; border: 1px solid #d2dae3;
+  box-shadow: 5px 5px 12px rgb(36 52 71 / 12%), -3px -3px 10px #fff;
+}
+#veStaffList .employee-details-wrapper,
+#veStaffList .employee-details-wrapper * { box-sizing: border-box; min-width: 0; }
+#veStaffList .employee-details-wrapper :is(a,button),
+#veStaffList .ve-contact-info-btn {
+  max-width: 100% !important; white-space: normal !important;
+  overflow-wrap: anywhere; height: auto; min-height: 44px;
+}
+#veStaffList .employee-details-wrapper .ve-row { margin-inline: 0; }
+#veStaffList .ve-suggest-dialog {
+  width: min(900px, calc(100vw - 32px)); max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 32px); padding: 0; border: 1px solid #c6cfd9;
+  border-radius: 20px; background: #e9eef3; color: #243447;
+  box-shadow: 0 20px 70px rgb(20 35 50 / 30%); overflow: auto;
+}
+#veStaffList .ve-suggest-dialog::backdrop { background: rgb(20 35 50 / 55%); }
+#veStaffList .ve-suggest-dialog .vemodal-content { border: 0; background: transparent; box-shadow: none !important; }
+#veStaffList .ve-suggest-dialog :is(.vemodal-header,.vemodal-body,.vemodal-footer) { padding: 24px; }
+#veStaffList .ve-suggest-dialog .vemodal-header { background: #e9eef3 !important; color: #243447 !important; }
+#veStaffList .ve-suggest-dialog .vemodal-title { color: #243447 !important; }
+#veStaffList .ve-suggest-dialog .ve-suggest-edit-value-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,250px),1fr)); gap: 16px; }
+#veStaffList .ve-suggest-dialog input { box-sizing: border-box; width: 100%; min-width: 0; padding: 12px; border: 1px solid #b8c4d1; border-radius: 10px; background: #f4f7fa; color: #243447; }
+#veStaffList .ve-suggest-dialog .vemodal-footer { display: flex; flex-wrap: wrap; gap: 12px; }
+#veStaffList .ve-suggest-dialog button { min-height: 44px; padding: 10px 18px; border: 1px solid #b8c4d1; border-radius: 10px; cursor: pointer; }
+#veStaffList .ve-suggest-dialog button:disabled { opacity: .6; cursor: default; }
+@media (forced-colors: active) {
+  #veStaffList button, .ve-staff-filter-surface input, .ve-staff-filter-surface select { border: 1px solid ButtonText; box-shadow: none; }
+}
+
+
 
 /*
  * Size directory cards against their own available width, not the host viewport.
