@@ -16,4 +16,4 @@ const modules = ['ve-select2.js', 've-lazy-load.js', 'listing.js'].map(name => {
 });
 const target = path.join(project, 'src/runtime');
 fs.mkdirSync(target, { recursive: true });
-fs.writeFileSync(path.join(target, 'directory.ts'), '// @ts-nocheck\n// Generated from WordPress sources by scripts/prepare-runtime.cjs.\nexport function createDirectoryRuntime() {\nconst windowObject = window;\nconst namespace = {};\n' + modules.join('\n') + '\nreturn namespace;\n}\n');
+fs.writeFileSync(path.join(target, 'directory.ts'), '// @ts-nocheck\n// Generated from WordPress sources by scripts/prepare-runtime.cjs.\nexport function createDirectoryRuntime() {\nconst windowObject = window;\nconst namespace = { integration: "sharepoint" };\n' + modules.join('\n') + '\nreturn namespace;\n}\n');
