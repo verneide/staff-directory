@@ -191,3 +191,51 @@ test('suggestion dialog populates staff, submits once and stays on page', async 
   assert.equal(root.querySelector('dialog'), null);
   runtime.dispose(root); window.close();
 });
+
+test('quick filters stay inline, internal filters combine, compact layout preserves selection', () => {
+  const dom = new JSDOM('<div id="host"></div>', {url:'https://verneide.sharepoint.com'});
+  const {window} = dom;
+  window.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
+  window.HTMLDialogElement.prototype.close = function () { this.open = false; };
+  const root = window.document.getElementById('host').attachShadow({mode:'open'});
+  const card = (name,title,phone,email) => `<div class="employee-tile" data-employee-name="${name}" data-ext="123"><span class="employee-title">${title}</span><div class="employee-internal-details"><div class="ve-contact-wrap"><span class="ve-block"><span class="ve-bolder">Email: </span><a href="mailto:${email}">${email}</a></span><a href="tel:${phone}">${phone}</a></div></div></div>`;
+  root.innerHTML = `<style data-ve-staff></style><div id="veStaffList"><button data-ve-staff-filters-open>Filters</button><div class="ve-staff-filters"><div id="employeeHeadingWrapper"><div class="ve-row"><div class="employeeFilterWrapper"><input id="employeenamesearch"></div><div class="extFilterWrapper"><input id="employeeextsearch"></div></div></div><button id="resetFilterBtn">Reset</button><button data-ve-staff-filters-close>Close</button></div><div class="employee-list"><div class="ve-row">${card('Alice','Advisor','605-555-1234','alice@example.com')}${card('Bob','Manager','6055559999','bob@example.com')}</div></div></div>`;
+  const {createDirectoryRuntime} = load('src/runtime/directory.ts', {window, document:window.document, MutationObserver:window.MutationObserver});
+  const runtime=createDirectoryRuntime(); runtime.initialize(root);
+  assert.ok(root.querySelector('.ve-directory-toolbar #employeenamesearch'));
+  assert.ok(root.querySelector('.ve-directory-toolbar #employeeextsearch'));
+  assert.equal(root.querySelector('.ve-staff-filters #employeenamesearch'),null);
+  assert.equal(root.querySelectorAll('#employeetitleselect option').length,3);
+  assert.ok(root.querySelector('.ve-detail-label').textContent === 'Email');
+  assert.ok(root.querySelector('.ve-detail-icon svg'));
+  const change = (id,value) => {const field=root.querySelector('#'+id); field.value=value; field.dispatchEvent(new window.Event('input',{bubbles:true}));};
+  change('employeephonesearch','(605) 555-1234');
+  change('employeeemailsearch','ALICE@');
+  change('employeetitleselect','Advisor');
+  assert.equal(root.querySelectorAll('.employee-tile:not(.ve-hidden)').length,1);
+  assert.equal(root.querySelectorAll('.ve-filter-pill').length,3);
+  root.querySelectorAll('.ve-layout-options button')[1].click();
+  assert.ok(root.querySelector('.ve-layout-compact'));
+  assert.equal(root.querySelectorAll('.employee-tile:not(.ve-hidden)').length,1);
+  root.querySelector('[data-ve-staff-filters-open]').click();
+  const portal=window.document.querySelector('dialog'); assert.ok(portal.open);
+  assert.ok(root.querySelector('#employeeextsearch'));
+  const panel=portal.querySelector('div').shadowRoot;
+  panel.querySelector('[data-ve-staff-filters-close]').click();
+  assert.equal(root.querySelector('#employeephonesearch').value,'(605) 555-1234');
+  root.querySelector('[data-remove-filter="employeephonesearch"]').click();
+  assert.equal(root.querySelector('#employeephonesearch').value,'');
+  root.querySelector('#resetFilterBtn').click();
+  assert.equal(root.querySelectorAll('.employee-tile.ve-hidden').length,0);
+  runtime.dispose(root); window.close();
+});
+
+test('public lists never gain internal search fields or contact attributes', () => {
+  const dom=new JSDOM('<div id="veStaffList"><div class="employee-list"><div class="employee-tile"><span class="employee-title">Advisor</span><a href="mailto:public@example.com">Contact</a></div></div></div>');
+  const {window}=dom;
+  const {createDirectoryRuntime}=load('src/runtime/directory.ts',{window,document:window.document,MutationObserver:window.MutationObserver});
+  const runtime=createDirectoryRuntime(); runtime.initialize(window.document);
+  assert.equal(window.document.querySelector('#employeeemailsearch, #employeephonesearch, #employeetitleselect, [data-search-email]'),null);
+  assert.ok(window.document.querySelector('.ve-layout-options'));
+  runtime.dispose(window.document);window.close();
+});
