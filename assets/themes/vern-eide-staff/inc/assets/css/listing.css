@@ -106,6 +106,82 @@
 
 
 
+/* Responsive toolbar, advanced filters and compact staff layout. */
+.ve-staff-filter-surface .ve-advanced-fields { display: grid !important; grid-template-columns: repeat(auto-fit,minmax(min(100%,230px),1fr)); gap: 20px; position: static !important; background: transparent !important; }
+#veStaffList .ve-directory-toolbar {
+  display: flex; flex-wrap: wrap; align-items: end; gap: 12px;
+  margin: 8px 0 24px; padding: 18px; border: 1px solid #d8e0e7;
+  border-radius: 16px; background: #f4f7f9; box-sizing: border-box;
+}
+#veStaffList .ve-quick-filter { display: grid; flex: 1 1 200px; gap: 7px; min-width: 0; margin: 0; color: #536575; font: 600 12px/1.4 Arial,sans-serif; }
+#veStaffList .ve-quick-filter:has(#employeeextsearch) { flex: 0 1 130px; }
+#veStaffList .ve-quick-filter input,
+.ve-staff-filter-surface :is(input,select) {
+  width: 100% !important; height: 44px !important; min-height: 44px !important;
+  min-width: 0 !important; max-width: 100%; margin: 0 !important;
+  padding: 10px 12px !important; border: 1px solid #c4d0d9 !important;
+  border-radius: 10px !important; box-sizing: border-box;
+  background: #fff !important; color: #263b49 !important; font: 400 15px/1.4 Arial,sans-serif !important;
+  box-shadow: inset 0 1px 3px rgb(36 52 71 / 5%) !important;
+}
+.ve-staff-filter-surface select { padding-right: 32px !important; text-overflow: ellipsis; }
+.ve-staff-filter-surface #employeeHeadingWrapper > .ve-row { gap: 20px; grid-template-columns: repeat(auto-fit,minmax(min(100%,230px),1fr)); }
+.ve-staff-filter-surface :is(.ve-advanced-filter,.ve-form > div) { display: grid; gap: 8px; margin: 0; align-content: start; }
+.ve-staff-filter-surface .filter-label { font: 600 12px/1.4 Arial,sans-serif !important; letter-spacing: .02em !important; text-transform: none !important; color: #536575 !important; }
+.ve-staff-filter-surface .ve-filter-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; border-top: 1px solid #d2dbe3; margin-top: 24px; padding-top: 20px; }
+.ve-staff-filter-surface .ve-filter-actions :is(#resetFilterBtn,[data-ve-staff-filters-close]) { width: 156px !important; height: 44px !important; min-height: 44px; margin: 0 !important; padding: 10px 16px !important; line-height: 22px; }
+#veStaffList.ve-directory-enhanced [data-ve-staff-filters-open] { height: 44px; min-height: 44px; padding: 10px 16px; font: 600 14px/1.4 Arial,sans-serif; }
+#veStaffList .ve-layout-options { display: inline-flex; flex: 0 0 auto; gap: 3px; padding: 3px; border: 1px solid #c4d0d9; border-radius: 12px; background: #e7edf1; height: 44px; box-sizing: border-box; }
+#veStaffList .ve-layout-options button { padding: 6px 12px; border: 0; border-radius: 8px; background: transparent; color: #536575; font: 600 13px/1.4 Arial,sans-serif; cursor: pointer; }
+#veStaffList .ve-layout-options button[aria-pressed="true"] { background: #fff; color: #236c63; box-shadow: 0 2px 5px rgb(36 52 71 / 12%); }
+#veStaffList .employee-list { margin-top: 12px !important; }
+#veStaffList .ve-filter-pills { margin: -8px 0 26px; }
+#veStaffList .employee-tile .ve-contact-info-btn {
+  display: inline-flex !important; align-items: center; justify-content: center;
+  box-sizing: border-box !important; max-width: 100% !important; min-width: 0;
+  min-height: 36px !important; height: auto !important; padding: 8px 10px !important;
+  margin: 6px 0 !important; font-size: 12px !important; line-height: 18px !important;
+  white-space: normal !important; overflow-wrap: anywhere; border-radius: 9px;
+}
+#veStaffList .ve-contact-wrap { box-sizing: border-box; width: 100%; min-width: 0; padding: 16px !important; }
+#veStaffList .ve-contact-wrap .ve-contact-info-btn { width: 100% !important; float: none !important; }
+#veStaffList .ve-contact-wrap .ve-detail-row { display: flex !important; align-items: flex-start; gap: 12px; margin: 0 0 14px; min-width: 0; text-align: left; }
+#veStaffList .ve-detail-icon { display: inline-flex; flex: 0 0 18px; width: 18px; height: 20px; margin-top: 10px; color: #34867b; }
+#veStaffList .ve-detail-icon svg { width: 18px; height: 18px; }
+#veStaffList .ve-detail-content { display: grid; gap: 3px; min-width: 0; }
+#veStaffList .ve-detail-label { font: 400 11px/1.4 Arial,sans-serif; color: #71808b; }
+#veStaffList .ve-detail-value { font: 400 14px/1.5 Arial,sans-serif; color: #263b49; overflow-wrap: anywhere; }
+#veStaffList .ve-detail-value a { color: inherit; min-height: 0; }
+#veStaffList.ve-layout-compact .employee-list .employee-tile { --ve-staff-card-width: 100%; flex: 0 0 var(--ve-staff-card-width) !important; max-width: var(--ve-staff-card-width) !important; padding: 8px !important; margin-bottom: 0 !important; }
+#veStaffList.ve-layout-compact .employee-wrapper { display: grid; grid-template-columns: 56px minmax(0,1fr) 96px; gap: 12px; align-items: center; padding: 14px !important; text-align: left; }
+#veStaffList.ve-layout-compact .employee-tile-img { width: 56px !important; height: 56px !important; margin: 0 !important; padding: 0 !important; overflow: hidden; border-radius: 50%; }
+#veStaffList.ve-layout-compact .employee-tile-img img { display: block; width: 56px !important; height: 56px !important; max-width: none !important; object-fit: cover; object-position: center 20%; border-radius: 50%; }
+#veStaffList.ve-layout-compact .employee-details-wrapper { min-width: 0; margin: 0; padding: 0; }
+#veStaffList.ve-layout-compact .employee-details { margin: 0 !important; padding: 0 !important; text-align: left !important; }
+#veStaffList.ve-layout-compact .employee-name { margin: 0 0 4px !important; font-size: 14px !important; line-height: 1.4; }
+#veStaffList.ve-layout-compact .employee-title { font-size: 12px !important; line-height: 1.4; color: #637583 !important; }
+#veStaffList.ve-layout-compact .employee-location { font-size: 11px !important; padding-top: 4px !important; }
+#veStaffList.ve-layout-compact .employee-details hr,
+#veStaffList.ve-layout-compact .location-logo { display: none; }
+#veStaffList.ve-layout-compact .employee-internal-details { display: contents !important; }
+#veStaffList.ve-layout-compact .employee-internal-details > .ve-contact-info-btn { grid-column: 3; grid-row: 1; width: 96px; font-size: 11px !important; }
+#veStaffList.ve-layout-compact .employee-internal-details > :is(.collapse,.ve-birthday) { grid-column: 1 / -1; }
+#veStaffList.ve-layout-compact .employee-wrapper > .ve-md-block { grid-column: 2 / -1; }
+#veStaffList.ve-layout-compact .employee-tile-img .ve-tag-pills { display: none; }
+@container ve-staff-cards (min-width: 760px) {
+  #veStaffList.ve-layout-compact .employee-list .employee-tile { --ve-staff-card-width: 50%; }
+}
+@container ve-staff-cards (min-width: 1200px) {
+  #veStaffList.ve-layout-compact .employee-list .employee-tile { --ve-staff-card-width: 33.333333%; }
+}
+@media (max-width: 767.98px) {
+  #veStaffList .ve-directory-toolbar { padding: 14px; gap: 10px; }
+  #veStaffList .ve-quick-filter { flex-basis: 160px; }
+  #veStaffList .ve-quick-filter:has(#employeeextsearch) { flex: 1 1 90px; }
+  .ve-staff-filter-surface .ve-filter-actions { position: sticky; bottom: -20px; background: #e9eef3; padding-bottom: 16px; }
+  .ve-staff-filter-surface .ve-filter-actions button { flex: 1; }
+}
+
 /*
  * Size directory cards against their own available width, not the host viewport.
  * Outside @scope deliberately: explicit selectors work in both normal embeds
