@@ -36,7 +36,7 @@ const EideWebStaffIntegration: React.FC<IEideWebStaffIntegrationProps> = (props)
     const wrapper = document.createElement('div');
     wrapper.className = 've-staff-embed';
     wrapper.innerHTML = DOMPurify.sanitize(payload.html, {
-      USE_PROFILES: { html: true }, FORBID_TAGS: ['style', 'link', 'iframe', 'object', 'embed', 'form']
+      USE_PROFILES: { html: true }, FORBID_TAGS: ['style', 'link', 'iframe', 'object', 'embed']
     });
     // CSS is text, never interpolated into HTML; a closing style tag cannot inject markup.
     const style = document.createElement('style');
