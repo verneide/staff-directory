@@ -4,6 +4,9 @@ on:
     paths:
       - 'sharepoint/**'
       - 'assets/plugins/ve-staff/public/partials/ve-staff-public-functions.php'
+      - 'assets/themes/vern-eide-staff/single-listing.php'
+      - 'assets/themes/vern-eide-staff/single-simple-listing.php'
+      - 'assets/themes/vern-eide-staff/template-parts/list-html-internal.php'
       - 'assets/themes/vern-eide-staff/inc/assets/js/listing.js'
       - 'assets/themes/vern-eide-staff/inc/assets/js/ve-lazy-load.js'
       - '.github/workflows/sharepoint.yml'
@@ -31,7 +34,9 @@ jobs:
       - run: npm ci
       - run: npm test
       - name: Validate list discovery access and query
-        run: php tests/catalog.test.php
+        run: |
+          php tests/catalog.test.php
+          php tests/template-context.test.php
       - run: npm run package
       - name: Verify generated SharePoint package
         id: verify
