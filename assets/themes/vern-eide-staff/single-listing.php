@@ -1,4 +1,7 @@
 <?php
+// Nested WordPress template parts consume this shared rendering context.
+global $output, $dept_taxonomy_terms, $depttaxonomy, $locationtaxonomy, $listinglocations, $notvisible, $showdepartments, $showtitles, $internal, $showbios, $showaptsbtn, $listid, $listingtype, $excludeddepartments, $showfilters, $type, $group, $debug, $showpgtitle, $rowcolumns, $showfullname, $showfulllastname, $webvisiblebypass, $loggedin, $pgtypecssid, $htmlcontent, $listingmodals, $showloclogo;
+
 /**
  * Template for staff listings.
  * - Updated 02/06/2026
@@ -103,11 +106,7 @@ if (current_user_can('manage_options') || current_user_can('create_staff')) {
 }
 
 $apikey = '37462087-e53d-45a0-9e1f-628a125412bd';
-$internal = false;
-
-if ($internalpage == true && (($api === $apikey) || $loggedin)) {
-	$internal = true;
-}
+$internal = ve_staff_internal_listing_allowed($internalpage, $api, $apikey, $loggedin);
 
 $notvisible = ($internal || $webvisiblebypass) ? 0 : 1;
 
