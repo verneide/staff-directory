@@ -133,7 +133,7 @@
 #veStaffList.ve-directory-enhanced [data-ve-staff-filters-open] { height: 44px; min-height: 44px; padding: 10px 16px; font: 600 14px/1.4 Arial,sans-serif; }
 #veStaffList .ve-layout-options { display: inline-flex; flex: 0 0 auto; gap: 3px; padding: 3px; border: 1px solid #c4d0d9; border-radius: 12px; background: #e7edf1; height: 44px; box-sizing: border-box; }
 #veStaffList .ve-layout-options button { padding: 6px 12px; border: 0; border-radius: 8px; background: transparent; color: #536575; font: 600 13px/1.4 Arial,sans-serif; cursor: pointer; }
-#veStaffList .ve-layout-options button[aria-pressed="true"] { background: #fff; color: #236c63; box-shadow: 0 2px 5px rgb(36 52 71 / 12%); }
+#veStaffList .ve-layout-options button[aria-pressed="true"] { background: #fff; color: var(--ve-directory-primary, #424242); box-shadow: 0 2px 5px rgb(36 52 71 / 12%); }
 #veStaffList .employee-list { margin-top: 12px !important; }
 #veStaffList .ve-filter-pills { margin: -8px 0 26px; }
 #veStaffList .employee-tile .ve-contact-info-btn {
@@ -146,14 +146,14 @@
 #veStaffList .ve-contact-wrap { box-sizing: border-box; width: 100%; min-width: 0; padding: 16px !important; }
 #veStaffList .ve-contact-wrap .ve-contact-info-btn { width: 100% !important; float: none !important; }
 #veStaffList .ve-contact-wrap .ve-detail-row { display: flex !important; align-items: flex-start; gap: 12px; margin: 0 0 14px; min-width: 0; text-align: left; }
-#veStaffList .ve-detail-icon { display: inline-flex; flex: 0 0 18px; width: 18px; height: 20px; margin-top: 10px; color: #34867b; }
+#veStaffList .ve-detail-icon { display: inline-flex; flex: 0 0 18px; width: 18px; height: 20px; margin-top: 10px; color: var(--ve-directory-primary, #424242); }
 #veStaffList .ve-detail-icon svg { width: 18px; height: 18px; }
-#veStaffList .ve-detail-content { display: grid; gap: 3px; min-width: 0; }
-#veStaffList .ve-detail-label { font: 400 11px/1.4 Arial,sans-serif; color: #71808b; }
+#veStaffList .ve-detail-content { display: grid; gap: 0; min-width: 0; }
+#veStaffList .ve-detail-label { font: 400 11px/1.4 Arial,sans-serif; color: var(--ve-directory-secondary, #808080); }
 #veStaffList .ve-detail-value { font: 400 14px/1.5 Arial,sans-serif; color: #263b49; overflow-wrap: anywhere; }
 #veStaffList .ve-detail-value a { color: inherit; min-height: 0; }
-#veStaffList.ve-layout-compact .employee-list .employee-tile { --ve-staff-card-width: 100%; flex: 0 0 var(--ve-staff-card-width) !important; max-width: var(--ve-staff-card-width) !important; padding: 8px !important; margin-bottom: 0 !important; }
-#veStaffList.ve-layout-compact .employee-wrapper { display: grid; grid-template-columns: 56px minmax(0,1fr) 96px; gap: 12px; align-items: center; padding: 14px !important; text-align: left; }
+#veStaffList.ve-layout-compact .employee-list .employee-tile { --ve-compact-card-width: 100%; flex: 0 0 var(--ve-compact-card-width) !important; max-width: var(--ve-compact-card-width) !important; padding: 8px !important; margin-bottom: 0 !important; }
+#veStaffList.ve-layout-compact .employee-wrapper { display: grid; grid-template-columns: 56px minmax(0,1fr) 36px; gap: 12px; align-items: center; padding: 14px !important; text-align: left; }
 #veStaffList.ve-layout-compact .employee-tile-img { width: 56px !important; height: 56px !important; margin: 0 !important; padding: 0 !important; overflow: hidden; border-radius: 50%; }
 #veStaffList.ve-layout-compact .employee-tile-img img { display: block; width: 56px !important; height: 56px !important; max-width: none !important; object-fit: cover; object-position: center 20%; border-radius: 50%; }
 #veStaffList.ve-layout-compact .employee-details-wrapper { min-width: 0; margin: 0; padding: 0; }
@@ -164,15 +164,15 @@
 #veStaffList.ve-layout-compact .employee-details hr,
 #veStaffList.ve-layout-compact .location-logo { display: none; }
 #veStaffList.ve-layout-compact .employee-internal-details { display: contents !important; }
-#veStaffList.ve-layout-compact .employee-internal-details > .ve-contact-info-btn { grid-column: 3; grid-row: 1; width: 96px; font-size: 11px !important; }
+#veStaffList.ve-layout-compact .employee-internal-details > .ve-contact-info-btn { grid-column: 3; grid-row: 1; width: 36px; font-size: 11px !important; }
 #veStaffList.ve-layout-compact .employee-internal-details > :is(.collapse,.ve-birthday) { grid-column: 1 / -1; }
 #veStaffList.ve-layout-compact .employee-wrapper > .ve-md-block { grid-column: 2 / -1; }
 #veStaffList.ve-layout-compact .employee-tile-img .ve-staff-tags--photo { display: none; }
 @container ve-staff-cards (min-width: 760px) {
-  #veStaffList.ve-layout-compact .employee-list .employee-tile { --ve-staff-card-width: 50%; }
+  #veStaffList.ve-layout-compact .employee-list .employee-tile { --ve-compact-card-width: 50%; }
 }
-@container ve-staff-cards (min-width: 1200px) {
-  #veStaffList.ve-layout-compact .employee-list .employee-tile { --ve-staff-card-width: 33.333333%; }
+@container ve-staff-cards (min-width: 1800px) {
+  #veStaffList.ve-layout-compact .employee-list .employee-tile { --ve-compact-card-width: 33.333333%; }
 }
 @media (max-width: 767.98px) {
   #veStaffList .ve-directory-toolbar { padding: 14px; gap: 10px; }
@@ -180,6 +180,25 @@
   #veStaffList .ve-quick-filter:has(#employeeextsearch) { flex: 1 1 90px; }
   .ve-staff-filter-surface .ve-filter-actions { position: sticky; bottom: -20px; background: #e9eef3; padding-bottom: 16px; }
   .ve-staff-filter-surface .ve-filter-actions button { flex: 1; }
+}
+
+/* Compact geometry is independent of the standard card width breakpoints. */
+#veStaffList .ve-compact-summary,
+#veStaffList .ve-contact-toggle-icon { display: none; }
+#veStaffList.ve-layout-compact .employee-name { padding-bottom: 0 !important; }
+#veStaffList.ve-layout-compact .employee-title { max-width: none !important; width: auto !important; }
+#veStaffList.ve-layout-compact .employee-details > :is(.employee-title,.employee-location) { display: none !important; }
+#veStaffList.ve-layout-compact .ve-compact-summary { display: flex; flex-flow: row wrap; align-items: baseline; gap: 4px 12px; min-width: 0; }
+#veStaffList.ve-layout-compact .ve-compact-summary > * { min-width: 0; margin: 0 !important; padding: 0 !important; font-size: 12px !important; line-height: 1.5; color: var(--ve-directory-primary, #424242) !important; overflow-wrap: anywhere; }
+#veStaffList.ve-layout-compact .ve-compact-summary .employee-location { display: inline-flex !important; }
+#veStaffList.ve-layout-compact .employee-internal-details > button.ve-contact-info-btn { width: 36px !important; height: 36px !important; min-height: 36px !important; padding: 8px !important; border: 1px solid #d0d0d0; border-radius: 9px; background: #f5f5f5; color: var(--ve-directory-primary, #424242); }
+#veStaffList.ve-layout-compact .ve-contact-toggle-text { display: none; }
+#veStaffList.ve-layout-compact .ve-contact-toggle-icon { display: inline-flex; width: 18px; height: 18px; margin: 0; }
+#veStaffList.ve-layout-compact .ve-contact-values { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 20px; }
+#veStaffList.ve-layout-compact .ve-contact-values .ve-detail-row { margin: 0 0 4px; }
+@media (max-width: 767.98px) {
+  #veStaffList.ve-layout-compact .ve-compact-summary { flex-direction: column; gap: 2px; }
+  #veStaffList.ve-layout-compact .ve-contact-values { grid-template-columns: minmax(0,1fr); }
 }
 
 /*
