@@ -239,3 +239,31 @@ test('public lists never gain internal search fields or contact attributes', () 
   assert.ok(window.document.querySelector('.ve-layout-options'));
   runtime.dispose(window.document);window.close();
 });
+
+test('compact summaries preserve contact links and the original expandable details', () => {
+  const dom = new JSDOM(`<div id="veStaffList"><div class="employee-list"><div class="employee-tile"><div class="employee-details"><h3 class="employee-name">Alice</h3><span class="employee-title">Advisor</span><span class="employee-location">Main Office</span></div><div class="employee-internal-details"><button data-bs-toggle="collapse" data-bs-target="#contact">View More Info</button><div id="contact" class="collapse"><div class="ve-contact-wrap"><span class="ve-block"><span class="ve-bolder">Ext: </span>123</span><span class="ve-block"><span class="ve-bolder">Email: </span><a href="mailto:alice@example.com">alice@example.com</a></span><span class="ve-block"><span class="ve-bolder">Direct: </span><a href="tel:6055551234">605-555-1234</a></span></div></div></div></div></div></div>`);
+  const {window}=dom;
+  const {createDirectoryRuntime}=load('src/runtime/directory.ts',{window,document:window.document,MutationObserver:window.MutationObserver});
+  const runtime=createDirectoryRuntime(); runtime.initialize(window.document);
+  const summary=window.document.querySelector('.ve-compact-summary');
+  assert.equal(summary.querySelector('.employee-location').textContent,'Main Office');
+  assert.equal(summary.querySelector('.ve-summary-extension').textContent,'Ext. 123');
+  assert.equal(summary.querySelector('a').getAttribute('href'),'mailto:alice@example.com');
+  assert.equal(window.document.querySelectorAll('.ve-contact-values .ve-detail-row').length,3);
+  assert.equal(window.document.querySelector('.ve-contact-values a[href^="mailto:"]').textContent,'alice@example.com');
+  const button=window.document.querySelector('[data-bs-toggle="collapse"]');
+  assert.equal(button.getAttribute('data-bs-target'),'#contact');
+  assert.equal(button.getAttribute('aria-label'),'View more info for Alice');
+  assert.ok(button.querySelector('.ve-contact-toggle-icon svg'));
+  runtime.dispose(window.document);window.close();
+});
+
+test('compact widths use a separate variable from standard column breakpoints', () => {
+  const css=fs.readFileSync('../../assets/themes/vern-eide-staff/inc/assets/css/listing.css','utf8');
+  const rules=[...css.matchAll(/#veStaffList\.ve-layout-compact \.employee-list \.employee-tile\s*\{([^}]+)\}/g)].map(match=>match[1]);
+  assert.equal(rules.length,3);
+  assert.ok(rules.every(rule=>!rule.includes('--ve-staff-card-width')));
+  assert.ok(rules[0].includes('var(--ve-compact-card-width)'));
+  assert.ok(rules[1].includes('--ve-compact-card-width: 50%'));
+  assert.ok(rules[2].includes('--ve-compact-card-width: 33.333333%'));
+});
