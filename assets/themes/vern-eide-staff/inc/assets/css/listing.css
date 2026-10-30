@@ -598,6 +598,52 @@
 #veStaffList.ve-layout-compact .ve-compact-heading .ve-detail-icon { align-self:center;vertical-align:middle;margin:0!important; }
 #veStaffList.ve-layout-compact .ve-compact-heading .ve-staff-tags { flex:0 1 auto;gap:4px; }
 @media(max-width:767.98px){#veStaffList.ve-layout-compact .ve-compact-summary{align-items:flex-start;}}
+/* Mobile cards follow the available directory width, including embedded lists. */
+@container ve-staff-cards (max-width: 767.98px) {
+  #veStaffList:not(.ve-layout-compact) .employee-tile-img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    aspect-ratio: 4 / 5;
+    margin: 0 !important;
+  }
+  #veStaffList:not(.ve-layout-compact) .employee-tile-img > img {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    object-fit: contain;
+    object-position: center;
+  }
+  #veStaffList.ve-layout-compact .ve-compact-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 2px 8px;
+  }
+  #veStaffList.ve-layout-compact .ve-compact-heading .employee-name {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+  #veStaffList.ve-layout-compact .ve-compact-heading .ve-staff-tags {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    justify-content: flex-end;
+    max-width: 100px;
+  }
+  #veStaffList.ve-layout-compact .ve-compact-heading .employee-title {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  #veStaffList.ve-layout-compact .ve-compact-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}
+
 /*
  * Size directory cards against their own available width, not the host viewport.
  * Outside @scope deliberately: explicit selectors work in both normal embeds
@@ -628,7 +674,7 @@
     max-width: var(--ve-staff-card-width);
   }
 
-  @container ve-staff-cards (min-width: 576px) {
+  @container ve-staff-cards (min-width: 360px) {
     #veStaffList .employee-list .employee-tile { --ve-staff-card-width: 50%; }
   }
   @container ve-staff-cards (min-width: 768px) {
