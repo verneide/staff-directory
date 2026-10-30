@@ -294,7 +294,7 @@ test('actual Select2 supports OR within a field, AND across fields, pills and re
   runtime.dispose(root); assert.equal($(location).data('select2'),undefined); window.close();
 });
 
-test('PDF view exports visible staff only with contact values and no filter or action content', () => {
+test('PDF view exports visible staff with only photo, name, title and location', () => {
   const dom=new JSDOM('<div id="veStaffList"></div>'); const {window}=dom;
   const root=window.document.querySelector('#veStaffList');
   root.innerHTML='<div class="ve-directory-toolbar">Secret filter text</div><div class="ve-filter-pills">Selected location</div>';
@@ -308,8 +308,36 @@ test('PDF view exports visible staff only with contact values and no filter or a
     assert.equal(doc.querySelector('.print-row').children.length,columns);
     assert.equal(doc.querySelectorAll('.print-card:not(.empty)').length,6);
     assert.ok(doc.querySelector('style').textContent.includes('size:Letter '+orientation));
-    assert.ok(doc.body.textContent.includes('person0@example.com'));
+    assert.equal(doc.body.textContent.includes('person0@example.com'), false);
+    assert.ok(doc.body.textContent.includes('Advisor'));
+    assert.ok(doc.body.textContent.includes('Office'));
     for(const omitted of ['Employee 6','Secret filter text','Selected location','Suggest an Edit','Download vCard','View More Info','api=secret']) assert.equal(doc.body.innerHTML.includes(omitted),false);
   }
   window.close();
+});
+
+test('PDF departments use visible counts for breaks, repeated headers and fixed card columns', () => {
+  const dom=new JSDOM('<div id="veStaffList"></div>');const {window}=dom;const root=window.document.querySelector('#veStaffList');
+  for(const [department,count] of [['Small A',1],['Small B',3],['Large',4],['Filtered',5]]) {
+    for(let i=0;i<count;i++) root.insertAdjacentHTML('beforeend',`<div class="employee-tile ${department==='Filtered'&&i>0?'ve-hidden':''}" data-dept="${department}"><div class="employee-tile-img"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="></div><div class="employee-details"><h3 class="employee-name">Person ${i}</h3><span class="employee-title">Advisor</span><span class="employee-location">Office</span></div><div class="ve-staff-tags">Private tag</div><div class="years-service">17 years of service</div><div class="ve-contact-wrap">Private contact</div></div>`);
+  }
+  const {createDirectoryRuntime}=load('src/runtime/directory.ts',{window,document:window.document,MutationObserver:window.MutationObserver});const runtime=createDirectoryRuntime();const doc=window.document.implementation.createHTMLDocument('');
+  assert.equal(runtime.buildPrintDocument(root,doc,'landscape'),9);
+  const tables=Array.from(doc.querySelectorAll('.print-department'));
+  assert.deepEqual(tables.map(table=>table.querySelector('thead').textContent),['Small A','Small B','Large','Filtered']);
+  assert.deepEqual(tables.map(table=>table.classList.contains('large')),[false,false,true,false]);
+  for(const table of tables) {assert.equal(table.querySelector('th').colSpan,5);assert.equal(table.querySelector('tbody tr').children.length,5);}
+  for(const omitted of ['Private tag','17 years','Private contact']) assert.equal(doc.body.textContent.includes(omitted),false);
+  assert.equal(doc.querySelectorAll('.print-photo').length,9);
+  window.close();
+});
+
+test('Save PDF controls exist only in the SharePoint runtime, not site or embed listings', () => {
+  for (const integration of ['sharepoint',undefined]) {
+    const dom=new JSDOM('<div id="veStaffList"><div class="employee-list"><div class="employee-tile"></div></div></div>');const {window}=dom;
+    const {createDirectoryRuntime}=load('src/runtime/directory.ts',{window,document:window.document,MutationObserver:window.MutationObserver});const runtime=createDirectoryRuntime();
+    runtime.integration=integration;runtime.initialize(window.document);
+    assert.equal(!!window.document.querySelector('.ve-pdf-controls'),integration==='sharepoint');
+    runtime.dispose(window.document);window.close();
+  }
 });
