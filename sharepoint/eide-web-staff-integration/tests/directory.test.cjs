@@ -54,6 +54,8 @@ test('retry temporary failure then accept JSON without cookies or identity discl
 test('shared runtime isolates instances, filters, resets, expands simple lists, disposes overlays', () => {
   const dom = new JSDOM('<div id="one"></div><div id="two"></div>', { url: 'https://example.sharepoint.com' });
   const { window } = dom;
+  window.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
+  window.HTMLDialogElement.prototype.close = function () { this.open = false; };
   let listeners = 0;
   window.matchMedia = () => ({ matches: true, addEventListener: () => listeners++, removeEventListener: () => listeners-- });
   const { createDirectoryRuntime } = load('src/runtime/directory.ts', { window, document: window.document, MutationObserver: window.MutationObserver });
@@ -75,6 +77,11 @@ test('shared runtime isolates instances, filters, resets, expands simple lists, 
   const input = one.querySelector('input'); input.value = 'alice'; input.dispatchEvent(new window.Event('input', { bubbles: true }));
   assert.equal(one.querySelectorAll('.employee-tile.ve-hidden').length, 1);
   assert.equal(two.querySelectorAll('.employee-tile.ve-hidden').length, 0);
+  assert.equal(one.querySelectorAll('.ve-filter-pill').length, 1);
+  one.querySelector('.ve-filter-pill').click();
+  assert.equal(input.value, '');
+  assert.equal(one.querySelectorAll('.employee-tile.ve-hidden').length, 0);
+  input.value = 'bob'; input.dispatchEvent(new window.Event('input', { bubbles: true }));
   one.querySelector('#resetFilterBtn').click();
   assert.equal(one.querySelectorAll('.employee-tile.ve-hidden').length, 0);
   one.querySelector('.employee-tile').classList.add('ve-hidden');
@@ -88,7 +95,7 @@ test('shared runtime isolates instances, filters, resets, expands simple lists, 
   assert.equal(window.document.querySelectorAll('.ve-staff-filter-portal').length, 0);
   dom.window.close();
 });
-test('contact details toggle independently and suggestions link to the source site', () => {
+test('contact details toggle independently and preserve the on-page suggestion button', () => {
   const dom = new JSDOM('<div id="host"></div>');
   const root = dom.window.document.getElementById('host').attachShadow({ mode: 'open' });
   root.innerHTML = '<button data-toggle="collapse" data-target="#collapse1"></button><div id="collapse1" class="collapse"></div><button class="ve-suggest-edit-btn">Suggest Edit</button>';
@@ -100,7 +107,8 @@ test('contact details toggle independently and suggestions link to the source si
   assert.ok(root.getElementById('collapse1').classList.contains('veshow'));
   button.click();
   assert.equal(button.getAttribute('aria-expanded'), 'false');
-  assert.equal(root.querySelector('a').href, 'https://staff.eideweb.com/listing/team/');
+  assert.equal(root.querySelector('a'), null);
+  assert.ok(root.querySelector('.ve-suggest-edit-btn'));
   dispose(); dom.window.close();
 });
 
@@ -151,4 +159,35 @@ test('explicit embed key survives list changes and cannot be sent to another ori
   assert.equal(updated.searchParams.get('api'), 'new');
   assert.equal(updated.searchParams.get('group'), 'TRUE');
   assert.throws(() => withEmbedApiKey('https://evil.example/listing/team/', 'fixture-key'));
+});
+
+test('suggestion dialog populates staff, submits once and stays on page', async () => {
+  const dom = new JSDOM(`<div class="ve-staff-embed"><div id="veStaffList" data-list-id="12"><button class="ve-suggest-edit-btn" data-staff-post-id="34" data-employee-name="Alice" data-current-title="Advisor">Suggest</button></div>
+  <div class="ve-suggest-edit-modal"><div class="vemodal-content"><span data-suggest-edit-employee></span><button data-suggest-edit-close>Close</button><form data-submit-url="https://staff.eideweb.com/wp-admin/admin-ajax.php" data-submit-nonce="fixture">
+  <input name="staff_post_id"><input name="employee_name"><input name="employee_name_display"><input name="requester_name"><input name="requester_email"><input name="internal_listing" value="1"><input data-current-value="title"><input name="current_title"><input name="suggested_title" value="Manager"><div class="ve-suggest-edit-status"></div><button type="submit">Send</button></form></div></div></div>`, {url:'https://verneide.sharepoint.com'});
+  const {window} = dom;
+  window.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
+  window.HTMLDialogElement.prototype.close = function () { this.open = false; };
+  let calls = 0;
+  const {createDirectoryRuntime} = load('src/runtime/directory.ts', {window, document:window.document, MutationObserver:window.MutationObserver, URL, URLSearchParams, FormData:window.FormData, AbortController, fetch:async (url, options) => {
+    calls++;
+    assert.equal(options.body.get('staff_post_id'), '34');
+    assert.equal(options.body.get('list_id'), '12');
+    assert.equal(options.body.get('current_title'), 'Advisor');
+    assert.equal(options.body.get('nonce'), 'fixture');
+    return {ok:true, json:async()=>({success:true,data:{message:'Submitted for review.'}})};
+  }});
+  const runtime = createDirectoryRuntime(); runtime.initialize(window.document);
+  const root = window.document.querySelector('#veStaffList'); root.querySelector('button').click();
+  const dialog = root.querySelector('dialog'); assert.ok(dialog.open);
+  const form = dialog.querySelector('form');
+  assert.equal(form.elements.employee_name.value, 'Alice');
+  form.dispatchEvent(new window.Event('submit', {cancelable:true}));
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(form.querySelector('.ve-suggest-edit-status').textContent, 'Submitted for review.');
+  form.dispatchEvent(new window.Event('submit', {cancelable:true}));
+  assert.equal(calls, 1);
+  dialog.querySelector('[data-suggest-edit-close]').click();
+  assert.equal(root.querySelector('dialog'), null);
+  runtime.dispose(root); window.close();
 });
