@@ -1,5 +1,71 @@
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Roboto:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 
+
+/*
+ * Size directory cards against their own available width, not the host viewport.
+ * Outside @scope deliberately: explicit selectors work in both normal embeds
+ * and the SharePoint Shadow DOM, and never resize SharePoint's canvas.
+ */
+@supports (container-type: inline-size) {
+  #veStaffList .employee-list {
+    container-name: ve-staff-cards;
+    container-type: inline-size;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  #veStaffList #pageContainer,
+  #veStaffList .ve-container,
+  #veStaffList .ve-container-sm,
+  #veStaffList .ve-container-md,
+  #veStaffList .ve-container-lg,
+  #veStaffList .ve-container-xl {
+    max-width: none;
+  }
+
+  /* Override viewport column classes only on cards, never nested card content. */
+  #veStaffList .employee-list .employee-tile {
+    --ve-staff-card-width: 100%;
+    flex: 0 0 var(--ve-staff-card-width);
+    max-width: var(--ve-staff-card-width);
+  }
+
+  @container ve-staff-cards (min-width: 576px) {
+    #veStaffList .employee-list .employee-tile { --ve-staff-card-width: 50%; }
+  }
+  @container ve-staff-cards (min-width: 768px) {
+    #veStaffList .employee-list .employee-tile { --ve-staff-card-width: 25%; }
+    #veStaffList .employee-list .employee-tile.ve-col-md-4 { --ve-staff-card-width: calc(100% / 3); }
+  }
+  @container ve-staff-cards (min-width: 992px) {
+    #veStaffList .employee-list .employee-tile.ve-col-lg-2-5 { --ve-staff-card-width: 20%; }
+    #veStaffList .employee-list .employee-tile.ve-col-lg-4 { --ve-staff-card-width: calc(100% / 3); }
+    #veStaffList .employee-list .employee-tile.ve-col-lg-3 { --ve-staff-card-width: 25%; }
+    #veStaffList .employee-list .employee-tile.ve-col-lg-2 { --ve-staff-card-width: calc(100% / 6); }
+  }
+
+  /* The default layout grows progressively on genuinely wide directory embeds. */
+  @container ve-staff-cards (min-width: 1400px) {
+    #veStaffList .employee-list .employee-tile.ve-col-lg-2-5 { --ve-staff-card-width: calc(100% / 6); }
+  }
+  @container ve-staff-cards (min-width: 1900px) {
+    #veStaffList .employee-list .employee-tile.ve-col-lg-2-5 { --ve-staff-card-width: calc(100% / 7); }
+  }
+  @container ve-staff-cards (min-width: 2200px) {
+    #veStaffList .employee-list .employee-tile.ve-col-lg-2-5 { --ve-staff-card-width: calc(100% / 8); }
+  }
+  @container ve-staff-cards (min-width: 2500px) {
+    #veStaffList .employee-list .employee-tile.ve-col-lg-2-5 { --ve-staff-card-width: calc(100% / 9); }
+  }
+  @container ve-staff-cards (min-width: 2750px) {
+    #veStaffList .employee-list .employee-tile.ve-col-lg-2-5 { --ve-staff-card-width: calc(100% / 10); }
+  }
+  @container ve-staff-cards (min-width: 3000px) {
+    #veStaffList .employee-list .employee-tile.ve-col-lg-2-5 { --ve-staff-card-width: calc(100% / 12); }
+  }
+}
+
 @scope (.ve-staff-embed, #veStaffList, #veStaffDisplay) {
 
 		#veStaffList div {
