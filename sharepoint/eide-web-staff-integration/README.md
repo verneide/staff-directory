@@ -120,3 +120,5 @@ Vendor provenance: `ve-select2.js` wraps the unmodified distribution JavaScript 
 ## Department PDF cards (2.5.1.0)
 
 The PDF snapshot copies only photo, name, title and location; contact values, tags, tenure and other messages are excluded. Photos fill the card width above the text. Portrait remains three across and landscape five. Staff are grouped by department in first-seen order. A department with more than three visible staff starts a new page; departments with one to three visible staff flow without a forced break and stay together when they fit. Department table headers repeat on continuation pages. Counts use the filtered snapshot, not the unfiltered directory. Normal browser pagination still applies when the next group cannot fit. Install the 2.5.1.0 SPPKG and deploy the shared theme runtime update.
+
+Save PDF is supported only in the SharePoint integration. The bundled runtime explicitly enables it; the staff site, public embeds and internal native embeds do not show the export controls. Deploying the theme runtime removes the previously added control from those pages after reload.
