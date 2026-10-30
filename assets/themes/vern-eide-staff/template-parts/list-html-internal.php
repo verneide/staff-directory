@@ -1,5 +1,7 @@
 <?php
-global $excludeddepartments, $listinglocations, $output, $showdepartments, $showfilters, $showtitles, $showbios, $type, $internal, $group, $debug, $showpgtitle, $rowcolumns, $showfullname, $showfulllastname, $webvisiblebypass, $loggedin, $locationtaxonomy, $pgtypecssid, $htmlcontent, $listid, $listingtype, $listingmodals;
+global $excludeddepartments, $listinglocations, $output, $showdepartments, $showfilters, $showtitles, $showbios, $showaptsbtn, $type, $internal, $group, $debug, $showpgtitle, $rowcolumns, $showfullname, $showfulllastname, $webvisiblebypass, $loggedin, $locationtaxonomy, $pgtypecssid, $htmlcontent, $listid, $listingtype, $listingmodals;
+// Only render this template after the parent authorizes internal output.
+if (empty($internal)) return;
 
 
 /* START GENERATING HTML FOR SCRIPT */
@@ -84,7 +86,7 @@ $staffCardNum = 1;
 					} else {
 						$webvisibleclass = '';
 					}
-					if (is_null($webvisible) || isset($internal) || isset($webvisiblebypass)){
+					if (is_null($webvisible) || !empty($internal) || !empty($webvisiblebypass)){
 						$webvisible = TRUE; //SET INITIAL STAFF WITH NULL TO TRUE TO MAKE VISIBLE
 					}
 					if ($webvisible == FALSE){
@@ -134,6 +136,7 @@ $staffCardNum = 1;
 								'showfullname' => $showfullname,
 								'showfulllastname' => $showfulllastname,
 								'showbios' => $showbios,
+                                'showaptsbtn' => $showaptsbtn,
 								'webvisiblebypass' => $webvisiblebypass,
 					),
 				)

@@ -1,4 +1,7 @@
 <?php
+// Nested WordPress template parts consume this shared rendering context.
+global $staff, $listid, $debug, $listinglocations, $locationtaxonomy, $notvisible, $internal, $birthdaylist, $newpromotionlist, $newmonthsprior, $bddaysbeforetoday, $bddaysaftertoday, $comparedatemonthyear;
+
 /**
  * Template: Staff Simple Listings (embed + page + json)
  * Drop-in replacement for single-simple-listing.php
@@ -99,11 +102,7 @@ if ($showlocnames === true) {
  *  INTERNAL FLAG
  *  ----------------------------- */
 $apikey   = '37462087-e53d-45a0-9e1f-628a125412bd';
-$internal = false;
-
-if ($internalpage === true && (($api === $apikey) || $loggedin)) {
-	$internal = true;
-}
+$internal = ve_staff_internal_listing_allowed($internalpage, $api, $apikey, $loggedin);
 
 $notvisible = $internal ? 0 : 1;
 
