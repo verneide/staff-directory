@@ -298,11 +298,13 @@
     style.textContent = '@page{size:Letter ' + (landscape ? 'landscape' : 'portrait') + ';margin:.35in}' +
       '*{box-sizing:border-box}body{margin:0;font:10pt/1.35 Arial,sans-serif;color:#222;background:white}' +
       '.print-help{padding:16px;background:#f2f2f2;margin-bottom:16px}.print-help button{margin-right:12px;padding:8px 16px}' +
-      '.print-row{display:table;table-layout:fixed;width:100%;border-spacing:8px;break-inside:avoid;page-break-inside:avoid}' +
-      '.print-card{display:table-cell;vertical-align:top;width:' + (100 / columns) + '%;border:1px solid #bbb;border-radius:8px;padding:10px;overflow-wrap:anywhere}' +
-      '.print-card.empty{border:0}.print-photo{width:64px;height:64px;object-fit:cover;border-radius:50%;float:left;margin:0 10px 8px 0}' +
-      'h2{font-size:12pt;margin:0 0 4px}.subtitle{margin:0 0 4px;font-size:9pt}.print-values{clear:both;padding-top:6px}' +
-      '.print-value{margin:0 0 6px}.print-label{display:block;font-size:8pt;color:#666}.print-message{margin-top:6px;font-size:9pt}' +
+      '.print-department{width:100%;table-layout:fixed;border-spacing:8px;margin:0 0 12px;break-inside:auto}' +
+      '.print-department thead{display:table-header-group}.print-department th{text-align:left;padding:0 0 6px;font-size:15pt;border-bottom:2px solid #424242}' +
+      '.print-department.large{break-before:page;page-break-before:always}.print-department.first{break-before:auto;page-break-before:auto}' +
+      '.print-row{break-inside:avoid;page-break-inside:avoid}.print-department.small{break-inside:avoid;page-break-inside:avoid}' +
+      '.print-card{vertical-align:top;width:' + (100 / columns) + '%;border:1px solid #bbb;padding:0;overflow-wrap:anywhere}' +
+      '.print-card.empty{border:0}.print-photo{display:block;width:100%;aspect-ratio:1;object-fit:cover;object-position:center top;margin:0}' +
+      '.print-info{padding:10px}h2{font-size:12pt;margin:0 0 4px}.subtitle{margin:0 0 4px;font-size:9pt}' +
       '@media print{.print-help{display:none!important}body{width:auto}}';
     doc.head.appendChild(style);
     var help = doc.createElement('div'); help.className = 'print-help';
@@ -315,39 +317,42 @@
       return !card.classList.contains('ve-hidden') && !card.hidden && windowObject.getComputedStyle(card).display !== 'none';
     });
     if (!cards.length) { var empty = doc.createElement('p'); empty.textContent = 'No staff match the current view.'; doc.body.appendChild(empty); }
-    var row;
-    cards.forEach(function (source, index) {
-      if (index % columns === 0) { row = doc.createElement('section'); row.className = 'print-row'; doc.body.appendChild(row); }
-      var card = doc.createElement('article'); card.className = 'print-card'; row.appendChild(card);
-      var image = source.querySelector('.employee-tile-img img');
-      if (image) {
-        var photo = doc.createElement('img'); photo.className = 'print-photo'; photo.alt = '';
-        photo.loading = 'eager'; photo.src = image.getAttribute('data-src') || image.getAttribute('data-lazy-src') || image.getAttribute('data-original') || image.currentSrc || image.src;
-        photo.addEventListener('error', function () { photo.remove(); }); card.appendChild(photo);
-      }
-      function textFrom(selector, tag, className) {
-        var element = source.querySelector(selector);
-        if (element && element.textContent.trim()) { var copy = doc.createElement(tag); copy.className = className; copy.textContent = element.textContent.trim(); card.appendChild(copy); }
-      }
-      textFrom('.employee-name', 'h2', '');
-      textFrom('.employee-details > .employee-title', 'p', 'subtitle');
-      textFrom('.employee-details > .employee-location, .employee-details > .ve-font-12', 'p', 'subtitle');
-      var values = doc.createElement('div'); values.className = 'print-values'; card.appendChild(values);
-      all(source, '.ve-contact-wrap .ve-detail-row').forEach(function (detail) {
-        var label = detail.querySelector('.ve-detail-label'); var value = detail.querySelector('.ve-detail-value');
-        if (!value || !value.textContent.trim()) return;
-        var item = doc.createElement('div'); item.className = 'print-value';
-        var caption = doc.createElement('span'); caption.className = 'print-label'; caption.textContent = label ? label.textContent.trim() : '';
-        var content = doc.createElement('span'); content.textContent = value.textContent.trim();
-        item.appendChild(caption); item.appendChild(content); values.appendChild(item);
-      });
-      textFrom('.ve-staff-tags', 'p', 'print-message');
-      textFrom('.employee-wrapper > .ve-md-block > .ve-pad-bottom-md', 'p', 'print-message');
-      textFrom('.years-service', 'p', 'print-message');
-      textFrom('.ve-birthday', 'p', 'print-message');
-      textFrom('.ve-message', 'p', 'print-message');
+    var departments = [];
+    cards.forEach(function (card) {
+      var name = (card.getAttribute('data-dept') || '').trim() || 'Staff';
+      var department = departments.find(function (item) { return item.name === name; });
+      if (!department) { department = { name: name, cards: [] }; departments.push(department); }
+      department.cards.push(card);
     });
-    if (row) for (var i = cards.length % columns; i > 0 && i < columns; i++) { var spacer = doc.createElement('div'); spacer.className = 'print-card empty'; row.appendChild(spacer); }
+    departments.forEach(function (department, departmentIndex) {
+      var table = doc.createElement('table');
+      table.className = 'print-department ' + (department.cards.length > 3 ? 'large' : 'small') + (departmentIndex === 0 ? ' first' : '');
+      var head = doc.createElement('thead'); var headingRow = doc.createElement('tr'); var heading = doc.createElement('th');
+      heading.colSpan = columns; heading.scope = 'colgroup'; heading.textContent = department.name;
+      headingRow.appendChild(heading); head.appendChild(headingRow); table.appendChild(head);
+      var body = doc.createElement('tbody'); table.appendChild(body); doc.body.appendChild(table);
+      var row;
+      department.cards.forEach(function (source, index) {
+        if (index % columns === 0) { row = doc.createElement('tr'); row.className = 'print-row'; body.appendChild(row); }
+        var card = doc.createElement('td'); card.className = 'print-card'; row.appendChild(card);
+        var image = source.querySelector('.employee-tile-img img');
+        if (image) {
+          var photo = doc.createElement('img'); photo.className = 'print-photo'; photo.alt = '';
+          photo.loading = 'eager'; photo.src = image.getAttribute('data-src') || image.getAttribute('data-lazy-src') || image.getAttribute('data-original') || image.currentSrc || image.src;
+          photo.addEventListener('error', function () { photo.remove(); }); card.appendChild(photo);
+        }
+        var info = doc.createElement('div'); info.className = 'print-info'; card.appendChild(info);
+        function textFrom(selector, tag, className) {
+          var element = source.querySelector(selector);
+          if (element && element.textContent.trim()) { var copy = doc.createElement(tag); copy.className = className; copy.textContent = element.textContent.trim(); info.appendChild(copy); }
+        }
+        // Copy only these approved display fields, never whole cards or contact markup.
+        textFrom('.employee-name', 'h2', '');
+        textFrom('.employee-details > .employee-title', 'p', 'subtitle');
+        textFrom('.employee-details > .employee-location, .employee-details > .ve-font-12', 'p', 'subtitle');
+      });
+      if (row) for (var i = department.cards.length % columns; i > 0 && i < columns; i++) { var spacer = doc.createElement('td'); spacer.className = 'print-card empty'; row.appendChild(spacer); }
+    });
     return cards.length;
   }
 
