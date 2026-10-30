@@ -49,7 +49,10 @@
     ['employeeextsearch', 'Extension', 'data-ext'],
     ['departmentfilterselect', 'Department', 'data-dept'],
     ['locationfilterselect', 'Location', 'data-loc'],
-    ['tagfilterselect', 'Tag', 'data-tags']
+    ['tagfilterselect', 'Tag', 'data-tags'],
+    ['employeetitleselect', 'Job title', 'data-search-title'],
+    ['employeephonesearch', 'Phone', 'data-search-phone'],
+    ['employeeemailsearch', 'Email', 'data-search-email']
   ];
 
   function activeFilters(root) {
@@ -62,8 +65,12 @@
 
   function matchesFilter(card, filter) {
     var raw = card.getAttribute(filter.definition[2]) || '';
+    if (filter.definition[2] === 'data-search-phone') {
+      var digits = filter.value.replace(/\D/g, '');
+      return digits.length > 0 && raw.indexOf(digits) !== -1;
+    }
     if (filter.field.tagName !== 'SELECT') return raw.toLowerCase().indexOf(filter.value.toLowerCase()) !== -1;
-    if (filter.definition[2] === 'data-dept') return raw === filter.value;
+    if (filter.definition[2] === 'data-dept' || filter.definition[2] === 'data-search-title') return raw === filter.value;
     var values;
     try { values = JSON.parse(raw); } catch (_) { values = [raw]; }
     if (!Array.isArray(values)) values = [values];
@@ -78,7 +85,7 @@
       pills.setAttribute('aria-label', 'Active staff filters');
       var trigger = root.querySelector('[data-ve-staff-filters-open]');
       var panel = root.__veStaffFilterPanel;
-      if (trigger) trigger.insertAdjacentElement('afterend', pills);
+      if (trigger) (root.querySelector('.ve-directory-toolbar') || trigger).insertAdjacentElement('afterend', pills);
       else if (panel) panel.insertAdjacentElement('afterend', pills);
       else root.prepend(pills);
     }
@@ -147,12 +154,103 @@
     });
   }
 
+  // Font Awesome Free 6 icons (CC BY 4.0); inline SVG works inside every embed
+  // without depending on the host page's icon font or external font requests.
+  function detailIcon(kind) {
+    var paths = {
+      email: ['512 512', 'M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4C504.9 141.3 512 127.1 512 112c0-26.5-21.5-48-48-48H48zM0 176V400c0 26.5 21.5 48 48 48H464c26.5 0 48-21.5 48-48V176L294.4 332.8c-22.8 17.1-54 17.1-76.8 0L0 176z'],
+      phone: ['512 512', 'M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.4 11.6L304.6 368C234.2 334.7 177.3 277.8 144 207.4l49.3-40.3c13.7-11.2 18.4-30.1 11.6-46.4l-40-96z'],
+      extension: ['448 512', 'M128 0C110.3 0 96 14.3 96 32V96H32C14.3 96 0 110.3 0 128s14.3 32 32 32H96V352H32c-17.7 0-32 14.3-32 32s14.3 32 32 32H96v64c0 17.7 14.3 32 32 32s32-14.3 32-32V416H288v64c0 17.7 14.3 32 32 32s32-14.3 32-32V416h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H352V160h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H352V32c0-17.7-14.3-32-32-32s-32 14.3-32 32V96H160V32c0-17.7-14.3-32-32-32zm32 160H288V352H160V160z']
+    };
+    var definition = paths[kind] || paths.phone;
+    var icon = document.createElement('span'); icon.className = 've-detail-icon fa-solid'; icon.setAttribute('aria-hidden', 'true');
+    icon.innerHTML = '<svg viewBox="0 0 ' + definition[0] + '" focusable="false"><path fill="currentColor" d="' + definition[1] + '"></path></svg>';
+    return icon;
+  }
+
+  function prepareDirectory(root) {
+    all(root, '.employee-tile').forEach(function (card) {
+      var internal = card.querySelector('.employee-internal-details');
+      if (internal) {
+        var title = card.querySelector('.employee-title');
+        card.setAttribute('data-search-title', title ? title.textContent.trim() : '');
+        card.setAttribute('data-search-phone', all(internal, 'a[href^="tel:"]').map(function (link) { return link.getAttribute('href').slice(4).replace(/\D/g, ''); }).join(' '));
+        card.setAttribute('data-search-email', all(internal, 'a[href^="mailto:"]').map(function (link) { return link.getAttribute('href').slice(7).split('?')[0]; }).join(' '));
+      }
+      all(card, '.ve-contact-wrap > span.ve-block').forEach(function (row) {
+        var label = row.querySelector('.ve-bolder');
+        if (!label || row.classList.contains('ve-detail-row')) return;
+        var labelText = label.textContent.replace(/:\s*$/, '').trim();
+        var kind = row.querySelector('a[href^="mailto:"]') ? 'email' : /ext/i.test(labelText) ? 'extension' : 'phone';
+        label.className = 've-detail-label'; label.textContent = labelText === 'Ext' ? 'Extension' : labelText;
+        var content = document.createElement('span'); content.className = 've-detail-content';
+        var value = document.createElement('span'); value.className = 've-detail-value';
+        Array.prototype.slice.call(row.childNodes).forEach(function (node) {
+          if (node !== label && node.nodeName !== 'BR') value.appendChild(node);
+        });
+        content.appendChild(label); content.appendChild(value);
+        row.replaceChildren(detailIcon(kind), content); row.classList.add('ve-detail-row');
+      });
+    });
+  }
+
+  function prepareFilterToolbar(root, panel, trigger) {
+    var fields = panel.querySelector('#employeeHeadingWrapper > .ve-row') || panel.querySelector('#employeeHeadingWrapper') || panel;
+    fields.classList.add('ve-advanced-fields');
+    var internalCards = all(root, '.employee-tile[data-search-title]');
+    if (internalCards.length) {
+      [['employeetitleselect', 'Job title', 'select'], ['employeephonesearch', 'Phone', 'search'], ['employeeemailsearch', 'Email', 'search']].forEach(function (definition) {
+        if (panel.querySelector('#' + definition[0])) return;
+        var wrapper = document.createElement('label'); wrapper.className = 've-advanced-filter';
+        var caption = document.createElement('span'); caption.className = 'filter-label'; caption.textContent = definition[1];
+        var field = document.createElement(definition[2] === 'select' ? 'select' : 'input'); field.id = definition[0];
+        if (definition[2] === 'select') {
+          var titles = internalCards.map(function (card) { return card.getAttribute('data-search-title'); }).filter(Boolean);
+          var option = document.createElement('option'); option.value = 'all'; option.textContent = 'All job titles'; field.appendChild(option);
+          titles.filter(function (title, index) { return titles.indexOf(title) === index; }).sort().forEach(function (title) {
+            var choice = document.createElement('option'); choice.value = title; choice.textContent = title; field.appendChild(choice);
+          });
+        } else { field.type = 'search'; field.placeholder = definition[1] === 'Phone' ? 'Search phone number' : 'Search email address'; }
+        wrapper.appendChild(caption); wrapper.appendChild(field); fields.appendChild(wrapper);
+      });
+    }
+    var toolbar = document.createElement('div'); toolbar.className = 've-directory-toolbar';
+    trigger.before(toolbar);
+    ['employeenamesearch', 'employeeextsearch'].forEach(function (id) {
+      var field = panel.querySelector('#' + id); if (!field) return;
+      var label = document.createElement('label'); label.className = 've-quick-filter';
+      var caption = document.createElement('span'); caption.textContent = id === 'employeenamesearch' ? 'Employee name' : 'Extension';
+      var oldWrapper = field.closest('.employeeFilterWrapper, .extFilterWrapper');
+      label.appendChild(caption); label.appendChild(field); toolbar.appendChild(label);
+      if (oldWrapper) oldWrapper.remove();
+    });
+    trigger.textContent = 'More filters'; toolbar.appendChild(trigger);
+    var layouts = document.createElement('div'); layouts.className = 've-layout-options'; layouts.setAttribute('role', 'group'); layouts.setAttribute('aria-label', 'Staff layout');
+    ['Cards', 'Compact'].forEach(function (name, index) {
+      var button = document.createElement('button'); button.type = 'button'; button.textContent = name; button.setAttribute('aria-pressed', String(index === 0));
+      button.addEventListener('click', function () {
+        root.classList.toggle('ve-layout-compact', index === 1);
+        all(layouts, 'button').forEach(function (item) { item.setAttribute('aria-pressed', String(item === button)); });
+      });
+      layouts.appendChild(button);
+    });
+    toolbar.appendChild(layouts);
+    var footer = document.createElement('div'); footer.className = 've-filter-actions';
+    var reset = panel.querySelector('#resetFilterBtn'); var close = panel.querySelector('[data-ve-staff-filters-close]');
+    if (reset) { var resetWrapper = reset.closest('.ve-col-auto'); footer.appendChild(reset); if (resetWrapper && !resetWrapper.textContent.trim()) resetWrapper.remove(); } if (close) footer.appendChild(close); panel.appendChild(footer);
+  }
+
   function bindFilterPanel(root) {
     var panel = root.querySelector('.ve-staff-filters');
     var trigger = root.querySelector('[data-ve-staff-filters-open]');
     if (!panel) {
       var fields = root.querySelector('#employeeHeadingWrapper');
-      if (!fields) return;
+      if (!fields) {
+        if (!root.querySelector('.employee-tile')) return;
+        fields = document.createElement('div'); fields.id = 'employeeHeadingWrapper';
+        fields.innerHTML = '<div class="ve-row"><div class="employeeFilterWrapper"><input id="employeenamesearch" type="search" placeholder="Search name"></div><button type="button" id="resetFilterBtn">Reset</button></div>';
+        root.prepend(fields);
+      }
       panel = document.createElement('div'); panel.className = 've-staff-filters'; panel.tabIndex = -1;
       fields.before(panel); panel.appendChild(fields);
       var header = document.createElement('div'); header.className = 've-staff-filters-header';
@@ -166,6 +264,7 @@
       trigger = document.createElement('button'); trigger.type = 'button'; trigger.className = 've-secondary-button-grey';
       trigger.setAttribute('data-ve-staff-filters-open', ''); trigger.textContent = 'Staff Filters'; panel.before(trigger);
     }
+    prepareFilterToolbar(root, panel, trigger);
     root.classList.add('ve-directory-enhanced');
     filterDefinitions.forEach(function (definition) {
       var field = panel.querySelector('#' + definition[0]);
@@ -195,7 +294,7 @@
       portal.setAttribute('aria-label', 'Staff filters');
       portal.addEventListener('cancel', function (event) { event.preventDefault(); close(true); });
       // Only our body child is styled; the host document and Bootstrap stay untouched.
-      portal.style.cssText = 'all:initial!important;position:fixed!important;inset:0!important;margin:0!important;padding:0!important;border:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;background:#e9eef3!important;z-index:2147483647!important;pointer-events:auto!important;visibility:visible!important;opacity:1!important;transform:none!important;';
+      portal.style.cssText = 'all:initial!important;position:fixed!important;inset:0!important;margin:0!important;padding:0!important;border:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;background:transparent!important;z-index:2147483647!important;pointer-events:auto!important;visibility:visible!important;opacity:1!important;transform:none!important;';
       var shadowHost = document.createElement('div');
       portal.appendChild(shadowHost);
       var shadow = shadowHost.attachShadow({ mode: 'open' });
@@ -210,6 +309,7 @@
         '.ve-staff-filters.ve-staff-filters--open{display:block!important;position:fixed!important;inset:0!important;z-index:1!important;margin:0!important;width:auto!important;max-width:none!important;height:100%!important;max-height:none!important;box-sizing:border-box!important;padding:clamp(20px,4vw,64px)!important;border:0!important;background:#e9eef3!important;color:#222!important;visibility:visible!important;opacity:1!important;transform:none!important;overflow:auto!important;pointer-events:auto!important;box-shadow:0 8px 24px rgba(0,0,0,.2)}' +
         '.ve-staff-filters-header{display:block!important}.ve-staff-filters-header h5{margin:0 0 12px;font-size:18px}' +
         '[data-ve-staff-filters-close]{display:inline-block!important;cursor:pointer}';
+      style.textContent += '@media(min-width:768px){.ve-staff-filters.ve-staff-filters--open{inset:50% auto auto 50%!important;transform:translate(-50%,-50%)!important;width:min(960px,calc(100vw - 64px))!important;height:auto!important;max-height:88vh!important;padding:32px!important;border-radius:24px!important}}';
       shadow.appendChild(style);
       surface = document.createElement('div');
       surface.className = 've-staff-embed ve ve-staff-filter-surface';
@@ -386,6 +486,7 @@
     }
     root.__veStaffInitialized = true;
     setHidden(all(root, '.loading-section'), true);
+    prepareDirectory(root);
     bindFilterPanel(root);
     bindFilters(root);
     bindSuggestions(root);
