@@ -168,6 +168,42 @@
     return icon;
   }
 
+  function prepareCompactDetails(card) {
+    var details = card.querySelector('.employee-details');
+    if (!details || details.querySelector('.ve-compact-summary')) return;
+    var summary = document.createElement('div'); summary.className = 've-compact-summary';
+    ['.employee-title', '.employee-location'].forEach(function (selector) {
+      var source = details.querySelector(selector);
+      if (source) { var copy = source.cloneNode(true); copy.removeAttribute('id'); summary.appendChild(copy); }
+    });
+    var contact = card.querySelector('.employee-internal-details .ve-contact-wrap');
+    if (contact) {
+      var extension = all(contact, '.ve-detail-row').find(function (row) {
+        return /^(ext|extension)$/i.test(row.querySelector('.ve-detail-label').textContent.trim());
+      });
+      if (extension) {
+        var ext = document.createElement('span'); ext.className = 've-summary-extension';
+        ext.textContent = 'Ext. ' + extension.querySelector('.ve-detail-value').textContent.trim(); summary.appendChild(ext);
+      }
+      var email = contact.querySelector('a[href^="mailto:"]');
+      if (email) { var emailCopy = email.cloneNode(true); emailCopy.className = 've-summary-email'; emailCopy.removeAttribute('id'); summary.appendChild(emailCopy); }
+      // Group values separately so actions remain full-width below the grid.
+      var values = document.createElement('div'); values.className = 've-contact-values';
+      var rows = all(contact, ':scope > .ve-detail-row');
+      if (rows.length) { rows[0].before(values); rows.forEach(function (row) { values.appendChild(row); }); }
+    }
+    details.appendChild(summary);
+    var toggle = card.querySelector('.employee-internal-details > button[data-bs-toggle="collapse"], .employee-internal-details > button[data-toggle="collapse"]');
+    if (toggle) {
+      var text = document.createElement('span'); text.className = 've-contact-toggle-text'; text.textContent = toggle.textContent;
+      toggle.replaceChildren(text);
+      var icon = detailIcon('email'); icon.classList.add('ve-contact-toggle-icon'); toggle.appendChild(icon);
+      var name = card.querySelector('.employee-name');
+      toggle.setAttribute('aria-label', 'View more info' + (name ? ' for ' + name.textContent.trim() : ''));
+      toggle.title = 'View more info';
+    }
+  }
+
   function prepareDirectory(root) {
     all(root, '.employee-tile').forEach(function (card) {
       var internal = card.querySelector('.employee-internal-details');
@@ -191,6 +227,7 @@
         content.appendChild(label); content.appendChild(value);
         row.replaceChildren(detailIcon(kind), content); row.classList.add('ve-detail-row');
       });
+      prepareCompactDetails(card);
     });
   }
 
