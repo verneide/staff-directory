@@ -205,7 +205,7 @@ test('quick filters stay inline, internal filters combine, compact layout preser
   assert.ok(root.querySelector('.ve-directory-toolbar #employeenamesearch'));
   assert.ok(root.querySelector('.ve-directory-toolbar #employeeextsearch'));
   assert.equal(root.querySelector('.ve-staff-filters #employeenamesearch'),null);
-  assert.equal(root.querySelectorAll('#employeetitleselect option').length,3);
+  assert.equal(root.querySelectorAll('#employeetitleselect option').length,2);
   assert.ok(root.querySelector('.ve-detail-label').textContent === 'Email');
   assert.ok(root.querySelector('.ve-detail-icon svg'));
   const change = (id,value) => {const field=root.querySelector('#'+id); field.value=value; field.dispatchEvent(new window.Event('input',{bubbles:true}));};
@@ -266,4 +266,50 @@ test('compact widths use a separate variable from standard column breakpoints', 
   assert.ok(rules[0].includes('var(--ve-compact-card-width)'));
   assert.ok(rules[1].includes('--ve-compact-card-width: 50%'));
   assert.ok(rules[2].includes('--ve-compact-card-width: 33.333333%'));
+});
+
+test('actual Select2 supports OR within a field, AND across fields, pills and reset in Shadow DOM', () => {
+  const dom = new JSDOM('<div id="host"></div>', {url:'https://verneide.sharepoint.com'});
+  const {window}=dom; window.HTMLDialogElement.prototype.showModal=function(){this.open=true;}; window.HTMLDialogElement.prototype.close=function(){this.open=false;};
+  const root=window.document.getElementById('host').attachShadow({mode:'open'});
+  root.innerHTML=`<div id="veStaffList"><button data-ve-staff-filters-open>Filters</button><div class="ve-staff-filters"><select id="locationfilterselect"><option value="all">All locations</option><option value="001">North</option><option value="002">South</option><option value="003">West</option></select><select id="departmentfilterselect"><option value="all">All departments</option><option value="Sales">Sales</option><option value="Service">Service</option></select><button id="resetFilterBtn">Reset</button><button data-ve-staff-filters-close>Close</button></div><div class="employee-list"><div class="ve-row"><div class="employee-tile" data-loc='["001"]' data-dept="Sales"></div><div class="employee-tile" data-loc='["002"]' data-dept="Service"></div><div class="employee-tile" data-loc='["003"]' data-dept="Sales"></div></div></div></div>`;
+  const {createDirectoryRuntime}=load('src/runtime/directory.ts',{window,document:window.document,MutationObserver:window.MutationObserver});
+  const runtime=createDirectoryRuntime(); runtime.initialize(root); const $=runtime.jquery;
+  assert.equal(window.jQuery,undefined);
+  const location=root.querySelector('#locationfilterselect'); const department=root.querySelector('#departmentfilterselect');
+  assert.ok($(location).data('select2')); assert.ok(location.multiple);
+  $(location).val(['001','002']).trigger('change');
+  assert.equal(root.querySelectorAll('.employee-tile:not(.ve-hidden)').length,2);
+  $(department).val(['Sales']).trigger('change');
+  assert.equal(root.querySelectorAll('.employee-tile:not(.ve-hidden)').length,1);
+  root.querySelector('[data-remove-value="001"]').click();
+  assert.deepEqual(Array.from(location.selectedOptions, option=>option.value),['002']);
+  assert.equal(root.querySelectorAll('.employee-tile:not(.ve-hidden)').length,0);
+  root.querySelector('[data-ve-staff-filters-open]').click();
+  $(location).select2('open');
+  assert.ok(location.closest('.ve-staff-filters').querySelector('.select2-results'));
+  location.closest('.ve-staff-filters').querySelector('#resetFilterBtn').click();
+  assert.equal(location.selectedOptions.length,0); assert.equal(department.selectedOptions.length,0);
+  assert.equal(root.querySelectorAll('.employee-tile:not(.ve-hidden)').length,3);
+  runtime.dispose(root); assert.equal($(location).data('select2'),undefined); window.close();
+});
+
+test('PDF view exports visible staff only with contact values and no filter or action content', () => {
+  const dom=new JSDOM('<div id="veStaffList"></div>'); const {window}=dom;
+  const root=window.document.querySelector('#veStaffList');
+  root.innerHTML='<div class="ve-directory-toolbar">Secret filter text</div><div class="ve-filter-pills">Selected location</div>';
+  for(let i=0;i<7;i++) root.insertAdjacentHTML('beforeend',`<div class="employee-tile ${i===6?'ve-hidden':''}"><div class="employee-details"><h3 class="employee-name">Employee ${i}</h3><span class="employee-title">Advisor</span><span class="employee-location">Office</span></div><div class="ve-contact-wrap"><div class="ve-detail-row"><span class="ve-detail-label">Email</span><span class="ve-detail-value">person${i}@example.com</span></div><button>Suggest an Edit</button><a href="https://example.com/?api=secret">Download vCard</a></div><button>View More Info</button></div>`);
+  const {createDirectoryRuntime}=load('src/runtime/directory.ts',{window,document:window.document,MutationObserver:window.MutationObserver});
+  const runtime=createDirectoryRuntime();
+  for(const [orientation,columns] of [['portrait',3],['landscape',5]]) {
+    const doc=window.document.implementation.createHTMLDocument('');
+    assert.equal(runtime.buildPrintDocument(root,doc,orientation),6);
+    assert.equal(doc.querySelectorAll('.print-row').length,2);
+    assert.equal(doc.querySelector('.print-row').children.length,columns);
+    assert.equal(doc.querySelectorAll('.print-card:not(.empty)').length,6);
+    assert.ok(doc.querySelector('style').textContent.includes('size:Letter '+orientation));
+    assert.ok(doc.body.textContent.includes('person0@example.com'));
+    for(const omitted of ['Employee 6','Secret filter text','Selected location','Suggest an Edit','Download vCard','View More Info','api=secret']) assert.equal(doc.body.innerHTML.includes(omitted),false);
+  }
+  window.close();
 });
