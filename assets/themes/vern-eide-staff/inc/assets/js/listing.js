@@ -22,7 +22,9 @@
     selectors.forEach(function (selector) {
       var field = filterField(root, selector);
       if (field) {
-        field.value = field.tagName === 'SELECT' ? field.options[0].value : '';
+        if (field.tagName === 'SELECT' && field.multiple) all(field, 'option').forEach(function (option) { option.selected = false; });
+        else field.value = field.tagName === 'SELECT' ? field.options[0].value : '';
+        if (field.__veRefreshMulti) field.__veRefreshMulti();
       }
     });
   }
@@ -58,8 +60,10 @@
   function activeFilters(root) {
     return filterDefinitions.map(function (definition) {
       var field = filterField(root, '#' + definition[0]);
-      if (!field || !field.value.trim() || field.value === 'all') return null;
-      return { definition: definition, field: field, value: field.value.trim() };
+      if (!field) return null;
+      var values = field.tagName === 'SELECT' ? all(field, 'option').filter(function (option) { return option.selected && option.value && option.value !== 'all'; }).map(function (option) { return option.value; }) : [field.value.trim()].filter(Boolean);
+      if (!values.length) return null;
+      return { definition: definition, field: field, value: values[0], values: values };
     }).filter(Boolean);
   }
 
@@ -70,11 +74,11 @@
       return digits.length > 0 && raw.indexOf(digits) !== -1;
     }
     if (filter.field.tagName !== 'SELECT') return raw.toLowerCase().indexOf(filter.value.toLowerCase()) !== -1;
-    if (filter.definition[2] === 'data-dept' || filter.definition[2] === 'data-search-title') return raw === filter.value;
+    if (filter.definition[2] === 'data-dept' || filter.definition[2] === 'data-search-title') return filter.values.indexOf(raw) !== -1;
     var values;
     try { values = JSON.parse(raw); } catch (_) { values = [raw]; }
     if (!Array.isArray(values)) values = [values];
-    return values.some(function (entry) { return String(entry).replace(/^0+(?=\d)/, '') === filter.value.replace(/^0+(?=\d)/, ''); });
+    return values.some(function (entry) { return filter.values.some(function (selected) { return String(entry).replace(/^0+(?=\d)/, '') === selected.replace(/^0+(?=\d)/, ''); }); });
   }
 
   function renderFilterPills(root, filters) {
@@ -91,13 +95,17 @@
     }
     pills.replaceChildren();
     filters.forEach(function (filter) {
-      var label = filter.field.tagName === 'SELECT' ? filter.field.options[filter.field.selectedIndex].text : filter.value;
+      filter.values.forEach(function (selected) {
+      var option = all(filter.field, 'option').find(function (item) { return item.value === selected; });
+      var label = option ? option.text : selected;
       var button = document.createElement('button');
       button.type = 'button'; button.className = 've-filter-pill';
       button.setAttribute('data-remove-filter', filter.definition[0]);
+      button.setAttribute('data-remove-value', selected);
       button.setAttribute('aria-label', 'Remove ' + filter.definition[1] + ' filter: ' + label);
       button.textContent = filter.definition[1] + ': ' + label + ' ×';
       pills.appendChild(button);
+      });
     });
     pills.hidden = !filters.length;
   }
@@ -123,7 +131,11 @@
       var pill = event.target.closest('[data-remove-filter]');
       if (pill) {
         var field = filterField(root, '#' + pill.getAttribute('data-remove-filter'));
-        if (field) field.value = field.tagName === 'SELECT' ? field.options[0].value : '';
+        if (field) {
+          if (field.tagName === 'SELECT' && field.multiple) all(field, 'option').forEach(function (option) { if (option.value === pill.getAttribute('data-remove-value')) option.selected = false; });
+          else field.value = field.tagName === 'SELECT' ? field.options[0].value : '';
+          if (field.__veRefreshMulti) field.__veRefreshMulti();
+        }
         applyFilters(root);
         var next = root.querySelector('.ve-filter-pill, [data-ve-staff-filters-open]');
         if (next) next.focus();
@@ -231,6 +243,144 @@
     });
   }
 
+  var runtimeScriptUrl = document.currentScript && document.currentScript.src;
+  function loadSelect2() {
+    if (namespace.jquery) return Promise.resolve(namespace.jquery);
+    if (namespace.select2Promise) return namespace.select2Promise;
+    if (!runtimeScriptUrl) return Promise.reject(new Error('Select2 source is unavailable.'));
+    namespace.select2Promise = new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      var url = new URL('ve-select2.js', runtimeScriptUrl); url.searchParams.set('ver', '3.7.1-4.0.13-1');
+      script.src = url.toString();
+      script.onload = function () { if (namespace.jquery) resolve(namespace.jquery); else reject(new Error('Select2 did not initialize.')); };
+      script.onerror = function () { namespace.select2Promise = null; script.remove(); reject(new Error('Searchable filters could not load.')); };
+      document.head.appendChild(script);
+    });
+    return namespace.select2Promise;
+  }
+
+  function enhanceMultiSelects(root, panel) {
+    var fields = filterDefinitions.map(function (definition) { return panel.querySelector('select#' + definition[0]); }).filter(Boolean);
+    fields.forEach(function (field) {
+      // Empty selection means all; the former sentinel is not a selectable value.
+      all(field, 'option').forEach(function (option) { if (option.value === 'all' || !option.value) option.remove(); });
+      field.multiple = true;
+      all(field, 'option').forEach(function (option) { option.selected = false; });
+    });
+    var status = document.createElement('p'); status.className = 've-select2-status'; status.setAttribute('role', 'status'); panel.appendChild(status);
+    function setup($) {
+      if (root.__veStaffDisposed) return;
+      fields.forEach(function (field) {
+        var label = field.getAttribute('aria-label') || field.id;
+        var control = $(field);
+        control.select2({ width: '100%', dropdownParent: $(panel), closeOnSelect: false, placeholder: 'All ' + label.toLowerCase(), allowClear: true });
+        control.on('change.veDirectory', function () { applyFilters(root); });
+        field.__veRefreshMulti = function () { control.trigger('change.select2'); };
+        // Label the generated search input, not only the hidden native select.
+        var input = control.data('select2').$container.find('input'); input.attr('aria-label', label + ' — select one or more');
+      });
+      root.__veStaffDisposeSelect2 = function () {
+        fields.forEach(function (field) { var control = $(field); control.off('.veDirectory'); if (control.data('select2')) control.select2('destroy'); delete field.__veRefreshMulti; });
+      };
+    }
+    if (namespace.jquery) setup(namespace.jquery);
+    else loadSelect2().then(setup).catch(function () { if (!root.__veStaffDisposed) status.textContent = 'Searchable filters could not load. Use Ctrl or Command to select multiple options, or reload the page.'; });
+  }
+
+  function buildPrintDocument(root, doc, orientation) {
+    var landscape = orientation === 'landscape';
+    var columns = landscape ? 5 : 3;
+    doc.title = 'Staff Directory';
+    doc.documentElement.lang = 'en';
+    doc.head.replaceChildren(); doc.body.replaceChildren();
+    var title = doc.createElement('title'); title.textContent = 'Staff Directory'; doc.head.appendChild(title);
+    var style = doc.createElement('style');
+    style.textContent = '@page{size:Letter ' + (landscape ? 'landscape' : 'portrait') + ';margin:.35in}' +
+      '*{box-sizing:border-box}body{margin:0;font:10pt/1.35 Arial,sans-serif;color:#222;background:white}' +
+      '.print-help{padding:16px;background:#f2f2f2;margin-bottom:16px}.print-help button{margin-right:12px;padding:8px 16px}' +
+      '.print-row{display:table;table-layout:fixed;width:100%;border-spacing:8px;break-inside:avoid;page-break-inside:avoid}' +
+      '.print-card{display:table-cell;vertical-align:top;width:' + (100 / columns) + '%;border:1px solid #bbb;border-radius:8px;padding:10px;overflow-wrap:anywhere}' +
+      '.print-card.empty{border:0}.print-photo{width:64px;height:64px;object-fit:cover;border-radius:50%;float:left;margin:0 10px 8px 0}' +
+      'h2{font-size:12pt;margin:0 0 4px}.subtitle{margin:0 0 4px;font-size:9pt}.print-values{clear:both;padding-top:6px}' +
+      '.print-value{margin:0 0 6px}.print-label{display:block;font-size:8pt;color:#666}.print-message{margin-top:6px;font-size:9pt}' +
+      '@media print{.print-help{display:none!important}body{width:auto}}';
+    doc.head.appendChild(style);
+    var help = doc.createElement('div'); help.className = 'print-help';
+    var instructions = doc.createElement('p');
+    instructions.textContent = 'Choose Save as PDF in the print dialog. Use Letter ' + (landscape ? 'landscape' : 'portrait') + ', 100% scale, and turn off browser headers and footers.';
+    var print = doc.createElement('button'); print.type = 'button'; print.textContent = 'Save PDF / Print';
+    print.addEventListener('click', function () { doc.defaultView.print(); });
+    help.appendChild(instructions); help.appendChild(print); doc.body.appendChild(help);
+    var cards = all(root, '.employee-tile').filter(function (card) {
+      return !card.classList.contains('ve-hidden') && !card.hidden && windowObject.getComputedStyle(card).display !== 'none';
+    });
+    if (!cards.length) { var empty = doc.createElement('p'); empty.textContent = 'No staff match the current view.'; doc.body.appendChild(empty); }
+    var row;
+    cards.forEach(function (source, index) {
+      if (index % columns === 0) { row = doc.createElement('section'); row.className = 'print-row'; doc.body.appendChild(row); }
+      var card = doc.createElement('article'); card.className = 'print-card'; row.appendChild(card);
+      var image = source.querySelector('.employee-tile-img img');
+      if (image) {
+        var photo = doc.createElement('img'); photo.className = 'print-photo'; photo.alt = '';
+        photo.loading = 'eager'; photo.src = image.getAttribute('data-src') || image.getAttribute('data-lazy-src') || image.getAttribute('data-original') || image.currentSrc || image.src;
+        photo.addEventListener('error', function () { photo.remove(); }); card.appendChild(photo);
+      }
+      function textFrom(selector, tag, className) {
+        var element = source.querySelector(selector);
+        if (element && element.textContent.trim()) { var copy = doc.createElement(tag); copy.className = className; copy.textContent = element.textContent.trim(); card.appendChild(copy); }
+      }
+      textFrom('.employee-name', 'h2', '');
+      textFrom('.employee-details > .employee-title', 'p', 'subtitle');
+      textFrom('.employee-details > .employee-location, .employee-details > .ve-font-12', 'p', 'subtitle');
+      var values = doc.createElement('div'); values.className = 'print-values'; card.appendChild(values);
+      all(source, '.ve-contact-wrap .ve-detail-row').forEach(function (detail) {
+        var label = detail.querySelector('.ve-detail-label'); var value = detail.querySelector('.ve-detail-value');
+        if (!value || !value.textContent.trim()) return;
+        var item = doc.createElement('div'); item.className = 'print-value';
+        var caption = doc.createElement('span'); caption.className = 'print-label'; caption.textContent = label ? label.textContent.trim() : '';
+        var content = doc.createElement('span'); content.textContent = value.textContent.trim();
+        item.appendChild(caption); item.appendChild(content); values.appendChild(item);
+      });
+      textFrom('.ve-staff-tags', 'p', 'print-message');
+      textFrom('.employee-wrapper > .ve-md-block > .ve-pad-bottom-md', 'p', 'print-message');
+      textFrom('.years-service', 'p', 'print-message');
+      textFrom('.ve-birthday', 'p', 'print-message');
+      textFrom('.ve-message', 'p', 'print-message');
+    });
+    if (row) for (var i = cards.length % columns; i > 0 && i < columns; i++) { var spacer = doc.createElement('div'); spacer.className = 'print-card empty'; row.appendChild(spacer); }
+    return cards.length;
+  }
+
+  function bindPrint(root, toolbar) {
+    var controls = document.createElement('div'); controls.className = 've-pdf-controls';
+    var label = document.createElement('label'); label.textContent = 'PDF layout';
+    var select = document.createElement('select'); select.setAttribute('aria-label', 'PDF page layout');
+    [['portrait', 'Letter portrait · 3 across'], ['landscape', 'Letter landscape · 5 across']].forEach(function (option) {
+      var item = document.createElement('option'); item.value = option[0]; item.textContent = option[1]; select.appendChild(item);
+    });
+    label.appendChild(select);
+    var button = document.createElement('button'); button.type = 'button'; button.textContent = 'Save PDF';
+    var status = document.createElement('span'); status.setAttribute('role', 'status');
+    button.addEventListener('click', function () {
+      var preview = windowObject.open('', '_blank');
+      if (!preview) { status.textContent = 'Allow pop-ups for this page, then choose Save PDF again.'; return; }
+      preview.opener = null;
+      try {
+        buildPrintDocument(root, preview.document, select.value);
+        status.textContent = 'Print view opened. Choose Save as PDF in its print dialog.';
+        var images = all(preview.document, 'img');
+        var ready = images.map(function (image) { return image.complete ? Promise.resolve() : new Promise(function (resolve) { image.addEventListener('load', resolve, {once:true}); image.addEventListener('error', resolve, {once:true}); }); });
+        var timeout;
+        Promise.race([Promise.all(ready), new Promise(function (resolve) { timeout = windowObject.setTimeout(resolve, 10000); })]).then(function () {
+          windowObject.clearTimeout(timeout);
+          if (!preview.closed) { preview.focus(); preview.print(); }
+        });
+      } catch (_) { status.textContent = 'The print view could not open. Please retry.'; preview.close(); }
+    });
+    controls.appendChild(label); controls.appendChild(button); controls.appendChild(status); toolbar.appendChild(controls);
+  }
+  namespace.buildPrintDocument = buildPrintDocument;
+
   function prepareFilterToolbar(root, panel, trigger) {
     var fields = panel.querySelector('#employeeHeadingWrapper > .ve-row') || panel.querySelector('#employeeHeadingWrapper') || panel;
     fields.classList.add('ve-advanced-fields');
@@ -272,6 +422,7 @@
       layouts.appendChild(button);
     });
     toolbar.appendChild(layouts);
+    bindPrint(root, toolbar);
     var footer = document.createElement('div'); footer.className = 've-filter-actions';
     var reset = panel.querySelector('#resetFilterBtn'); var close = panel.querySelector('[data-ve-staff-filters-close]');
     if (reset) { var resetWrapper = reset.closest('.ve-col-auto'); footer.appendChild(reset); if (resetWrapper && !resetWrapper.textContent.trim()) resetWrapper.remove(); } if (close) footer.appendChild(close); panel.appendChild(footer);
@@ -308,6 +459,7 @@
       if (field && !field.getAttribute('aria-label')) field.setAttribute('aria-label', definition[1]);
     });
     root.__veStaffFilterPanel = panel;
+    enhanceMultiSelects(root, panel);
 
     var home = document.createComment('Staff filters inline position');
     panel.parentNode.insertBefore(home, panel);
@@ -359,10 +511,11 @@
 
     function focusable() {
       return all(panel, 'button, input, select, textarea, a[href], [tabindex="0"]').filter(function (element) {
-        return !element.disabled && element.getClientRects().length;
+        return !element.disabled && element.tabIndex >= 0 && element.getClientRects().length;
       });
     }
     function close(restoreFocus) {
+      if (namespace.jquery) all(panel, 'select').forEach(function (field) { var control = namespace.jquery(field); if (control.data('select2')) control.select2('close'); });
       if (portal && portal.open) portal.close();
       panel.classList.remove('ve-staff-filters--open');
       panel.removeAttribute('role');
@@ -522,6 +675,7 @@
       return;
     }
     root.__veStaffInitialized = true;
+    root.__veStaffDisposed = false;
     setHidden(all(root, '.loading-section'), true);
     prepareDirectory(root);
     bindFilterPanel(root);
@@ -537,6 +691,8 @@
   namespace.dispose = function (scope) {
     var roots = scope.matches && scope.matches('#veStaffList, #veStaffDisplay') ? [scope] : all(scope, '#veStaffList, #veStaffDisplay');
     roots.forEach(function (root) {
+      root.__veStaffDisposed = true;
+      if (root.__veStaffDisposeSelect2) root.__veStaffDisposeSelect2();
       if (root.__veStaffDisposePanel) root.__veStaffDisposePanel();
       if (root.__veStaffDisposeSuggestions) root.__veStaffDisposeSuggestions();
       if (root.__veStaffDisposeImages) root.__veStaffDisposeImages();
