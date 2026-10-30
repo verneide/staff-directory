@@ -545,6 +545,46 @@
 .ve-staff-filters .select2-container--focus .select2-selection { outline: 2px solid #2169aa; outline-offset: 2px; }
 .ve-staff-filters .ve-select2-status:empty { display: none; }
 
+
+#veStaffList .ve-compact-heading, #veStaffList .ve-photo-preview { display:none; }
+#veStaffList.ve-layout-compact .employee-tile-img .ve-photo-preview { display:none!important; }
+#veStaffList.ve-layout-compact .ve-compact-heading { display:flex; flex-wrap:wrap; align-items:center; gap:2px 10px; }
+#veStaffList.ve-layout-compact .employee-details > .employee-name,
+#veStaffList.ve-layout-compact .employee-details > .ve-staff-tags { display:none!important; }
+#veStaffList.ve-layout-compact .ve-compact-heading .employee-name { margin:0!important; }
+#veStaffList.ve-layout-compact .ve-compact-heading .ve-staff-tags { position:static; margin:0!important; justify-content:flex-start; }
+#veStaffList.ve-layout-compact .ve-compact-heading .employee-title,
+#veStaffList.ve-layout-compact .ve-compact-summary > * { display:inline-flex!important; align-items:baseline; gap:6px; }
+#veStaffList.ve-layout-compact .ve-compact-summary { gap:2px 12px; }
+#veStaffList.ve-layout-compact .ve-compact-summary .ve-detail-icon,
+#veStaffList.ve-layout-compact .ve-compact-heading .ve-detail-icon { width:12px;height:12px;flex:0 0 12px;margin:0;align-self:center; }
+#veStaffList.ve-layout-compact .ve-compact-summary svg,
+#veStaffList.ve-layout-compact .ve-compact-heading svg { width:12px;height:12px; }
+#veStaffList.ve-layout-compact .employee-wrapper { grid-template-columns:60px minmax(0,1fr) 36px; }
+#veStaffList.ve-layout-compact .employee-tile-img { width:60px!important;height:60px!important;overflow:visible;position:relative; }
+#veStaffList.ve-layout-compact .employee-tile-img > img:not(.ve-photo-preview) { width:60px!important;height:60px!important; }
+#veStaffList.ve-layout-compact .employee-tile-img:is(:hover,:focus-visible) .ve-photo-preview:not([hidden]) { display:block!important;position:absolute;z-index:100;left:0;top:64px;width:min(250px,60vw)!important;height:min(250px,60vw)!important;max-width:none!important;border-radius:12px;box-shadow:0 8px 30px #0005;background:white;pointer-events:none;object-fit:cover; }
+#veStaffList .ve-contact-actions { display:flex;gap:8px; }
+#veStaffList .ve-contact-actions > .ve-contact-info-btn { flex:1 1 0;min-width:0!important; }
+#veStaffList .ve-layout-options { margin-right:auto; }
+#veStaffList .ve-pdf-controls { margin-left:auto;position:relative; }
+#veStaffList .ve-pdf-menu > summary { display:flex;align-items:center;gap:6px;cursor:pointer;list-style:none;padding:9px 12px;border:1px solid #c4d0d9;border-radius:9px;font-size:13px; }
+#veStaffList .ve-pdf-menu > summary::-webkit-details-marker { display:none; }
+#veStaffList .ve-pdf-menu > summary svg { width:16px;height:16px; }
+#veStaffList .ve-pdf-choices { position:absolute;right:0;top:100%;z-index:200;padding:14px;background:white;box-shadow:0 8px 24px #0003;border:1px solid #c4d0d9;border-radius:10px;min-width:230px; }
+#veStaffList .ve-pdf-controls [role=status]:empty { display:none; }
+@media(max-width:767.98px){#veStaffList .ve-contact-actions{flex-direction:column;}}
+
+#veStaffList .ve-public-action-icon { display:none; }
+#veStaffList.ve-layout-compact .ve-public-actions { grid-column:3;grid-row:1;display:flex!important;flex-direction:column;align-items:center;gap:6px;padding:0!important;width:36px; }
+#veStaffList.ve-layout-compact .ve-public-actions div { display:contents!important; }
+#veStaffList.ve-layout-compact .ve-public-actions br,
+#veStaffList.ve-layout-compact .ve-public-action-text,
+#veStaffList.ve-layout-compact .ve-duplicate-call { display:none!important; }
+#veStaffList.ve-layout-compact .employee-tile .ve-public-action { display:inline-flex!important;align-items:center;justify-content:center;width:36px!important;height:36px!important;min-height:36px!important;padding:8px!important;margin:0!important;box-sizing:border-box;border-radius:9px; }
+#veStaffList.ve-layout-compact .employee-tile .ve-public-action.ve-duplicate-call { display:none!important; }
+#veStaffList.ve-layout-compact .ve-public-action-icon { display:inline-flex;width:18px;height:18px;flex:0 0 18px;margin:0;color:inherit; }
+#veStaffList.ve-layout-compact .ve-public-action-icon svg { width:18px;height:18px; }
 /*
  * Size directory cards against their own available width, not the host viewport.
  * Outside @scope deliberately: explicit selectors work in both normal embeds
