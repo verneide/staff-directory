@@ -5,9 +5,9 @@ window.document.querySelector('.ve-row').innerHTML=`<div class="employee-tile ve
 const context={exports:{},window,document:window.document,MutationObserver:window.MutationObserver};vm.runInNewContext(ts.transpileModule(fs.readFileSync('src/runtime/directory.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2018}}).outputText,context);context.exports.createDirectoryRuntime().initialize(window.document);window.document.querySelector('#veStaffList').classList.add('ve-layout-compact');
 const css=fs.readFileSync('../../assets/themes/vern-eide-staff/inc/assets/css/listing.css','utf8').replace(/@import[^;]+;/g,'');
 const check=`const root=document.querySelector('#veStaffList');const rect=s=>root.querySelector(s).getBoundingClientRect();const name=rect('.ve-compact-heading .employee-name'),title=rect('.ve-compact-heading .employee-title'),tags=rect('.ve-compact-heading .ve-staff-tags'),email=rect('.ve-summary-email'),icon=rect('.ve-summary-email .ve-detail-icon');const errors=[];if(title.left-name.right>12||title.left<name.right)errors.push('title gap');if(tags.left-title.right>12||tags.left<title.right)errors.push('tag gap');if(email.height>22)errors.push('email height');if(Math.abs((email.top+email.bottom-icon.top-icon.bottom)/2)>2)errors.push('email icon alignment');if(rect('.employee-wrapper').height>105)errors.push('card height');root.style.width='390px';
-const mobileName=rect('.ve-compact-heading .employee-name'),mobileTitle=rect('.ve-compact-heading .employee-title'),mobileTags=rect('.ve-compact-heading .ve-staff-tags'),location=rect('.ve-compact-summary .employee-location'),heading=rect('.ve-compact-heading');
+const mobileName=rect('.ve-compact-heading .employee-name'),mobileTitle=rect('.ve-compact-heading .employee-title'),mobileTags=rect('.ve-compact-heading .ve-staff-tags'),mobileLocation=rect('.ve-compact-summary .employee-location'),heading=rect('.ve-compact-heading');
 if(mobileTitle.top<mobileName.bottom)errors.push('mobile title below name');
-if(location.top<mobileTitle.bottom)errors.push('mobile location below title');
+if(mobileLocation.top<mobileTitle.bottom)errors.push('mobile location below title');
 if(Math.abs(mobileTags.top-mobileName.top)>2||Math.abs(mobileTags.right-heading.right)>2)errors.push('mobile tags top right');
 root.classList.remove('ve-layout-compact');
 const tile=rect('.employee-tile'),photo=rect('.employee-tile-img');
@@ -15,5 +15,5 @@ if(Math.abs(tile.width-195)>2)errors.push('mobile two columns');
 if(photo.height<photo.width*1.2)errors.push('mobile portrait height');
 root.style.width='320px';
 if(Math.abs(rect('.employee-tile').width-320)>2)errors.push('small mobile one column');
-document.body.dataset.layoutCheck=errors.length?errors.join(','):'passed';`;
+document.body.dataset.layoutCheck=errors.length?errors.join(','):'passed';document.body.append(document.createComment(JSON.stringify({errors,tile:tile.width,photo:photo.toJSON(),mobileName:mobileName.toJSON(),mobileTitle:mobileTitle.toJSON(),mobileTags:mobileTags.toJSON(),heading:heading.toJSON()})));`;
 fs.mkdirSync('/tmp/ve-layout-check',{recursive:true});fs.writeFileSync('/tmp/ve-layout-check/compact.html','<!doctype html><style>'+css+'</style><style>#veStaffList{width:1500px;font:14px Arial}.employee-list>.ve-row{display:flex;flex-wrap:wrap}</style>'+window.document.body.innerHTML+'<script>'+check+'</script>');window.close();
