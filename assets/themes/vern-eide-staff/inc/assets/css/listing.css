@@ -585,6 +585,19 @@
 #veStaffList.ve-layout-compact .employee-tile .ve-public-action.ve-duplicate-call { display:none!important; }
 #veStaffList.ve-layout-compact .ve-public-action-icon { display:inline-flex;width:18px;height:18px;flex:0 0 18px;margin:0;color:inherit; }
 #veStaffList.ve-layout-compact .ve-public-action-icon svg { width:18px;height:18px; }
+
+/* Compact metadata must not inherit centered title margins or link touch heights. */
+#veStaffList.ve-layout-compact .employee-wrapper { gap:2px 12px;align-items:center;min-height:0!important; }
+#veStaffList.ve-layout-compact .employee-details { display:flex;flex-direction:column;gap:2px;min-height:0!important;line-height:18px; }
+#veStaffList.ve-layout-compact .ve-compact-heading { justify-content:flex-start;align-items:center;column-gap:8px;row-gap:2px; }
+#veStaffList.ve-layout-compact .ve-compact-heading > * { flex:0 1 auto;width:auto!important;max-width:100%;margin:0!important;padding:0!important;min-height:0!important; }
+#veStaffList.ve-layout-compact .ve-compact-heading .employee-title { margin:0!important;align-items:center!important;line-height:18px; }
+#veStaffList.ve-layout-compact .ve-compact-summary { justify-content:flex-start;align-items:center;gap:2px 10px; }
+#veStaffList.ve-layout-compact .ve-compact-summary > * { display:inline-flex!important;align-items:center!important;min-height:0!important;height:auto!important;line-height:18px!important;margin:0!important;padding:0!important;flex:0 1 auto; }
+#veStaffList.ve-layout-compact .ve-compact-summary .ve-detail-icon,
+#veStaffList.ve-layout-compact .ve-compact-heading .ve-detail-icon { align-self:center;vertical-align:middle;margin:0!important; }
+#veStaffList.ve-layout-compact .ve-compact-heading .ve-staff-tags { flex:0 1 auto;gap:4px; }
+@media(max-width:767.98px){#veStaffList.ve-layout-compact .ve-compact-summary{align-items:flex-start;}}
 /*
  * Size directory cards against their own available width, not the host viewport.
  * Outside @scope deliberately: explicit selectors work in both normal embeds
