@@ -12,6 +12,7 @@ on:
       - 'assets/themes/vern-eide-staff/functions.php'
       - 'assets/plugins/ve-staff/public/v2/embed-loader.js'
       - 'assets/themes/vern-eide-staff/inc/assets/js/ve-lazy-load.js'
+      - 'assets/themes/vern-eide-staff/inc/assets/js/ve-select2.js'
       - '.github/workflows/sharepoint.yml'
   workflow_dispatch:
 permissions:
@@ -33,7 +34,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install app icon resizing dependency
-        run: python3 -m pip install Pillow==12.0.0
+        run: python3 -m pip install Pillow==12.0.0 pypdf==5.9.0
       - run: npm ci
       - run: npm test
       - name: Validate list discovery access and query
@@ -41,6 +42,12 @@ jobs:
           php tests/catalog.test.php
           php tests/suggestions.test.php
           php tests/template-context.test.php
+      - name: Verify Letter PDF output in Chromium
+        run: |
+          node tests/print-fixtures.cjs
+          google-chrome --headless --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=/tmp/ve-print-check/portrait.pdf file:///tmp/ve-print-check/portrait.html
+          google-chrome --headless --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=/tmp/ve-print-check/landscape.pdf file:///tmp/ve-print-check/landscape.html
+          python3 tests/verify-print.py
       - run: npm run package
       - name: Verify generated SharePoint package
         id: verify
