@@ -331,3 +331,13 @@ test('PDF departments use visible counts for breaks, repeated headers and fixed 
   assert.equal(doc.querySelectorAll('.print-photo').length,9);
   window.close();
 });
+
+test('Save PDF controls exist only in the SharePoint runtime, not site or embed listings', () => {
+  for (const integration of ['sharepoint',undefined]) {
+    const dom=new JSDOM('<div id="veStaffList"><div class="employee-list"><div class="employee-tile"></div></div></div>');const {window}=dom;
+    const {createDirectoryRuntime}=load('src/runtime/directory.ts',{window,document:window.document,MutationObserver:window.MutationObserver});const runtime=createDirectoryRuntime();
+    runtime.integration=integration;runtime.initialize(window.document);
+    assert.equal(!!window.document.querySelector('.ve-pdf-controls'),integration==='sharepoint');
+    runtime.dispose(window.document);window.close();
+  }
+});
