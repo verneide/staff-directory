@@ -600,6 +600,8 @@
 @media(max-width:767.98px){#veStaffList.ve-layout-compact .ve-compact-summary{align-items:flex-start;}}
 /* Mobile cards follow the available directory width, including embedded lists. */
 @container ve-staff-cards (max-width: 767.98px) {
+  #veStaffList .employee-list .ve-row { margin-inline: 0; }
+  #veStaffList .employee-list .employee-tile { box-sizing: border-box; min-width: 0; }
   #veStaffList:not(.ve-layout-compact) .employee-tile-img {
     width: 100% !important;
     height: auto !important;
