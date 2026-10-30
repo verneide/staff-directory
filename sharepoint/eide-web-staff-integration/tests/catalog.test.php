@@ -68,4 +68,23 @@ foreach (array('listing', 'simple-listing') as $type) {
         if ($payload['html'] !== $view['html'] || $payload['css'] !== $view['css'] || $payload['embedVersion'] !== 2) throw new Error('SharePoint differs from v2 view');
     }
 }
-echo "Catalog, origin and v2 view checks passed\n";
+// Internal selection is independent of user login and still requires an internal list.
+foreach (array(true, 1, '1') as $flag) {
+    $_GET = array('type' => 'sharepoint');
+    $_SERVER['HTTP_ORIGIN'] = 'https://verneide.sharepoint.com';
+    if (!ve_staff_internal_listing_allowed($flag, '', 'fixture-key', false)) throw new Error('Approved tenant not internal');
+    if (!ve_staff_internal_listing_allowed($flag, 'wrong', 'fixture-key', false)) throw new Error('Tenant alternative should not require key');
+}
+foreach (array('', 'null', 'https://evil.example', 'https://verneide.sharepoint.com.evil.example') as $origin) {
+    $_SERVER['HTTP_ORIGIN'] = $origin;
+    if (ve_staff_internal_listing_allowed(true, '', 'fixture-key', false)) throw new Error('Unapproved origin became internal');
+}
+$_SERVER['HTTP_ORIGIN'] = 'https://verneide.sharepoint.com';
+foreach (array(false, 0, '0', null) as $flag) {
+    if (ve_staff_internal_listing_allowed($flag, 'fixture-key', 'fixture-key', true)) throw new Error('External list became internal');
+}
+$_GET = array('type' => 'script');
+if (ve_staff_internal_listing_allowed(true, '', 'fixture-key', false)) throw new Error('Tenant alternative leaked to other modes');
+if (!ve_staff_internal_listing_allowed(true, ' fixture-key ', 'fixture-key', false)) throw new Error('Embed key failed');
+if (!ve_staff_internal_listing_allowed(true, '', 'fixture-key', true)) throw new Error('Privileged login failed');
+echo "Catalog, origin, v2 view and internal access checks passed\n";
