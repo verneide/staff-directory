@@ -384,7 +384,7 @@
     });
     controls.appendChild(label); controls.appendChild(button); controls.appendChild(status); toolbar.appendChild(controls);
   }
-  namespace.buildPrintDocument = buildPrintDocument;
+  if (namespace.integration === 'sharepoint') namespace.buildPrintDocument = buildPrintDocument;
 
   function prepareFilterToolbar(root, panel, trigger) {
     var fields = panel.querySelector('#employeeHeadingWrapper > .ve-row') || panel.querySelector('#employeeHeadingWrapper') || panel;
@@ -427,7 +427,7 @@
       layouts.appendChild(button);
     });
     toolbar.appendChild(layouts);
-    bindPrint(root, toolbar);
+    if (namespace.integration === 'sharepoint') bindPrint(root, toolbar);
     var footer = document.createElement('div'); footer.className = 've-filter-actions';
     var reset = panel.querySelector('#resetFilterBtn'); var close = panel.querySelector('[data-ve-staff-filters-close]');
     if (reset) { var resetWrapper = reset.closest('.ve-col-auto'); footer.appendChild(reset); if (resetWrapper && !resetWrapper.textContent.trim()) resetWrapper.remove(); } if (close) footer.appendChild(close); panel.appendChild(footer);
