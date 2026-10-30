@@ -174,6 +174,9 @@
       phone: ['512 512', 'M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.4 11.6L304.6 368C234.2 334.7 177.3 277.8 144 207.4l49.3-40.3c13.7-11.2 18.4-30.1 11.6-46.4l-40-96z'],
       extension: ['448 512', 'M128 0C110.3 0 96 14.3 96 32V96H32C14.3 96 0 110.3 0 128s14.3 32 32 32H96V352H32c-17.7 0-32 14.3-32 32s14.3 32 32 32H96v64c0 17.7 14.3 32 32 32s32-14.3 32-32V416H288v64c0 17.7 14.3 32 32 32s32-14.3 32-32V416h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H352V160h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H352V32c0-17.7-14.3-32-32-32s-32 14.3-32 32V96H160V32c0-17.7-14.3-32-32-32zm32 160H288V352H160V160z']
     };
+    paths.chevron = ['448 512', 'M207 381 13 187a24 24 0 0 1 34-34l177 177 177-177a24 24 0 0 1 34 34L241 381a24 24 0 0 1-34 0z'];
+    paths.briefcase = ['512 512', 'M184 48h144a40 40 0 0 1 40 40v40h96a48 48 0 0 1 48 48v240a48 48 0 0 1-48 48H48a48 48 0 0 1-48-48V176a48 48 0 0 1 48-48h96V88a40 40 0 0 1 40-40zm8 80h128V96H192z'];
+    paths.building = ['448 512', 'M64 32h320v448H64zM112 80v48h48V80zm88 0v48h48V80zm88 0v48h48V80zM112 176v48h48v-48zm88 0v48h48v-48zm88 0v48h48v-48zM112 272v48h48v-48zm88 0v48h48v-48zm88 0v48h48v-48zM192 384v96h64v-96z'];
     var definition = paths[kind] || paths.phone;
     var icon = document.createElement('span'); icon.className = 've-detail-icon fa-solid'; icon.setAttribute('aria-hidden', 'true');
     icon.innerHTML = '<svg viewBox="0 0 ' + definition[0] + '" focusable="false"><path fill="currentColor" d="' + definition[1] + '"></path></svg>';
@@ -216,6 +219,40 @@
     }
   }
 
+  function refineCompactCard(card) {
+    var details = card.querySelector('.employee-details');
+    if (!details) return;
+    var name = details.querySelector('.employee-name');
+    var title = details.querySelector(':scope > .employee-title');
+    var tags = card.querySelector('.ve-staff-tags--title, .ve-staff-tags--photo');
+    var heading = document.createElement('div'); heading.className = 've-compact-heading';
+    [name, title, tags].forEach(function (source) { if (source) { var copy = source.cloneNode(true); copy.removeAttribute('id'); heading.appendChild(copy); } });
+    details.prepend(heading);
+    function icon(element, kind) { if (element) element.prepend(detailIcon(kind)); }
+    icon(heading.querySelector('.employee-title'), 'briefcase');
+    var summary = details.querySelector('.ve-compact-summary');
+    if (summary) {
+      var oldTitle = summary.querySelector('.employee-title'); if (oldTitle) oldTitle.remove();
+      icon(summary.querySelector('.employee-location'), 'building');
+      icon(summary.querySelector('.ve-summary-extension'), 'extension');
+      icon(summary.querySelector('.ve-summary-email'), 'email');
+    }
+    var action = card.querySelector('.ve-contact-toggle-icon');
+    if (action) { var arrow = detailIcon('chevron'); arrow.classList.add('ve-contact-toggle-icon'); action.replaceWith(arrow); }
+    var contact = card.querySelector('.ve-contact-wrap');
+    if (contact) {
+      var actions = all(contact, ':scope > .ve-contact-info-btn');
+      if (actions.length) { var group = document.createElement('div'); group.className = 've-contact-actions'; actions[0].before(group); actions.forEach(function (item) { group.appendChild(item); }); }
+    }
+    var image = card.querySelector('.employee-tile-img img');
+    if (image) {
+      var host = image.parentElement; host.tabIndex = 0; host.setAttribute('aria-label', 'Enlarge ' + (name ? name.textContent.trim() : 'staff') + ' photo');
+      var preview = document.createElement('img'); preview.className = 've-photo-preview'; preview.alt = ''; preview.setAttribute('aria-hidden','true');
+      preview.src = image.getAttribute('data-src') || image.currentSrc || image.src;
+      preview.addEventListener('error', function () { preview.hidden = true; }); host.appendChild(preview);
+    }
+  }
+
   function prepareDirectory(root) {
     all(root, '.employee-tile').forEach(function (card) {
       var internal = card.querySelector('.employee-internal-details');
@@ -240,6 +277,7 @@
         row.replaceChildren(detailIcon(kind), content); row.classList.add('ve-detail-row');
       });
       prepareCompactDetails(card);
+      refineCompactCard(card);
     });
   }
 
@@ -358,6 +396,8 @@
 
   function bindPrint(root, toolbar) {
     var controls = document.createElement('div'); controls.className = 've-pdf-controls';
+    var menu = document.createElement('details'); menu.className = 've-pdf-menu';
+    var trigger = document.createElement('summary'); trigger.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h15l3 3v15H3V3zm3 2v6h11V5H6zm1 10v4h10v-4H7z"/></svg> PDF'; menu.appendChild(trigger);
     var label = document.createElement('label'); label.textContent = 'PDF layout';
     var select = document.createElement('select'); select.setAttribute('aria-label', 'PDF page layout');
     [['portrait', 'Letter portrait · 3 across'], ['landscape', 'Letter landscape · 5 across']].forEach(function (option) {
@@ -367,6 +407,7 @@
     var button = document.createElement('button'); button.type = 'button'; button.textContent = 'Save PDF';
     var status = document.createElement('span'); status.setAttribute('role', 'status');
     button.addEventListener('click', function () {
+      menu.open = false;
       var preview = windowObject.open('', '_blank');
       if (!preview) { status.textContent = 'Allow pop-ups for this page, then choose Save PDF again.'; return; }
       preview.opener = null;
@@ -382,7 +423,9 @@
         });
       } catch (_) { status.textContent = 'The print view could not open. Please retry.'; preview.close(); }
     });
-    controls.appendChild(label); controls.appendChild(button); controls.appendChild(status); toolbar.appendChild(controls);
+    var choices = document.createElement('div'); choices.className = 've-pdf-choices'; choices.appendChild(label); choices.appendChild(button); menu.appendChild(choices);
+    menu.addEventListener('keydown', function (event) { if (event.key === 'Escape') { menu.open = false; trigger.focus(); } });
+    controls.appendChild(menu); controls.appendChild(status); toolbar.appendChild(controls);
   }
   if (namespace.integration === 'sharepoint') namespace.buildPrintDocument = buildPrintDocument;
 
