@@ -739,7 +739,30 @@ function ve_staff_sanitize_suggest_edit_value($value) {
 	return sanitize_textarea_field(wp_unslash($value));
 }
 
+/** Exact approved embed origins only; never wildcard a suggestion submission. */
+function ve_staff_suggest_edit_cors() {
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    $site = wp_parse_url(home_url('/'));
+    $site_origin = $site['scheme'] . '://' . $site['host'] . (isset($site['port']) ? ':' . $site['port'] : '');
+    if ($origin === '' || $origin === $site_origin) return;
+    $origins = (array) apply_filters('ve_staff_v2_allowed_origins', array());
+    $allowed = (function_exists('ve_staff_sharepoint_origin_allowed') && ve_staff_sharepoint_origin_allowed($origin)) || in_array($origin, $origins, true);
+    // Existing approved embed hosts support the public v1/v2 integrations too.
+    $path = get_template_directory() . '/inc/ve-staff/settings/allowed_url_list.json';
+    $hosts = is_readable($path) ? json_decode(file_get_contents($path), true) : array();
+    $parts = wp_parse_url($origin);
+    if (is_array($hosts) && isset($parts['scheme'], $parts['host']) && $parts['scheme'] === 'https'
+        && $origin === 'https://' . $parts['host'] && in_array($parts['host'], $hosts, true)) $allowed = true;
+    if (!$allowed) wp_send_json_error(array('message' => 'This embedding origin is not approved for suggestions.'), 403);
+    header_remove('Access-Control-Allow-Origin');
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Vary: Origin', false);
+    nocache_headers();
+}
+
 function ve_staff_handle_suggest_edit_submission() {
+    ve_staff_suggest_edit_cors();
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') wp_send_json_error(array('message' => 'Use POST to submit a suggestion.'), 405);
 	if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 've_staff_suggest_edit')) {
 		wp_send_json_error(array('message' => 'Invalid security token.'), 403);
 	}
@@ -748,6 +771,13 @@ function ve_staff_handle_suggest_edit_submission() {
 	if (!$is_internal_listing) {
 		wp_send_json_error(array('message' => 'Suggested edits are only available on internal listings.'), 403);
 	}
+
+    $list_id = isset($_POST['list_id']) ? absint($_POST['list_id']) : 0;
+    $list_type = get_post_type($list_id);
+    $field = $list_type === 'listing' ? 'internal_page' : ($list_type === 'simple-listing' ? 'simple_internal_page' : '');
+    if (!$field || !get_field($field, $list_id) || get_post_status($list_id) !== 'publish') {
+        wp_send_json_error(array('message' => 'Suggestions require a published internal staff list.'), 403);
+    }
 
 	$staff_post_id = isset($_POST['staff_post_id']) ? absint($_POST['staff_post_id']) : 0;
 	$employee_name = isset($_POST['employee_name']) ? sanitize_text_field(wp_unslash($_POST['employee_name'])) : '';
@@ -779,7 +809,7 @@ function ve_staff_handle_suggest_edit_submission() {
 	global $wpdb;
 	$submitted_at = current_time('mysql');
 	$remote_addr = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
-	$wpdb->insert(ve_staff_suggest_edit_table_name(), array(
+	$saved = $wpdb->insert(ve_staff_suggest_edit_table_name(), array(
 		'staff_post_id' => $staff_post_id,
 		'employee_name' => $employee_name,
 		'requester_name' => $requester_name,
@@ -788,6 +818,8 @@ function ve_staff_handle_suggest_edit_submission() {
 		'submitted_at' => $submitted_at,
 		'remote_addr' => $remote_addr,
 	), array('%d', '%s', '%s', '%s', '%s', '%s', '%s'));
+
+	if (false === $saved) wp_send_json_error(array('message' => 'Your suggestion could not be saved. Please try again later.'), 500);
 
 	$recipient = ve_staff_get_suggest_edit_recipient_email();
 	$edit_link = admin_url('post.php?post=' . $staff_post_id . '&action=edit');
@@ -815,7 +847,7 @@ function ve_staff_suggest_edit_modal_html() {
 					<h3 class="vemodal-title" style="color:#fff;">Suggest Staff Edit: <span data-suggest-edit-employee></span></h3>
 					<button type="button" class="btn btn-secondary" data-suggest-edit-close aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				</div>
-				<form id="veSuggestEditForm" class="ve-suggest-edit-form">
+				<form id="veSuggestEditForm" class="ve-suggest-edit-form" data-submit-url="<?php echo esc_url(admin_url('admin-ajax.php?action=ve_staff_suggest_edit')); ?>" data-submit-nonce="<?php echo esc_attr(wp_create_nonce('ve_staff_suggest_edit')); ?>">
 					<div class="vemodal-body">
 						<p class="ve-suggest-edit-instructions">If you believe this employee's contact information or other details are incorrect, enter the corrected value in the suggested edit field below. Your suggestion will notify an administrator, who will review it before updating the staff directory.</p>
 						<input type="hidden" name="staff_post_id" value="">
