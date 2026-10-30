@@ -302,6 +302,16 @@ function ve_staff_sharepoint_origin_allowed($origin) {
     return is_string($origin) && 0 === strpos($origin, 'https://') && in_array($origin, (array) $origins, true);
 }
 
+/** Existing embed authorization, with explicit tenant-origin support for internal lists. */
+function ve_staff_internal_listing_allowed($internal_page, $api, $expected_api, $logged_in) {
+    // ACF true/false fields can be represented as boolean, integer or string.
+    if (!in_array($internal_page, array(true, 1, '1'), true)) return false;
+    if ($logged_in || (is_string($api) && is_string($expected_api) && $expected_api !== '' && hash_equals($expected_api, trim($api)))) return true;
+    // Origin is an embed policy, not signed-in-user authentication.
+    return ve_staff_is_sharepoint_request()
+        && ve_staff_sharepoint_origin_allowed($_SERVER['HTTP_ORIGIN'] ?? '');
+}
+
 function ve_staff_sharepoint_headers() {
     if (!ve_staff_is_sharepoint_request() || (!is_singular(array('listing', 'simple-listing')) && !ve_staff_is_sharepoint_catalog_request())) return;
     // Never let another embed mode's wildcard headers apply to this endpoint.
