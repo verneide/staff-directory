@@ -598,6 +598,13 @@
 #veStaffList.ve-layout-compact .ve-compact-heading .ve-detail-icon { align-self:center;vertical-align:middle;margin:0!important; }
 #veStaffList.ve-layout-compact .ve-compact-heading .ve-staff-tags { flex:0 1 auto;gap:4px; }
 @media(max-width:767.98px){#veStaffList.ve-layout-compact .ve-compact-summary{align-items:flex-start;}}
+/* Staff tag text and em-based spacing are 20% smaller. */
+#veStaffList .ve-staff-tag {
+  font-size: 9.6px;
+  line-height: 1.5;
+  border-width: .8px;
+}
+
 /* Keep standard-card photos flush with the rounded card edge. */
 #veStaffList:not(.ve-layout-compact) .employee-wrapper {
   padding-top: 0 !important;
@@ -616,7 +623,7 @@
     width: 100% !important;
     height: auto !important;
     max-height: none !important;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 16 / 17;
     margin: 0 !important;
   }
   #veStaffList:not(.ve-layout-compact) .employee-tile-img > img {
