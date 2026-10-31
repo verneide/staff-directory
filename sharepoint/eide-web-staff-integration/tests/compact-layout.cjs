@@ -12,7 +12,7 @@ if(Math.abs(mobileTags.top-mobileName.top)>2||Math.abs(mobileTags.right-heading.
 root.classList.remove('ve-layout-compact');
 const tile=rect('.employee-tile'),photo=rect('.employee-tile-img');
 if(Math.abs(tile.width-195)>2)errors.push('mobile two columns');
-if(photo.height<photo.width*1.2)errors.push('mobile portrait height');
+if(Math.abs(photo.height-photo.width*17/16)>2)errors.push('mobile portrait height');
 root.style.width='320px';
 if(Math.abs(rect('.employee-tile').width-320)>2)errors.push('small mobile one column');
 document.body.dataset.layoutCheck=errors.length?errors.join(','):'passed';document.body.append(document.createComment(JSON.stringify({errors,tile:tile.width,photo:photo.toJSON(),mobileName:mobileName.toJSON(),mobileTitle:mobileTitle.toJSON(),mobileTags:mobileTags.toJSON(),heading:heading.toJSON()})));`;
